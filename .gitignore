@@ -1,0 +1,7 @@
+# OSX folder settings file
+.DS_Store
+
+# Vim temp files
+*.swp
+*.swo
+
