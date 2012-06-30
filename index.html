@@ -1,0 +1,37 @@
+<!doctype html5>
+
+<html>
+    <head>
+        <script src="src/notate.js"></script>
+
+        <script type="text/javascript">
+
+            // TODO create and render a sample document
+
+            function debug() {
+                var canvas = document.getElementById('testCanvas');
+                var ctx = canvas.getContext('2d');
+                ctx.fillStyle = 'rgb(220, 220, 220)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+        </script>
+
+        <style type="text/css">
+            
+            canvas { 
+                border: 1px solid black;
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+        </style>
+    </head>
+
+    <body onload="debug()">
+        <canvas id="testCanvas" width="800" height="1200"></canvas>
+    </body>
+
+</html>
+
