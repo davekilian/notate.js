@@ -10,7 +10,7 @@ var Notate = (function() {
       * is a (TICKS_PER_WHOLE_NOTE)th note, e.g. a 128th note.
       */
     Notate.TICKS_PER_WHOLE_NOTE = 128;
-
+    var TICKS_PER_WHOLE_NOTE = Notate.TICKS_PER_WHOLE_NOTE;
 
     /** class Pitch
       *
@@ -71,6 +71,45 @@ var Notate = (function() {
     }
 
 
+    /** Denotes the type of a note. This is determined automatically by Notate.Note
+      * by parsing its tick length
+      */
+    Notate.NoteType = {
+        WHOLE:              { name: "Whole", ticks: TICKS_PER_WHOLE_NOTE },
+        HALF:               { name: "Half", ticks: TICKS_PER_WHOLE_NOTE / 2 },
+        QUARTER:            { name: "Quarter", ticks: TICKS_PER_WHOLE_NOTE / 4 },
+        EIGHTH:             { name: "Eighth", ticks: TICKS_PER_WHOLE_NOTE / 8 },
+        SIXTEENTH:          { name: "Sixteenth", ticks: TICKS_PER_WHOLE_NOTE / 16 },
+        THIRTYSECOND:       { name: "32nd", ticks: TICKS_PER_WHOLE_NOTE / 32 },
+        SIXTYFOURTH:        { name: "64th", ticks: TICKS_PER_WHOLE_NOTE / 64 },
+        ONETWENTYEIGHTH:    { name: "128th", ticks: TICKS_PER_WHOLE_NOTE / 128 },
+    };
+
+    /** Contains information needed to render notes by type */
+    var RenderAttributes = { 
+        WHOLE:              { hollowBase: true, stem: false, tails: 0, },
+        HALF:               { hollowBase: true, stem: true, tails: 0, },
+        QUARTER:            { hollowBase: false, stem: true, tails: 0, },
+        EIGHTH:             { hollowBase: false, stem: true, tails: 1, },
+        SIXTEENTH:          { hollowBase: false, stem: true, tails: 2, },
+        THIRTYSECOND:       { hollowBase: false, stem: true, tails: 3, },
+        SIXTYFOURTH:        { hollowBase: false, stem: true, tails: 4, },
+        ONETWENTYEIGHTH:    { hollowBase: false, stem: true, tails: 5, },
+    };
+
+    (function() {
+        var i = 0;
+        for (var key in Notate.NoteType) {
+            Notate.NoteType[key].key = key.toString();
+            Notate.NoteType[key].value = i++;
+            Notate.NoteType[key].render = RenderAttributes[key];
+
+            RenderAttributes[key].key = key.toString();
+            RenderAttributes[key].type = Notate.NoteType[key];
+        }
+    }());
+
+
     /** class Note
       *
       * Notes are the basic building blocks of notate.js documents. They
@@ -82,12 +121,15 @@ var Notate = (function() {
       * Note.pitch  Notate.Pitch    This note's pitch. Ignored if this note
       *                             is a rest.
       * Note.length int             The duration of this note in ticks.
+      * Note.type   Notate.NoteType The semantic type of this note
+      * Note.dots   int             The number of times this note is dotted
       */
 
     Notate.Note = function(rest, pitch, length) {
         this.rest = rest;
         this.pitch = pitch;
         this.length = length;
+        calcType();
     }
 
     /** Returns the length of this note in beats rather than ticks.
@@ -103,6 +145,33 @@ var Notate = (function() {
         var ticksPerBeat = TICKS_PER_WHOLE_NOTE / time.under;
 
         return 1.0 * length / ticksPerBeat;
+    }
+
+    /** Calculates this note's lenght property to determine the note's 
+      * type and dots properties. Should be called after updating this
+      * note's length property. Called automatically by Note's constructor
+      */
+    Notate.Note.prototype.calcType = function() { 
+        this.type = null;
+        this.dots = 0;
+
+        var rem = length;
+        var nextDot = 0;
+
+        for (var key in Notate.NoteType) {
+            type = Notate.NoteType[key];
+            if (type.ticks <= rem) {
+                this.type = type;
+                rem -= type.ticks;
+                nextDot = type.ticks / 2;
+            }
+        }
+
+        while (nextDot < rem) {
+            rem -= nextDot;
+            nextDot /= 2;
+            ++this.dots;
+        }
     }
 
 
@@ -255,6 +324,5 @@ var Notate = (function() {
 
 }());
 
-var pitch = Notate.Pitch.fromString('A4');
-alert("Step: " + pitch.step + ", Octave: " + pitch.octave);
+document.write("ok");
 
