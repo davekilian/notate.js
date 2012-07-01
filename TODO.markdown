@@ -6,12 +6,14 @@ This is an exercise in object-oriented javascript library design. See
 and use that as a reference when designing library components.
 
 * Implement a basic model
-    * A document is a collection of measures is a collection of notes that span a whole number of beats
+    * A document is a collection of measures is a collection of notes that span a number of beats
 
 * Render the basic model
     * Render a staff
     * Render time signatures assuming a `*/4` time signature
     * Render the notes assuming a `*/4` time signature
+    * Render measure boundaries
+    * Render end lines
 
 * Expand to support partial beat counts, barring notes together
 
