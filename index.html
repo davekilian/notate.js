@@ -18,6 +18,44 @@
             var STAFF_SPACING = 50;
             /** Number of lines in a staff */
             var STAFF_LINE_COUNT = 5;
+            /** The radius of the note head at its narrowest point, in pixels */
+            var NOTE_HEAD_RADIUS_MIN = 4;
+            /** The radius of the note head at its widest point, in pixels */
+            var NOTE_HEAD_RADIUS_MAX = 6;
+            /** The rotation of the note head, in radians */
+            var NOTE_HEAD_ROTATION = -.4;
+            /** The width of the note stem, in pixels */
+            var NOTE_STEM_WIDTH = 1;
+            /** The height of the note stem, in pixels */
+            var NOTE_STEM_HEIGHT = 30;
+
+            function renderNoteHead(canvas, ctx, x, y, fill) {
+
+                ctx.save();
+
+                ctx.translate(x, y);
+                ctx.rotate(NOTE_HEAD_ROTATION);
+                ctx.scale(1.0 * NOTE_HEAD_RADIUS_MAX / NOTE_HEAD_RADIUS_MIN, 1);
+
+                ctx.beginPath();
+                ctx.arc(0, 0, NOTE_HEAD_RADIUS_MIN, 0, 6.28, false);
+                if (fill)
+                    ctx.fill();
+                else
+                    ctx.stroke();
+
+                ctx.restore();
+
+                ctx.fillRect(x + NOTE_HEAD_RADIUS_MIN, // TODO
+                             y - NOTE_STEM_HEIGHT,
+                             NOTE_STEM_WIDTH,
+                             NOTE_STEM_HEIGHT);
+
+            }
+
+            function renderQuarterNote(canvas, ctx, x, y) {
+                renderNoteHead(canvas, ctx, x, y, true);
+            }
 
             function renderBackground(canvas, ctx) { 
                 ctx.fillStyle = 'rgb(255, 255, 255)';
@@ -52,6 +90,7 @@
 
                 renderBackground(canvas, ctx);
                 renderStaff(canvas, ctx);
+                renderQuarterNote(canvas, ctx, 50, 50);
             }
 
 /*
