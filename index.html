@@ -6,13 +6,52 @@
 
         <script type="text/javascript">
 
-            // TODO create and render a sample document
+            /** The horizontal page margins, in pixels */
+            var MARGIN_HORIZ = 30;
+            /** The vertical page margins, in pixels */
+            var MARGIN_VERT = 50;
+            /** Height of a line of the staff, in pixels */
+            var STAFF_LINE_HEIGHT = 1;
+            /** Number of pixels of blank space between staff lines, in pixels */
+            var STAFF_LINE_SPACING = 8;
+            /** Number of pixels between staves, in pixels */
+            var STAFF_SPACING = 50;
+            /** Number of lines in a staff */
+            var STAFF_LINE_COUNT = 5;
+
+            function renderBackground(canvas, ctx) { 
+                ctx.fillStyle = 'rgb(255, 255, 255)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            function renderStaff(canvas, ctx) {
+                var w = canvas.width, h = canvas.height;
+
+                ctx.fillStyle = 'rgb(0, 0, 0)';
+
+                var y = MARGIN_VERT;
+                while (y < canvas.height - MARGIN_VERT) {
+
+                    for (var i = 0; i < STAFF_LINE_COUNT; ++i) {
+                        ctx.fillRect(MARGIN_HORIZ,
+                                     y,
+                                     w - 2 * MARGIN_HORIZ,
+                                     STAFF_LINE_HEIGHT);
+
+
+                        y += STAFF_LINE_SPACING;
+                    }
+
+                    y += STAFF_SPACING;
+                }
+            }
 
             function debug() {
                 var canvas = document.getElementById('testCanvas');
                 var ctx = canvas.getContext('2d');
-                ctx.fillStyle = 'rgb(220, 220, 220)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                renderBackground(canvas, ctx);
+                renderStaff(canvas, ctx);
             }
 
         </script>
