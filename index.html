@@ -166,7 +166,7 @@
             }
 
             function renderSixteenthNote(canvas, ctx, x, y) {
-                renderNoteHead(canvas, ctx, x, y, 'eighth');
+                renderNoteHead(canvas, ctx, x, y, 'sixteenth');
                 renderNoteStem(canvas, ctx, x, y);
                 renderNoteFlag(canvas, ctx, x, y - NOTE_STEM_HEIGHT);
                 renderNoteFlag(canvas, ctx, x, y - .75 * NOTE_STEM_HEIGHT);
@@ -192,10 +192,51 @@
                 renderNoteHead(canvas, ctx, x, y, 'whole');
             }
 
+            function translateNoteLength(length) {
+                if (length == "whole")
+                    return "1/1";
+                if (length == "half")
+                    return "1/2";
+                if (length == "quarter")
+                    return "1/4";
+                if (length == "eighth")
+                    return "1/8";
+                if (length == "sixteenth")
+                    return "1/16";
+
+                return name;
+            }
+
+            function renderNote(canvas, ctx, x, y, n) {
+                n.length = translateNoteLength(n.length);
+                
+                if (n.length == "1/1")
+                    renderWholeNote(canvas, ctx, x, y);
+                else if (n.length == "1/2")
+                    renderHalfNote(canvas, ctx, x, y);
+                else if (n.length == "1/4")
+                    renderQuarterNote(canvas, ctx, x, y);
+                else if (n.length == "1/8")
+                    renderEighthNote(canvas, ctx, x, y);
+                else if (n.length == "1/16")
+                    renderSixteenthNote(canvas, ctx, x, y);
+
+                return 20; // TODO
+            }
+
             function renderBarLine(canvas, ctx, x, y) {
                 h = (STAFF_LINE_COUNT - 1) * STAFF_LINE_SPACING;
 
                 ctx.fillRect(x, y, BAR_LINE_WIDTH, h);
+            }
+
+            function renderMeasure(canvas, ctx, x, y, m) {
+                x += 10;
+
+                for (var i = 0; i < m.notes.length; ++i) 
+                    x += renderNote(canvas, ctx, x, y, m.notes[i]);
+
+                renderBarLine(canvas, ctx, x + 10, y);
             }
 
             function renderStaff(canvas, ctx) {
@@ -254,18 +295,27 @@
                 renderBackground(canvas, ctx);
                 renderStaff(canvas, ctx);
 
-                renderSixteenthNote(canvas, ctx, 130, 125);
-                renderEighthNote(canvas, ctx, 110, 125);
-                renderQuarterNote(canvas, ctx, 50, 125);
-                renderHalfNote(canvas, ctx, 70, 125);
-                renderWholeNote(canvas, ctx, 90, 125);
+                measure = 
+                {
+                    "notes":
+                    [
+                        { "type": "note", "length": "whole", "dots": 0, "pitch": "C4", "accidental": "none", "bar": false, "slur": false },
+                        { "type": "note", "length": "half", "dots": 0, "pitch": "C4", "accidental": "none", "bar": false, "slur": false },
+                        { "type": "note", "length": "quarter", "dots": 0, "pitch": "C4", "accidental": "none", "bar": false, "slur": false },
+                        { "type": "note", "length": "eighth", "dots": 0, "pitch": "C4", "accidental": "none", "bar": false, "slur": false },
+                        { "type": "note", "length": "sixteenth", "dots": 0, "pitch": "C4", "accidental": "none", "bar": false, "slur": false },
+                    ],
+                };
+
+                renderMeasure(canvas, ctx, MARGIN_HORIZ, MARGIN_VERT, measure);
             }
 
 /*
-   Write a render measure that renders a single measure (with notes and divider bars)
-   Make a renderContext struct that we can use to render all the measures
-   Refactor prototype code in notate.js
-   Try rendering a piece!
+   Render using pitch parameter, drawing leger lines if needed
+   Refactor prototype code in notate.js (throw away most of the old stuff I think)
+   While doing this implement modal rendering, i.e. so current render state gets updated as we move through document rendering glyphs
+   Figure out how to expand next
+   Move this TODO list to the actual doc ^^
  */
 
         </script>
