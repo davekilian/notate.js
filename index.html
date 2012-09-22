@@ -73,7 +73,7 @@
             }
 
             function renderNoteStem(canvas, ctx, x, y) {
-                ctx.fillRect(x + noteStemOffset() - 0.5 * NOTE_STEM_WIDTH,
+                ctx.fillRect(x + noteStemOffset() - .75 * NOTE_STEM_WIDTH,
                              y - NOTE_STEM_HEIGHT,
                              NOTE_STEM_WIDTH,
                              NOTE_STEM_HEIGHT);
@@ -136,7 +136,7 @@
 
                 renderBackground(canvas, ctx);
                 renderStaff(canvas, ctx);
-                renderQuarterNote(canvas, ctx, 50, 50);
+                renderQuarterNote(canvas, ctx, 55, 55);
             }
 
 /*
