@@ -22,12 +22,18 @@
             var NOTE_HEAD_RADIUS_MIN = 4;
             /** The radius of the note head at its widest point, in pixels */
             var NOTE_HEAD_RADIUS_MAX = 6;
-            /** The radius of the hollow region of the note head at its narrowest point, in pixels */
-            var NOTE_INNER_RADIUS_MIN = 2;
-            /** The radius of the hollow region of the note head at its widest point, in pixels */
-            var NOTE_INNER_RADIUS_MAX = 5;
             /** The rotation of the note head, in radians */
             var NOTE_HEAD_ROTATION = -.5;
+            /** The radius of the hollow region of the half note head at its narrowest point, in pixels */
+            var HALFNOTE_INNER_RADIUS_MIN = 2;
+            /** The radius of the hollow region of the half note head at its widest point, in pixels */
+            var HALFNOTE_INNER_RADIUS_MAX = 5;
+            /** The radius of the hollow region of the whole note head at its narrowest point, in pixels */
+            var WHOLENOTE_INNER_RADIUS_MIN = 2;
+            /** The radius of the hollow region of the whole note head at its widest point, in pixels */
+            var WHOLENOTE_INNER_RADIUS_MAX = 3.25;
+            /** The rotation of the hollow region of the whole note head, in radians */
+            var WHOLENOTE_INNER_ROTATION = 1;
             /** The width of the note stem, in pixels */
             var NOTE_STEM_WIDTH = 1;
             /** The height of the note stem, in pixels */
@@ -46,31 +52,66 @@
                 return [w, h];
             }
 
-            function renderNoteHead(canvas, ctx, x, y, fill) {
+            function renderNoteHead(canvas, ctx, x, y, style) {
+                if (style != 'whole') {
 
-                ctx.save();
+                    // Filled region
+                    ctx.save();
 
-                ctx.translate(x, y);
-                ctx.rotate(NOTE_HEAD_ROTATION);
-                ctx.scale(1.0 * NOTE_HEAD_RADIUS_MAX / NOTE_HEAD_RADIUS_MIN, 1);
+                    ctx.translate(x, y);
+                    ctx.rotate(NOTE_HEAD_ROTATION);
+                    ctx.scale(1.0 * NOTE_HEAD_RADIUS_MAX / NOTE_HEAD_RADIUS_MIN, 1);
 
-                ctx.beginPath();
-                ctx.arc(0, 0, NOTE_HEAD_RADIUS_MIN, 0, 6.28, false);
-                ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(0, 0, NOTE_HEAD_RADIUS_MIN, 0, 6.28, false);
+                    ctx.fill();
 
-                ctx.restore();
+                    ctx.restore();
 
-                if (!fill) {
+                    // Hollow region
+                    if (style == 'half') {
+                        ctx.fillStyle = 'rgb(255, 255, 255)';
+
+                        ctx.save();
+
+                        ctx.translate(x, y);
+                        ctx.rotate(NOTE_HEAD_ROTATION);
+                        ctx.scale(1.0 * HALFNOTE_INNER_RADIUS_MAX / HALFNOTE_INNER_RADIUS_MIN, 1);
+
+                        ctx.beginPath();
+                        ctx.arc(0, 0, HALFNOTE_INNER_RADIUS_MIN, 0, 6.28, false);
+                        ctx.fill();
+
+                        ctx.restore();
+
+                        ctx.fillStyle = 'rgb(0, 0, 0)';
+
+                    } 
+                } else {
+
+                    // Filled region
+                    ctx.save();
+
+                    ctx.translate(x, y);
+                    ctx.scale(1.0 * NOTE_HEAD_RADIUS_MAX / NOTE_HEAD_RADIUS_MIN, 1);
+
+                    ctx.beginPath();
+                    ctx.arc(0, 0, NOTE_HEAD_RADIUS_MIN, 0, 6.28, false);
+                    ctx.fill();
+
+                    ctx.restore();
+
+                    // Hollow region
                     ctx.fillStyle = 'rgb(255, 255, 255)';
 
                     ctx.save();
 
                     ctx.translate(x, y);
-                    ctx.rotate(NOTE_HEAD_ROTATION);
-                    ctx.scale(1.0 * NOTE_INNER_RADIUS_MAX / NOTE_INNER_RADIUS_MIN, 1);
+                    ctx.rotate(WHOLENOTE_INNER_ROTATION);
+                    ctx.scale(1.0 * WHOLENOTE_INNER_RADIUS_MAX / WHOLENOTE_INNER_RADIUS_MIN, 1);
 
                     ctx.beginPath();
-                    ctx.arc(0, 0, NOTE_INNER_RADIUS_MIN, 0, 6.28, false);
+                    ctx.arc(0, 0, WHOLENOTE_INNER_RADIUS_MIN, 0, 6.28, false);
                     ctx.fill();
 
                     ctx.restore();
@@ -99,13 +140,17 @@
             }
 
             function renderQuarterNote(canvas, ctx, x, y) {
-                renderNoteHead(canvas, ctx, x, y, true);
+                renderNoteHead(canvas, ctx, x, y, 'quarter');
                 renderNoteStem(canvas, ctx, x, y);
             }
 
             function renderHalfNote(canvas, ctx, x, y) {
-                renderNoteHead(canvas, ctx, x, y, false);
+                renderNoteHead(canvas, ctx, x, y, 'half');
                 renderNoteStem(canvas, ctx, x, y);
+            }
+
+            function renderWholeNote(canvas, ctx, x, y) {
+                renderNoteHead(canvas, ctx, x, y, 'whole');
             }
 
             function renderBackground(canvas, ctx) { 
@@ -162,6 +207,7 @@
                 renderStaff(canvas, ctx);
                 renderQuarterNote(canvas, ctx, 50, 100);
                 renderHalfNote(canvas, ctx, 70, 100);
+                renderWholeNote(canvas, ctx, 90, 100);
             }
 
 /*
