@@ -29,11 +29,15 @@
             /** The radius of the hollow region of the half note head at its widest point, in pixels */
             var HALFNOTE_INNER_RADIUS_MAX = 5;
             /** The radius of the hollow region of the whole note head at its narrowest point, in pixels */
-            var WHOLENOTE_INNER_RADIUS_MIN = 2;
+            var WHOLENOTE_INNER_RADIUS_MIN = 2.25;
             /** The radius of the hollow region of the whole note head at its widest point, in pixels */
             var WHOLENOTE_INNER_RADIUS_MAX = 3.25;
             /** The rotation of the hollow region of the whole note head, in radians */
             var WHOLENOTE_INNER_ROTATION = 1;
+            /** The width of the note flag, in pixels */
+            var NOTE_FLAG_WIDTH = 12;
+            /** The height of the note flag, in pixels */
+            var NOTE_FLAG_HEIGHT = 20;
             /** The width of the note stem, in pixels */
             var NOTE_STEM_WIDTH = 1;
             /** The height of the note stem, in pixels */
@@ -139,6 +143,37 @@
                              NOTE_STEM_HEIGHT);
             }
 
+            function renderNoteFlag(canvas, ctx, x, y, dy) {
+
+                x += noteStemOffset();
+
+                ctx.beginPath();
+
+                var w = NOTE_FLAG_WIDTH;
+                var h = NOTE_FLAG_HEIGHT;
+
+                ctx.moveTo(x, y);
+                ctx.quadraticCurveTo(x + w, y,          x + w, y + h);
+                ctx.quadraticCurveTo(x + w, y + .5 * h, x,     y + .17 * h);
+
+                ctx.closePath();
+
+                ctx.fill();
+            }
+
+            function renderSixteenthNote(canvas, ctx, x, y) {
+                renderNoteHead(canvas, ctx, x, y, 'eighth');
+                renderNoteStem(canvas, ctx, x, y);
+                renderNoteFlag(canvas, ctx, x, y - NOTE_STEM_HEIGHT);
+                renderNoteFlag(canvas, ctx, x, y - .75 * NOTE_STEM_HEIGHT);
+            }
+
+            function renderEighthNote(canvas, ctx, x, y) {
+                renderNoteHead(canvas, ctx, x, y, 'eighth');
+                renderNoteStem(canvas, ctx, x, y);
+                renderNoteFlag(canvas, ctx, x, y - NOTE_STEM_HEIGHT);
+            }
+
             function renderQuarterNote(canvas, ctx, x, y) {
                 renderNoteHead(canvas, ctx, x, y, 'quarter');
                 renderNoteStem(canvas, ctx, x, y);
@@ -205,9 +240,11 @@
 
                 renderBackground(canvas, ctx);
                 renderStaff(canvas, ctx);
-                renderQuarterNote(canvas, ctx, 50, 100);
-                renderHalfNote(canvas, ctx, 70, 100);
-                renderWholeNote(canvas, ctx, 90, 100);
+                renderSixteenthNote(canvas, ctx, 130, 125);
+                renderEighthNote(canvas, ctx, 110, 125);
+                renderQuarterNote(canvas, ctx, 50, 125);
+                renderHalfNote(canvas, ctx, 70, 125);
+                renderWholeNote(canvas, ctx, 90, 125);
             }
 
 /*
@@ -231,7 +268,7 @@
         </style>
     </head>
 
-    <body onload="debug()">
+    <body onload="debug()" style="background-color: #555">
         <canvas id="testCanvas" width="800" height="1200"></canvas>
     </body>
 
