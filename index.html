@@ -29,6 +29,19 @@
             /** The height of the note stem, in pixels */
             var NOTE_STEM_HEIGHT = 30;
 
+            function dimensions(canvas) {
+                var w = canvas.width,
+                    h = canvas.height;
+
+                if (window.devicePixelRatio) {
+                    var ratio = window.devicePixelRatio;
+                    w /= ratio;
+                    h /= ratio;
+                }
+
+                return [w, h];
+            }
+
             function renderNoteHead(canvas, ctx, x, y, fill) {
 
                 ctx.save();
@@ -45,16 +58,30 @@
                     ctx.stroke();
 
                 ctx.restore();
+            }
 
-                ctx.fillRect(x + NOTE_HEAD_RADIUS_MIN, // TODO
+            function noteStemOffset() {
+                
+                var a = NOTE_HEAD_RADIUS_MAX,
+                    b = NOTE_HEAD_RADIUS_MIN,
+                    theta = -NOTE_HEAD_ROTATION,
+                    bCosTheta = b * Math.cos(theta),
+                    aSinTheta = a * Math.sin(theta),
+                    r = a * b / Math.sqrt(bCosTheta * bCosTheta + aSinTheta * aSinTheta);
+
+                return r;
+            }
+
+            function renderNoteStem(canvas, ctx, x, y) {
+                ctx.fillRect(x + noteStemOffset() - 0.5 * NOTE_STEM_WIDTH,
                              y - NOTE_STEM_HEIGHT,
                              NOTE_STEM_WIDTH,
                              NOTE_STEM_HEIGHT);
-
             }
 
             function renderQuarterNote(canvas, ctx, x, y) {
                 renderNoteHead(canvas, ctx, x, y, true);
+                renderNoteStem(canvas, ctx, x, y);
             }
 
             function renderBackground(canvas, ctx) { 
@@ -63,7 +90,8 @@
             }
 
             function renderStaff(canvas, ctx) {
-                var w = canvas.width, h = canvas.height;
+                var dim = dimensions(canvas),
+                    w = dim[0], h = dim[1];
 
                 ctx.fillStyle = 'rgb(0, 0, 0)';
 
@@ -84,9 +112,27 @@
                 }
             }
 
+            function enableRetina(canvas, ctx) {
+                if (window.devicePixelRatio) {
+                    var ratio = window.devicePixelRatio;
+
+                    var w = canvas.width;
+                    var h = canvas.height;
+
+                    canvas.width = w * ratio;
+                    canvas.height = h * ratio;
+
+                    canvas.style.width = w + 'px';
+                    canvas.style.height = h + 'px';
+
+                    ctx.scale(ratio, ratio);
+                }
+            }
+
             function debug() {
                 var canvas = document.getElementById('testCanvas');
                 var ctx = canvas.getContext('2d');
+                enableRetina(canvas, ctx);
 
                 renderBackground(canvas, ctx);
                 renderStaff(canvas, ctx);
