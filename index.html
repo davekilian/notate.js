@@ -22,8 +22,12 @@
             var NOTE_HEAD_RADIUS_MIN = 4;
             /** The radius of the note head at its widest point, in pixels */
             var NOTE_HEAD_RADIUS_MAX = 6;
+            /** The radius of the hollow region of the note head at its narrowest point, in pixels */
+            var NOTE_INNER_RADIUS_MIN = 2;
+            /** The radius of the hollow region of the note head at its widest point, in pixels */
+            var NOTE_INNER_RADIUS_MAX = 5;
             /** The rotation of the note head, in radians */
-            var NOTE_HEAD_ROTATION = -.4;
+            var NOTE_HEAD_ROTATION = -.5;
             /** The width of the note stem, in pixels */
             var NOTE_STEM_WIDTH = 1;
             /** The height of the note stem, in pixels */
@@ -52,12 +56,27 @@
 
                 ctx.beginPath();
                 ctx.arc(0, 0, NOTE_HEAD_RADIUS_MIN, 0, 6.28, false);
-                if (fill)
-                    ctx.fill();
-                else
-                    ctx.stroke();
+                ctx.fill();
 
                 ctx.restore();
+
+                if (!fill) {
+                    ctx.fillStyle = 'rgb(255, 255, 255)';
+
+                    ctx.save();
+
+                    ctx.translate(x, y);
+                    ctx.rotate(NOTE_HEAD_ROTATION);
+                    ctx.scale(1.0 * NOTE_INNER_RADIUS_MAX / NOTE_INNER_RADIUS_MIN, 1);
+
+                    ctx.beginPath();
+                    ctx.arc(0, 0, NOTE_INNER_RADIUS_MIN, 0, 6.28, false);
+                    ctx.fill();
+
+                    ctx.restore();
+
+                    ctx.fillStyle = 'rgb(0, 0, 0)';
+                }
             }
 
             function noteStemOffset() {
@@ -81,6 +100,11 @@
 
             function renderQuarterNote(canvas, ctx, x, y) {
                 renderNoteHead(canvas, ctx, x, y, true);
+                renderNoteStem(canvas, ctx, x, y);
+            }
+
+            function renderHalfNote(canvas, ctx, x, y) {
+                renderNoteHead(canvas, ctx, x, y, false);
                 renderNoteStem(canvas, ctx, x, y);
             }
 
@@ -136,7 +160,8 @@
 
                 renderBackground(canvas, ctx);
                 renderStaff(canvas, ctx);
-                renderQuarterNote(canvas, ctx, 55, 55);
+                renderQuarterNote(canvas, ctx, 50, 100);
+                renderHalfNote(canvas, ctx, 70, 100);
             }
 
 /*
