@@ -207,6 +207,26 @@
                 return name;
             }
 
+            function renderLegers(canvas, ctx, x, y, dy) {
+                h = (STAFF_LINE_COUNT - 1) * STAFF_LINE_SPACING;
+                if (dy >= 0 && dy <= h)
+                    return;
+
+                var min = 0, max = 0;
+
+                if (dy < 0) {
+                    min = y + dy;
+                    max = y;
+                } else {
+                    min = y + h + STAFF_LINE_SPACING;
+                    max = y + dy;
+                }
+
+                for (var y = min; y < max; y += STAFF_LINE_SPACING) {
+                    ctx.fillRect(x - 9, y, 18, 1);
+                }
+            }
+
             function pitchOffset(pitch) {
                 // Origin is at top of treble staff, or F5
                 var ORIGIN_NOTE = "F".charCodeAt(0);
@@ -222,17 +242,20 @@
 
             function renderNote(canvas, ctx, x, y, n) {
                 n.length = translateNoteLength(n.length);
+
+                var dy = pitchOffset(n.pitch);
+                renderLegers(canvas, ctx, x, y, dy);
                 
                 if (n.length == "1/1")
-                    renderWholeNote(canvas, ctx, x, y + pitchOffset(n.pitch));
+                    renderWholeNote(canvas, ctx, x, y + dy);
                 else if (n.length == "1/2")
-                    renderHalfNote(canvas, ctx, x, y + pitchOffset(n.pitch));
+                    renderHalfNote(canvas, ctx, x, y + dy);
                 else if (n.length == "1/4")
-                    renderQuarterNote(canvas, ctx, x, y + pitchOffset(n.pitch));
+                    renderQuarterNote(canvas, ctx, x, y + dy);
                 else if (n.length == "1/8")
-                    renderEighthNote(canvas, ctx, x, y + pitchOffset(n.pitch));
+                    renderEighthNote(canvas, ctx, x, y + dy);
                 else if (n.length == "1/16")
-                    renderSixteenthNote(canvas, ctx, x, y + pitchOffset(n.pitch));
+                    renderSixteenthNote(canvas, ctx, x, y + dy);
 
                 return 23;
             }
@@ -317,6 +340,16 @@
 
                 doc = 
                 [
+                    {
+                        "notes":
+                        [
+                            { "type": "note", "length": "whole", "dots": 0, "pitch": "C3", "accidental": "none", "bar": false, "slur": false },
+                            { "type": "note", "length": "half", "dots": 0, "pitch": "D3", "accidental": "none", "bar": false, "slur": false },
+                            { "type": "note", "length": "quarter", "dots": 0, "pitch": "E3", "accidental": "none", "bar": false, "slur": false },
+                            { "type": "note", "length": "eighth", "dots": 0, "pitch": "F3", "accidental": "none", "bar": false, "slur": false },
+                            { "type": "note", "length": "sixteenth", "dots": 0, "pitch": "G3", "accidental": "none", "bar": false, "slur": false },
+                        ],
+                    },
                     {
                         "notes":
                         [

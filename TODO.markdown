@@ -1,10 +1,6 @@
 
 # TODO
 
-## Finish initial prototype
-
-* Draw leger lines if needed
-
 ## Notate intermediate object format
 
 * Spec out the intermediate format
