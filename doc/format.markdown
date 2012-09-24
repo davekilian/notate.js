@@ -38,14 +38,14 @@ also an object:
     }
 
 Measure metadata is applied modally. That is, if the first measure in the 
-docuemnt specifies the "clef" attribute, then the rest of the measures in
-the document inherit the "clef" attribute. If a measure halfway through
-the document changes the "clef" attribute, then all the measures after that
-measure inherit the new clef value. 
+docuemnt specifies the "clef" attribute, then the rest of the measures 
+afterward inherit that clef value. If a measure halfway through the document
+changes the clef attribute, then all the measures after that measure inherit
+the new clef value.
 
-Rendantly specifying measure metadata (e.g. "clef", "timesig-...") will cause
-the glyph to be rendered again, even if the value is the same as what the 
-measure would have inherited anyway.
+Redundantly specifying measure metadata (e.g. "clef", "timesig-...") will cause
+relevant glyphs to be rendered again, even if the value of the attribute is the
+same as what the measure would have inherited anyway.
 
 Note objects are specified as follows:
 
