@@ -6,6 +6,13 @@
 * Modulate x/y position using the pitch parameter
 * Draw leger lines if needed
 
+## Build system
+
+* Look into a javascript compilation system that can concatenate a bunch of
+  source module files
+* Decide how to lay out source files, so that the system is extensible
+  (ties into the design tasks below, may take some iteration to get right)
+
 ## Notate intermediate object format
 
 * Spec out the intermediate format
