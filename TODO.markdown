@@ -1,36 +1,62 @@
 
 # TODO
 
-This is an exercise in object-oriented javascript library design. See
-[JavaScript Module Pattern In Depth](http://www.adequatelygood.com/2010/3/JavaScript-Module-Pattern-In-Depth),
-and use that as a reference when designing library components.
+## Finish initial prototype
 
-* Render the basic model
-    * Render a staff
-    * Render time signatures assuming a `*/4` time signature
-    * Render the notes assuming a `*/4` time signature
-    * Render measure boundaries
-    * Render end lines
+* Modulate x/y position using the pitch parameter
+* Draw leger lines if needed
 
-* Expand to support partial beat counts, barring notes together
+## Notate intermediate object format
 
-* Extend the model and renderer to support
-    * More advanced time signature types
-    * Rests
-    * Legato
-    * Tempo markers
-    * Dynamics
-    * Key signatures
-    * Accidentals integrated with key signatures
-    * Repeats and codas
-    * Note accents
+* Spec out the intermediate format
+    * Should cover every possible type of renderable glyph, even things that
+      don't belong in the public format (e.g. staves)
+    * Contain any parameter needd to render the glyph
+* Implement for existing glyph types
 
-* At the document level, support title / composer / copyright / etc
+## Notate engine design
 
-* Expand to support multi-stave systems
+* Design the layout engine at a high level
+    * Must take in the public format (document as a list of measures 
+      containing a list of note objects)
+    * Must spit out the glyphs to render using the intermediate format
+    * Should use modes to track current position in the virtual document
+* Design the rendering engine at a high level
+    * Takes in intermediate format and a canvas to render to
+    * Renders each glyph in the intermediate representation
+    * Use rendering parameter constants we could later expand into themes
 
-* Expand to support tablature notation using the same underlying model,
-  or by converting between underlying models.
+## Add basics to layout and rendering engines
 
-* Expand so system staves can render the same underlying model
+* Staves
+* Measure bars
+* Different note types
+* Barring
+* Rests
+* Time signatures
+* Clefs
+* Key signatures
+* Accidentals
+* Tempo markers
+* Dynamics
+* Legato
+* Codas
+* Note accents
+* [Anything else I missed](http://en.wikipedia.org/wiki/List_of_musical_symbols)
+
+## Multi-stave systems
+
+* Figure out what needs to be done
+    * Changes to public format
+    * Changes to intermediate format
+    * Changes to layout engine
+    * Changes to render engine
+
+## Tablature staves
+
+* Figure out what needs to be done
+    * Changes to public format
+    * Changes to intermediate format
+    * Changes to layout engine
+    * Changes to render engine
 
