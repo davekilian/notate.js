@@ -207,21 +207,34 @@
                 return name;
             }
 
+            function pitchOffset(pitch) {
+                // Origin is at top of treble staff, or F5
+                var ORIGIN_NOTE = "F".charCodeAt(0);
+                var ORIGIN_PITCH = 5;
+
+                var octave = parseInt(pitch.charAt(pitch.length - 1));
+
+                var note = pitch.charCodeAt(0);
+
+                var delta = 8 * (octave - ORIGIN_PITCH) + (note - ORIGIN_NOTE);
+                return -delta * .5 * STAFF_LINE_SPACING;
+            }
+
             function renderNote(canvas, ctx, x, y, n) {
                 n.length = translateNoteLength(n.length);
                 
                 if (n.length == "1/1")
-                    renderWholeNote(canvas, ctx, x, y);
+                    renderWholeNote(canvas, ctx, x, y + pitchOffset(n.pitch));
                 else if (n.length == "1/2")
-                    renderHalfNote(canvas, ctx, x, y);
+                    renderHalfNote(canvas, ctx, x, y + pitchOffset(n.pitch));
                 else if (n.length == "1/4")
-                    renderQuarterNote(canvas, ctx, x, y);
+                    renderQuarterNote(canvas, ctx, x, y + pitchOffset(n.pitch));
                 else if (n.length == "1/8")
-                    renderEighthNote(canvas, ctx, x, y);
+                    renderEighthNote(canvas, ctx, x, y + pitchOffset(n.pitch));
                 else if (n.length == "1/16")
-                    renderSixteenthNote(canvas, ctx, x, y);
+                    renderSixteenthNote(canvas, ctx, x, y + pitchOffset(n.pitch));
 
-                return 20; // TODO
+                return 23;
             }
 
             function renderBarLine(canvas, ctx, x, y) {
@@ -237,6 +250,8 @@
                     x += renderNote(canvas, ctx, x, y, m.notes[i]);
 
                 renderBarLine(canvas, ctx, x + 10, y);
+
+                return x + 20;
             }
 
             function renderStaff(canvas, ctx) {
@@ -299,11 +314,11 @@
                 {
                     "notes":
                     [
-                        { "type": "note", "length": "whole", "dots": 0, "pitch": "C4", "accidental": "none", "bar": false, "slur": false },
-                        { "type": "note", "length": "half", "dots": 0, "pitch": "C4", "accidental": "none", "bar": false, "slur": false },
-                        { "type": "note", "length": "quarter", "dots": 0, "pitch": "C4", "accidental": "none", "bar": false, "slur": false },
-                        { "type": "note", "length": "eighth", "dots": 0, "pitch": "C4", "accidental": "none", "bar": false, "slur": false },
-                        { "type": "note", "length": "sixteenth", "dots": 0, "pitch": "C4", "accidental": "none", "bar": false, "slur": false },
+                        { "type": "note", "length": "whole", "dots": 0, "pitch": "F4", "accidental": "none", "bar": false, "slur": false },
+                        { "type": "note", "length": "half", "dots": 0, "pitch": "G4", "accidental": "none", "bar": false, "slur": false },
+                        { "type": "note", "length": "quarter", "dots": 0, "pitch": "A5", "accidental": "none", "bar": false, "slur": false },
+                        { "type": "note", "length": "eighth", "dots": 0, "pitch": "B5", "accidental": "none", "bar": false, "slur": false },
+                        { "type": "note", "length": "sixteenth", "dots": 0, "pitch": "C5", "accidental": "none", "bar": false, "slur": false },
                     ],
                 };
 

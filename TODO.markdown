@@ -3,7 +3,6 @@
 
 ## Finish initial prototype
 
-* Modulate x/y position using the pitch parameter
 * Draw leger lines if needed
 
 ## Notate intermediate object format
