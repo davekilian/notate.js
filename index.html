@@ -216,8 +216,8 @@
 
                 var note = pitch.charCodeAt(0);
 
-                var delta = 8 * (octave - ORIGIN_PITCH) + (note - ORIGIN_NOTE);
-                return -delta * .5 * STAFF_LINE_SPACING;
+                var delta = 7 * (octave - ORIGIN_PITCH) + (note - ORIGIN_NOTE);
+                return -delta * .5 * STAFF_LINE_SPACING + 0.5;
             }
 
             function renderNote(canvas, ctx, x, y, n) {
@@ -249,9 +249,14 @@
                 for (var i = 0; i < m.notes.length; ++i) 
                     x += renderNote(canvas, ctx, x, y, m.notes[i]);
 
-                renderBarLine(canvas, ctx, x + 10, y);
+                renderBarLine(canvas, ctx, x, y);
 
-                return x + 20;
+                return x + 7;
+            }
+
+            function renderDocument(canvas, ctx, x, y, d) {
+                for (var i = 0; i < d.length; ++i)
+                    x = renderMeasure(canvas, ctx, x, y, d[i]);
             }
 
             function renderStaff(canvas, ctx) {
@@ -310,19 +315,41 @@
                 renderBackground(canvas, ctx);
                 renderStaff(canvas, ctx);
 
-                measure = 
-                {
-                    "notes":
-                    [
-                        { "type": "note", "length": "whole", "dots": 0, "pitch": "F4", "accidental": "none", "bar": false, "slur": false },
-                        { "type": "note", "length": "half", "dots": 0, "pitch": "G4", "accidental": "none", "bar": false, "slur": false },
-                        { "type": "note", "length": "quarter", "dots": 0, "pitch": "A5", "accidental": "none", "bar": false, "slur": false },
-                        { "type": "note", "length": "eighth", "dots": 0, "pitch": "B5", "accidental": "none", "bar": false, "slur": false },
-                        { "type": "note", "length": "sixteenth", "dots": 0, "pitch": "C5", "accidental": "none", "bar": false, "slur": false },
-                    ],
-                };
+                doc = 
+                [
+                    {
+                        "notes":
+                        [
+                            { "type": "note", "length": "whole", "dots": 0, "pitch": "A4", "accidental": "none", "bar": false, "slur": false },
+                            { "type": "note", "length": "half", "dots": 0, "pitch": "B4", "accidental": "none", "bar": false, "slur": false },
+                            { "type": "note", "length": "quarter", "dots": 0, "pitch": "C4", "accidental": "none", "bar": false, "slur": false },
+                            { "type": "note", "length": "eighth", "dots": 0, "pitch": "D4", "accidental": "none", "bar": false, "slur": false },
+                            { "type": "note", "length": "sixteenth", "dots": 0, "pitch": "E4", "accidental": "none", "bar": false, "slur": false },
+                        ],
+                    },
+                    {
+                        "notes":
+                        [
+                            { "type": "note", "length": "whole", "dots": 0, "pitch": "F4", "accidental": "none", "bar": false, "slur": false },
+                            { "type": "note", "length": "half", "dots": 0, "pitch": "G4", "accidental": "none", "bar": false, "slur": false },
+                            { "type": "note", "length": "quarter", "dots": 0, "pitch": "A5", "accidental": "none", "bar": false, "slur": false },
+                            { "type": "note", "length": "eighth", "dots": 0, "pitch": "B5", "accidental": "none", "bar": false, "slur": false },
+                            { "type": "note", "length": "sixteenth", "dots": 0, "pitch": "C5", "accidental": "none", "bar": false, "slur": false },
+                        ],
+                    },
+                    {
+                        "notes":
+                        [
+                            { "type": "note", "length": "whole", "dots": 0, "pitch": "D5", "accidental": "none", "bar": false, "slur": false },
+                            { "type": "note", "length": "half", "dots": 0, "pitch": "E5", "accidental": "none", "bar": false, "slur": false },
+                            { "type": "note", "length": "quarter", "dots": 0, "pitch": "F5", "accidental": "none", "bar": false, "slur": false },
+                            { "type": "note", "length": "eighth", "dots": 0, "pitch": "G5", "accidental": "none", "bar": false, "slur": false },
+                            { "type": "note", "length": "sixteenth", "dots": 0, "pitch": "A6", "accidental": "none", "bar": false, "slur": false },
+                        ],
+                    },
+                ];
 
-                renderMeasure(canvas, ctx, MARGIN_HORIZ, MARGIN_VERT, measure);
+                renderDocument(canvas, ctx, MARGIN_HORIZ, MARGIN_VERT, doc);
             }
 
         </script>
