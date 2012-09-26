@@ -1,14 +1,6 @@
 
 # TODO
 
-## Notate intermediate object format
-
-* Spec out the intermediate format
-    * Should cover every possible type of renderable glyph, even things that
-      don't belong in the public format (e.g. staves)
-    * Contain any parameter needd to render the glyph
-* Implement for existing glyph types
-
 ## Notate engine design
 
 * Design the layout engine at a high level
@@ -21,10 +13,16 @@
     * Renders each glyph in the intermediate representation
     * Use rendering parameter constants we could later expand into themes
 
+## Initial implementation
+
+* Implement the basic layout and rendering engines with just a couple of glyph
+  types.
+    * Staves
+    * Measure bars
+    * Whole notes
+
 ## Add basics to layout and rendering engines
 
-* Staves
-* Measure bars
 * Different note types
 * Barring
 * Rests

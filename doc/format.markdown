@@ -54,7 +54,7 @@ Note objects are specified as follows:
         "length": "whole",      // "half", "eighth", ..., "1/4", "1/8", ...
         "dots": 0,              // Number of times the note is dotted
         "pitch": "C4",          // Pitch name and octave
-        "accidental": "none",   // "sharp", "flat"
+        "accidental": "none",   // "sharp", "flat", "doublesharp", "doubleflat"
         "bar": false,           // Whether this note is barred with the next note
         "slur": false,          // Whether this note is slurred with the next note
     }
