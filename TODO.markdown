@@ -3,11 +3,6 @@
 
 ## Notate engine design
 
-* Design the layout engine at a high level
-    * Must take in the public format (document as a list of measures 
-      containing a list of note objects)
-    * Must spit out the glyphs to render using the intermediate format
-    * Should use modes to track current position in the virtual document
 * Design the rendering engine at a high level
     * Takes in intermediate format and a canvas to render to
     * Renders each glyph in the intermediate representation
