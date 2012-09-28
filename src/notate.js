@@ -24,6 +24,72 @@ var Notate = (function() {
         this.children = new Array();
     }
 
+    //
+    // Per-glyph implementions of the initial size method:
+    //
+    // function size(type)
+    //
+    // Determines the minimum bounding box coordinates for a type of glyph
+    // 
+    // @param type  A string containing the glyph type
+    //
+    // @return      A rectangle object containing top, bottom, left, and 
+    //              right integer properties
+    //
+    var sizeCallback = { };
+
+    // 
+    // Per-glyph implementations of the position method:
+    //
+    // function position(parent, child, params)
+    //
+    // Determines the position at which the child should be placed, in the
+    // parent's coordinate space.
+    //
+    // If stateful parameters are needed between invocations of this function
+    // on the same parent glyph object, they can be stored in the params
+    // object.
+    //
+    // @param parent    The parent glyph containing the child
+    //
+    // @param child     The child glyph to be placed
+    //
+    // @param params    Params created by this function the last time this
+    //                  function was called on the same parent object.
+    //
+    //                  If this is the first time this function was called for
+    //                  the parent object, this parameter is null.
+    //
+    // @return          An object whose x and y properties are the position
+    //                  of the child glyph in its parent's coordinate space,
+    //                  and whose params property is the value that should be
+    //                  passed as the params paremeter the next time this method
+    //                  is called on the same parent object.
+    //
+    var positionCallback = { };
+
+    //
+    // Per-glyph implementations of the render method:
+    //
+    // function render(canvas, ctx, glyph, x, y)
+    //
+    // Renders a glyph on a canvas at a specified location. This location is
+    // specified in canvas coordiantes; it is not superceded by the glyph's
+    // x and y properties (which are defined in their parents' coordinate
+    // systems).
+    //
+    // @param canvas    The canvas element that will be rendered to
+    //
+    // @param ctx       The canvas2d context for the canvas element
+    //
+    // @param glyph     The glyph to render (see Notate.Glyph)
+    //
+    // @param x         The X coordinate of the glyph's origin in canvas coords
+    //
+    // @param y         The Y coordinate of the glyph's origin in canvas coords
+    //
+    var renderCallback = { };
+
     // 
     // function layout(doc)
     //
