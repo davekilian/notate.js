@@ -1,13 +1,6 @@
 
 # TODO
 
-## Notate engine design
-
-* Design the rendering engine at a high level
-    * Takes in intermediate format and a canvas to render to
-    * Renders each glyph in the intermediate representation
-    * Use rendering parameter constants we could later expand into themes
-
 ## Initial implementation
 
 * Implement the basic layout and rendering engines with just a couple of glyph
