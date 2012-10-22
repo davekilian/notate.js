@@ -181,6 +181,7 @@ var Notate = (function() {
     // measure glyph
     //
     sizeCallback["measure"] = function() {
+        // TODO look up the height of a staff
         return { top: 0, bottom: 32, left: 0, right: 0 };
     }
 
@@ -199,6 +200,93 @@ var Notate = (function() {
                      r.top, 
                      MEASURE_BAR_WIDTH, 
                      h);
+    }
+
+    //
+    // note glyph
+    //
+    sizeCallback["note"] = function() {
+        // TODO settings
+        var r = 6;
+        return { top: 0, bottom: 2 * r, left: 0, right: 2 * r };
+    }
+
+    positionCallback['note'] = function(parent, child, arg) {
+        // TODO 'real' implementation, just doing rendering for now
+        // Based on pitch and measure clef, choose a y coordinate
+        // Origin of the note is the center of the note head
+
+        return {
+            x: -child.left,
+            y: -child.top,
+            params: null
+        };
+    }
+
+    function renderNoteHeadOuter(canvas, ctx, x, y, rotation) {
+        // TODO settings object
+        var NOTE_HEAD_RADIUS_MAX = 6;
+        var NOTE_HEAD_RADIUS_MIN = 4;
+
+        ctx.save();
+
+        ctx.translate(x, y);
+        ctx.rotate(rotation);
+        ctx.scale(1.0 * NOTE_HEAD_RADIUS_MAX / NOTE_HEAD_RADIUS_MIN, 1.0);
+
+        ctx.beginPath();
+        ctx.arc(0, 0, NOTE_HEAD_RADIUS_MIN, 0, 6.28, false);
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+    function renderNoteHeadInner(canvas, ctx, x, y, minRadius, maxRadius, rotation) {
+        ctx.fillStyle = "rgb(255, 255, 255)";
+        ctx.save();
+
+        ctx.translate(x, y);
+        ctx.rotate(rotation);
+        ctx.scale(1.0 * maxRadius / minRadius, 1.0);
+
+        ctx.beginPath();
+        ctx.arc(0, 0, minRadius, 0, 6.28, false);
+        ctx.fill();
+
+        ctx.restore();
+        ctx.fillStyle = "rgb(0, 0, 0)";
+    }
+
+    renderCallback['note'] = function(canvas, ctx, note, x, y) {
+        // n.b. This renders the note head, with the origin at the center of the note head.
+        //      Stems, flags, bars and dots are all children of the note glyph.
+
+        // TODO settings object :D
+        var NOTE_HEAD_ROTATION = -.5;
+        var HALFNOTE_INNER_RADIUS_MIN = 2;
+        var HALFNOTE_INNER_RADIUS_MAX = 5;
+        var WHOLENOTE_INNER_RADIUS_MIN = 2.25;
+        var WHOLENOTE_INNER_RADIUS_MAX = 3.25;
+        var WHOLENOTE_INNER_ROTATION = 1;
+
+        var rotation = (note.length == "1/1") ? 0 : NOTE_HEAD_ROTATION;
+        renderNoteHeadOuter(canvas, ctx, x, y, rotation);
+
+        var isHollow = (note.length == "1/1") || (note.length == "1/2");
+        if (isHollow) {
+            var minRadius, maxRadius;
+
+            if (note.length == "1/1") {
+                minRadius = WHOLENOTE_INNER_RADIUS_MIN;
+                maxRadius = WHOLENOTE_INNER_RADIUS_MAX;
+                rotation = WHOLENOTE_INNER_ROTATION;
+            } else {
+                minRadius = HALFNOTE_INNER_RADIUS_MIN;
+                maxRadius = HALFNOTE_INNER_RADIUS_MAX;
+            }
+
+            renderNoteHeadInner(canvas, ctx, x, y, minRadius, maxRadius, rotation);
+        }
     }
 
     // 
@@ -315,6 +403,21 @@ function debug() {
     fill.bottom = measure.height();
     fill.left = 0;
     fill.right = staff.width() - measure.width();
+
+    var denom = 1;
+    for (var i = 0; i < 5; ++i) {
+        var note = new Notate.Glyph("note");
+        note.x = 10 + 20 * i;
+        note.y = 24.5;
+        note.top = -10;
+        note.bottom = 10;
+        note.left = -10;
+        note.right = 10;
+        note.length = "1/" + denom;
+        denom *= 2;
+
+        measure.children.push(note);
+    }
 
     doc.children.push(staff);
     staff.children.push(measure);
