@@ -109,6 +109,9 @@ var Notate = (function() {
             bottom: rect.bottom + dy,
             left: rect.left + dx,
             right: rect.right + dx,
+
+            width: Glyph.prototype.width,
+            height: Glyph.prototype.height,
         };
     }
 
@@ -205,7 +208,7 @@ var Notate = (function() {
     //
     // note glyph
     //
-    sizeCallback["note"] = function() {
+    sizeCallback['note'] = function() {
         // TODO settings
         var r = 6;
         return { top: 0, bottom: 2 * r, left: 0, right: 2 * r };
@@ -288,6 +291,52 @@ var Notate = (function() {
             renderNoteHeadInner(canvas, ctx, x, y, minRadius, maxRadius, rotation);
         }
     }
+
+    //
+    // stem glyph
+    //
+    sizeCallback['stem'] = function() {
+        // TODO settings
+        var NOTE_STEM_WIDTH = 1;
+        var NOTE_STEM_HEIGHT = 30;
+
+        return { top: NOTE_STEM_HEIGHT, bottom: 0,
+                 left: -.5 * NOTE_STEM_WIDTH,
+                 right: .5 * NOTE_STEM_WIDTH, 
+        };
+    }
+
+    positionCallback['stem'] = function(parent, child, arg) {
+        // TODO cache this value in the settings
+        var NOTE_HEAD_RADIUS_MIN = 4;
+        var NOTE_HEAD_RADIUS_MAX = 6;
+        var NOTE_HEAD_ROTATION = -.5;
+
+        var a = NOTE_HEAD_RADIUS_MAX,
+            b = NOTE_HEAD_RADIUS_MIN,
+            theta = -NOTE_HEAD_ROTATION,
+            bCosTheta = b * Math.cos(theta),
+            aSinTheta = a * Math.sin(theta),
+            r = a * b / Math.sqrt(bCosTheta * bCosTheta + aSinTheta * aSinTheta);
+
+        return {
+            x: r,
+            y: 0,
+            params: null,
+        };
+    }
+
+    renderCallback['stem'] = function(canvas, ctx, stem, x, y) {
+        var NOTE_STEM_WIDTH = 1;
+        var NOTE_STEM_HEIGHT = 30;
+
+        var rect = translate(stem, { x: 0, y: 0 }, { x: x, y: y });
+        ctx.fillRect(rect.left, rect.top, rect.width(), rect.height());
+    }
+
+    // 
+    // flag glyph
+    //
 
     // 
     // function layout(doc)
@@ -415,6 +464,28 @@ function debug() {
         note.right = 10;
         note.length = "1/" + denom;
         denom *= 2;
+
+        if (i > 0) {
+            var NOTE_HEAD_RADIUS_MIN = 4;
+            var NOTE_HEAD_RADIUS_MAX = 6;
+            var NOTE_HEAD_ROTATION = -.5;
+            var a = NOTE_HEAD_RADIUS_MAX,
+                b = NOTE_HEAD_RADIUS_MIN,
+                theta = -NOTE_HEAD_ROTATION,
+                bCosTheta = b * Math.cos(theta),
+                aSinTheta = a * Math.sin(theta),
+                r = a * b / Math.sqrt(bCosTheta * bCosTheta + aSinTheta * aSinTheta);
+            
+            var stem = new Notate.Glyph("stem");
+            stem.x = r;
+            stem.y = 0;
+            stem.top = -30;
+            stem.bottom = 0;
+            stem.left = -.5;
+            stem.right = .5;
+
+            note.children.push(stem);
+        }
 
         measure.children.push(note);
     }
