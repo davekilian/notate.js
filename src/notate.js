@@ -409,6 +409,50 @@ function enableRetina(canvas, ctx) {
     }
 }
 
+var bezierTest = function(ctx) {
+    ctx.save();
+    ctx.translate(95, 20);
+    ctx.scale(.1, .1);
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.moveTo(309, 238);
+    ctx.bezierCurveTo(309, 238, 303, 253, 352, 300);
+    ctx.bezierCurveTo(401, 346, 399, 435, 376, 453);
+    ctx.bezierCurveTo(376, 453, 415, 316, 312, 311);
+    ctx.lineTo(309, 238);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(115, 20);
+    ctx.scale(.1, .1);
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.moveTo(309, 238);
+    ctx.bezierCurveTo(309, 238, 303, 253, 352, 300);
+    ctx.bezierCurveTo(401, 346, 399, 435, 376, 453);
+    ctx.bezierCurveTo(376, 453, 415, 316, 312, 311);
+    ctx.lineTo(309, 238);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(115, 27);
+    ctx.scale(.1, .1);
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.moveTo(309, 238);
+    ctx.bezierCurveTo(309, 238, 303, 253, 352, 300);
+    ctx.bezierCurveTo(401, 346, 399, 435, 376, 453);
+    ctx.bezierCurveTo(376, 453, 415, 316, 312, 311);
+    ctx.lineTo(309, 238);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+};
+
 function debug() {
     var canvas = document.getElementById('testCanvas');
     var ctx = canvas.getContext('2d');
@@ -495,5 +539,7 @@ function debug() {
     staff.children.push(fill);
     
     Notate.render(canvas, ctx, doc);
+
+    bezierTest(ctx);
 }
 
