@@ -3,11 +3,12 @@
 
 ## Initial implementation
 
-* Implement the basic layout and rendering engines with just a couple of glyph
-  types.
-    * Staves
-    * Measure bars
-    * Whole notes
+* Settings object with all the render / layout parameter defaults
+* Layout algorithm
+* Hardcode a simple piece to lay out and render
+* Basic / static layouts for implemented glyph types
+* Lay out notes based on pitch and clef
+* Ledger lines 
 
 ## Add basics to layout and rendering engines
 
@@ -24,6 +25,10 @@
 * Codas
 * Note accents
 * [Anything else I missed](http://en.wikipedia.org/wiki/List_of_musical_symbols)
+
+## Chords
+
+* Can the existing JSON model support chords?
 
 ## Multi-stave systems
 
