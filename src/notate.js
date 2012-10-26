@@ -335,8 +335,50 @@ var Notate = (function() {
     }
 
     // 
-    // flag glyph
+    // flags glyph
     //
+    sizeCallback['flags'] = function() {
+        return { top: 0, bottom: 21.5, left: 0, right: 11.2 };
+    }
+
+    positionCallback['flags'] = function(parent, child, arg) {
+        // TODO cache this value in the settings
+        var NOTE_HEAD_RADIUS_MIN = 4;
+        var NOTE_HEAD_RADIUS_MAX = 6;
+        var NOTE_HEAD_ROTATION = -.5;
+
+        var a = NOTE_HEAD_RADIUS_MAX,
+            b = NOTE_HEAD_RADIUS_MIN,
+            theta = -NOTE_HEAD_ROTATION,
+            bCosTheta = b * Math.cos(theta),
+            aSinTheta = a * Math.sin(theta),
+            r = a * b / Math.sqrt(bCosTheta * bCosTheta + aSinTheta * aSinTheta);
+
+        return {
+            x: r,
+            y: 0,
+            params: null,
+        };
+    }
+
+    renderCallback['flags'] = function(canvas, ctx, flags, x, y) {
+        for (var i = 0; i < flags.count; ++i) {
+            ctx.save();
+            ctx.translate(x, y + 6.5 * i);
+
+            ctx.beginPath();
+            ctx.moveTo(.6, 0);
+            ctx.bezierCurveTo(.6, 0, 0, 1.5, 4.9, 6.2);
+            ctx.bezierCurveTo(9.8, 10.8, 9.6, 19.7, 7.3, 21.5);
+            ctx.bezierCurveTo(7.3, 21.5, 11.2, 7.8, .9, 7.3);
+            ctx.lineTo(.6, 0);
+            ctx.closePath();
+
+            ctx.fill();
+
+            ctx.restore();
+        }
+    }
 
     // 
     // function layout(doc)
@@ -409,49 +451,6 @@ function enableRetina(canvas, ctx) {
     }
 }
 
-var bezierTest = function(ctx) {
-    ctx.save();
-    ctx.translate(124.7, 43);
-    ctx.fillStyle = "#000";
-    ctx.beginPath();
-    ctx.moveTo(.6, 0);
-    ctx.bezierCurveTo(.6, 0, 0, 1.5, 4.9, 6.2);
-    ctx.bezierCurveTo(9.8, 10.8, 9.6, 19.7, 7.3, 21.5);
-    ctx.bezierCurveTo(7.3, 21.5, 11.2, 7.8, .9, 7.3);
-    ctx.lineTo(.6, 0);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-
-    ctx.save();
-    ctx.translate(114.7, 20);
-    ctx.scale(.1, .1);
-    ctx.fillStyle = "#000";
-    ctx.beginPath();
-    ctx.moveTo(309, 238);
-    ctx.bezierCurveTo(309, 238, 303, 253, 352, 300);
-    ctx.bezierCurveTo(401, 346, 399, 435, 376, 453);
-    ctx.bezierCurveTo(376, 453, 415, 316, 312, 311);
-    ctx.lineTo(309, 238);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-
-    ctx.save();
-    ctx.translate(114.7, 27);
-    ctx.scale(.1, .1);
-    ctx.fillStyle = "#000";
-    ctx.beginPath();
-    ctx.moveTo(309, 238);
-    ctx.bezierCurveTo(309, 238, 303, 253, 352, 300);
-    ctx.bezierCurveTo(401, 346, 399, 435, 376, 453);
-    ctx.bezierCurveTo(376, 453, 415, 316, 312, 311);
-    ctx.lineTo(309, 238);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-};
-
 function debug() {
     var canvas = document.getElementById('testCanvas');
     var ctx = canvas.getContext('2d');
@@ -486,7 +485,7 @@ function debug() {
 
     measure.top = 0;
     measure.left = 0;
-    measure.right = 150;
+    measure.right = 180;
     measure.bottom = staff.height();
 
     fill.x = measure.width();
@@ -497,9 +496,9 @@ function debug() {
     fill.right = staff.width() - measure.width();
 
     var denom = 1;
-    for (var i = 0; i < 5; ++i) {
+    for (var i = 0; i < 6; ++i) {
         var note = new Notate.Glyph("note");
-        note.x = 10 + 20 * i;
+        note.x = 15 + 25 * i;
         note.y = 24.5;
         note.top = -10;
         note.bottom = 10;
@@ -527,6 +526,19 @@ function debug() {
             stem.left = -.5;
             stem.right = .5;
 
+            for (var j = 0; j < i - 2; ++j) {
+                var flags = new Notate.Glyph("flags");
+                flags.x = 0;
+                flags.y = -stem.height();
+                flags.top = 0;
+                flags.bottom = 21.5;
+                flags.left = 0;
+                flags.right = 11.2;
+                flags.count = j + 1;
+
+                stem.children.push(flags);
+            }
+
             note.children.push(stem);
         }
 
@@ -538,7 +550,5 @@ function debug() {
     staff.children.push(fill);
     
     Notate.render(canvas, ctx, doc);
-
-    bezierTest(ctx);
 }
 
