@@ -411,7 +411,20 @@ function enableRetina(canvas, ctx) {
 
 var bezierTest = function(ctx) {
     ctx.save();
-    ctx.translate(95, 20);
+    ctx.translate(124.7, 43);
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.moveTo(.6, 0);
+    ctx.bezierCurveTo(.6, 0, 0, 1.5, 4.9, 6.2);
+    ctx.bezierCurveTo(9.8, 10.8, 9.6, 19.7, 7.3, 21.5);
+    ctx.bezierCurveTo(7.3, 21.5, 11.2, 7.8, .9, 7.3);
+    ctx.lineTo(.6, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(114.7, 20);
     ctx.scale(.1, .1);
     ctx.fillStyle = "#000";
     ctx.beginPath();
@@ -425,21 +438,7 @@ var bezierTest = function(ctx) {
     ctx.restore();
 
     ctx.save();
-    ctx.translate(115, 20);
-    ctx.scale(.1, .1);
-    ctx.fillStyle = "#000";
-    ctx.beginPath();
-    ctx.moveTo(309, 238);
-    ctx.bezierCurveTo(309, 238, 303, 253, 352, 300);
-    ctx.bezierCurveTo(401, 346, 399, 435, 376, 453);
-    ctx.bezierCurveTo(376, 453, 415, 316, 312, 311);
-    ctx.lineTo(309, 238);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-
-    ctx.save();
-    ctx.translate(115, 27);
+    ctx.translate(114.7, 27);
     ctx.scale(.1, .1);
     ctx.fillStyle = "#000";
     ctx.beginPath();
