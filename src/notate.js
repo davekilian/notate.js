@@ -111,13 +111,13 @@ var Notate = (function() {
     //
     // Per-glyph implementations of the layout method:
     //
-    // function layout(parent, child)
+    // function layout(glyph)
     //
-    // Determines the final position/size of the child relative to its parent.
+    // Determines the final positions of the children of a glyph, as well as
+    // the final size of the glyph itself. 
     //
-    // @param parent    The parent glyph containing the child
-    // @param child     The chidl glyph to be positioned and sized
-    // @return void
+    // @param glyph The glyph whose size should be determined and whose contents
+    //              should be positioned
     //
     var layoutCallback = { };
 
@@ -150,7 +150,7 @@ var Notate = (function() {
     //
     sizeCallback['document'] = noMinSize;
 
-    layoutCallback['document'] = function(parent, child) { } // TODO
+    layoutCallback['document'] = function(doc) { } // TODO
 
     renderCallback['document'] = renderNothing;
 
@@ -168,7 +168,7 @@ var Notate = (function() {
         };
     }
 
-    layoutCallback['staff'] = function(parent, child) { } // TODO
+    layoutCallback['staff'] = function(staff) { } // TODO
 
     renderCallback['staff'] = function(canvas, ctx, staff, x, y) {
         var lines = staff.numLines;
@@ -198,7 +198,7 @@ var Notate = (function() {
         };
     }
 
-    layoutCallback['measure'] = function(parent, child) { } // TODO
+    layoutCallback['measure'] = function(measure) { } // TODO
 
     renderCallback['measure'] = function(canvas, ctx, measure, x, y) {
         var r = translate(measure, { x: 0, y: 0 }, { x: x, y: y });
@@ -218,10 +218,11 @@ var Notate = (function() {
     sizeCallback['note'] = function() {
         var s = Notate.settings;
         var r = s.NOTE_HEAD_RADIUS_MAX;
-        return { top: 0, bottom: 2 * r, left: 0, right: 2 * r };
+
+        return { top: -r, bottom: r, left: -r, right: r };
     }
 
-    layoutCallback['note'] = function(parent, child) { } // TODO
+    layoutCallback['note'] = function(note) { } // TODO
 
     function renderNoteHeadOuter(canvas, ctx, x, y, rotation) {
         var s = Notate.settings;
@@ -295,7 +296,7 @@ var Notate = (function() {
         };
     }
 
-    layoutCallback['stem'] = function(parent, child) { } // TODO
+    layoutCallback['stem'] = function(stem) { } // TODO
 
     renderCallback['stem'] = function(canvas, ctx, stem, x, y) {
         var rect = translate(stem, { x: 0, y: 0 }, { x: x, y: y });
@@ -309,7 +310,7 @@ var Notate = (function() {
         return { top: 0, bottom: 21.5, left: 0, right: 11.2 };
     }
 
-    layoutCallback['flags'] = function(parent, child) { } // TODO
+    layoutCallback['flags'] = function(flags) { } // TODO
 
     renderCallback['flags'] = function(canvas, ctx, flags, x, y) {
         for (var i = 0; i < flags.count; ++i) {
@@ -441,17 +442,22 @@ var Notate = (function() {
         var measures = convert(doc);
 
         function recur(glyph) {
+            // Size and lay out the children glyph subtrees
+            for (var i = 0; i < glyph.children.length; ++i)
+                recur(glyph.children[i]);
+
+            // Move child glyphs and determine this glyph's size
+            layoutCallback[glyph.type](glyph);
+
+            // Expand the glyph's bounding rect to hold its children
             var minbounds = sizeCallback[glyph.type]();
             glyph.union(minbounds);
 
             for (var i = 0; i < glyph.children.length; ++i) {
                 var child = glyph.children[i];
+                var bounds = translate(child, { x:0, y:0 }, child);
 
-                recur(child);
-                layoutCallback[glyph.type](glyph, child);
-
-                childRect = translate(child, { x:0, y:0 }, child);
-                glyph.union(childRect);
+                glyph.union(bounds);
             }
         }
 

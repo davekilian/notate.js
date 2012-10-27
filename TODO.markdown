@@ -4,11 +4,16 @@
 ## Initial implementation
 
 * Layout algorithm
-* Turns out I wanted positionCallback() all along (sizing staves is the only case 
-  where we need to stretch something to fill a variable amount of its parent)
+* Document changes to layout algorithm
 * Basic / static layouts for implemented glyph types
 * Lay out notes based on pitch and clef
 * Ledger lines 
+
+### New Layout Algorithm
+
+Same as the old one, except instead of calling a position function, we allow
+each glyph one layout() callback. This callback both lays out the glyph's
+children and sizes the glyph itself.
 
 ## Add basics to layout and rendering engines
 
