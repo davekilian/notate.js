@@ -3,15 +3,9 @@
 
 ## Initial implementation
 
-* Document changes to layout algorithm
 * Lay out notes based on pitch and clef
 * Ledger lines 
-
-### New Layout Algorithm
-
-Same as the old one, except instead of calling a position function, we allow
-each glyph one layout() callback. This callback both lays out the glyph's
-children and sizes the glyph itself.
+* General refactoring & cleanup
 
 ## Add basics to layout and rendering engines
 
