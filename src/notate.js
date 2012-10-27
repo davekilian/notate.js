@@ -17,6 +17,7 @@ var Notate = (function() {
         this.NOTE_HEAD_RADIUS_MIN = 4;
         this.NOTE_HEAD_RADIUS_MAX = 6;
         this.NOTE_HEAD_ROTATION = -.5;
+        this.NOTE_SPACING = 23;
         this.HALFNOTE_INNER_RADIUS_MIN = 2;
         this.HALFNOTE_INNER_RADIUS_MAX = 5;
         this.WHOLENOTE_INNER_RADIUS_MIN = 2.25;
@@ -61,6 +62,39 @@ var Notate = (function() {
 
     Glyph.prototype.width = function() { return this.right - this.left; }
     Glyph.prototype.height = function() { return this.bottom - this.top; }
+    Glyph.prototype.union = function(rect) {
+        function min(a, b) { return a <= b ? a : b; }
+        function max(a, b) { return a >= b ? a : b; }
+
+        this.top    = min(this.top, rect.top);
+        this.bottom = max(this.bottom, rect.bottom);
+        this.left   = min(this.left, rect.left);
+        this.right  = max(this.right, rect.right);
+    }
+
+    //
+    // function translate()
+    //
+    // Translates a rectangle into a different coordinate space
+    //
+    // @param rect      The rect to translate (an object with top/bottom/left/right)
+    // @param src       The origin of rect's coordinate system (an object with x/y)
+    // @param dst       The origin of the new coordinate system (object with x/y)
+    //
+    function translate(rect, src, dst) {
+        var dx = dst.x - src.x;
+        var dy = dst.y - src.y;
+
+        return { 
+            top: rect.top + dy,
+            bottom: rect.bottom + dy,
+            left: rect.left + dx,
+            right: rect.right + dx,
+
+            width: Glyph.prototype.width,
+            height: Glyph.prototype.height,
+        };
+    }
 
     //
     // Per-glyph implementions of the initial size method:
@@ -104,30 +138,6 @@ var Notate = (function() {
     // @param y         The Y coordinate of the glyph's origin in canvas coords
     //
     var renderCallback = { };
-
-    //
-    // function translate()
-    //
-    // Translates a rectangle into a different coordinate space
-    //
-    // @param rect      The rect to translate (an object with top/bottom/left/right)
-    // @param src       The origin of rect's coordinate system (an object with x/y)
-    // @param dst       The origin of the new coordinate system (object with x/y)
-    //
-    function translate(rect, src, dst) {
-        var dx = dst.x - src.x;
-        var dy = dst.y - src.y;
-
-        return { 
-            top: rect.top + dy,
-            bottom: rect.bottom + dy,
-            left: rect.left + dx,
-            right: rect.right + dx,
-
-            width: Glyph.prototype.width,
-            height: Glyph.prototype.height,
-        };
-    }
 
     // sizeCallback for glyphs that don't have a minimum size
     var noMinSize = function() { return { top: 0, bottom: 0, left: 0, right: 0 }; }
@@ -430,7 +440,34 @@ var Notate = (function() {
     var layout = function(doc) {
         var measures = convert(doc);
 
+        function recur(glyph) {
+            var minbounds = sizeCallback[glyph.type]();
+            glyph.union(minbounds);
+
+            for (var i = 0; i < glyph.children.length; ++i) {
+                var child = glyph.children[i];
+
+                recur(child);
+                layoutCallback[glyph.type](glyph, child);
+
+                childRect = translate(child, { x:0, y:0 }, child);
+                glyph.union(childRect);
+            }
+        }
+
+        // Lay out each individual measure
+        for (var i = 0; i < measures.length; ++i)
+            recur(measures[i]);
+
+        // Build staves out of measures
+        // XXX for now just checking one measure is laid out correctly
+        // TODO need to know the width of the document
         console.log(measures);
+
+        var docGlyph = new Glyph('document');
+        docGlyph.children.push(measures[0]);
+
+        return docGlyph;
     }
 
     //
@@ -534,7 +571,7 @@ function debugRenderer(canvas, ctx) {
     var denom = 1;
     for (var i = 0; i < 6; ++i) {
         var note = new Notate.Glyph("note");
-        note.x = 15 + 25 * i;
+        note.x = 15 + 23 * i;
         note.y = 24.5;
         note.top = -10;
         note.bottom = 10;

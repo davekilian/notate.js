@@ -4,6 +4,8 @@
 ## Initial implementation
 
 * Layout algorithm
+* Turns out I wanted positionCallback() all along (sizing staves is the only case 
+  where we need to stretch something to fill a variable amount of its parent)
 * Basic / static layouts for implemented glyph types
 * Lay out notes based on pitch and clef
 * Ledger lines 
