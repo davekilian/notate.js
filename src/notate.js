@@ -28,6 +28,8 @@ var Notate = (function() {
         this.BAR_LINE_WIDTH = 1;
         this.BAR_BOLD_WIDTH = 3;
 
+        this.STAFF_HEIGHT = (this.STAFF_LINE_COUNT - 1) * this.STAFF_LINE_SPACING;
+
         this.STEM_OFFSET = (function(s) {
             var a = s.NOTE_HEAD_RADIUS_MAX,
                 b = s.NOTE_HEAD_RADIUS_MIN,
@@ -150,7 +152,7 @@ var Notate = (function() {
     //
     sizeCallback['document'] = noMinSize;
 
-    layoutCallback['document'] = function(doc) { } // TODO
+    layoutCallback['document'] = function(doc) { }
 
     renderCallback['document'] = renderNothing;
 
@@ -168,7 +170,7 @@ var Notate = (function() {
         };
     }
 
-    layoutCallback['staff'] = function(staff) { } // TODO
+    layoutCallback['staff'] = function(staff) { }
 
     renderCallback['staff'] = function(canvas, ctx, staff, x, y) {
         var lines = staff.numLines;
@@ -198,13 +200,27 @@ var Notate = (function() {
         };
     }
 
-    layoutCallback['measure'] = function(measure) { } // TODO
+    layoutCallback['measure'] = function(measure) {
+        var s = Notate.settings;
+        var x = s.NOTE_SPACING;
+
+        for (var i = 0; i < measure.children.length; ++i) {
+            var note = measure.children[i];
+            note.x = x;
+            note.y = 40;    // TODO determine based on pitch
+
+            x += s.NOTE_SPACING;
+        }
+
+        measure.right = x;
+    }
 
     renderCallback['measure'] = function(canvas, ctx, measure, x, y) {
-        var r = translate(measure, { x: 0, y: 0 }, { x: x, y: y });
-        var w = measure.width(), h = measure.height();
-
         var s = Notate.settings;
+
+        var r = translate(measure, { x: 0, y: 0 }, { x: x, y: y });
+        var w = measure.width(), 
+            h = s.STAFF_HEIGHT;
 
         ctx.fillRect(r.right - s.BAR_LINE_WIDTH,
                      r.top, 
@@ -222,7 +238,20 @@ var Notate = (function() {
         return { top: -r, bottom: r, left: -r, right: r };
     }
 
-    layoutCallback['note'] = function(note) { } // TODO
+    layoutCallback['note'] = function(note) {
+        var s = Notate.settings;
+
+        for (var i = 0; i < note.children.length; ++i) {
+            var child = note.children[i];
+
+            if (child.type == 'stem') {
+                child.x = s.STEM_OFFSET;
+            } else if (child.type == 'flags') {
+                child.x = s.STEM_OFFSET;
+                child.y = -s.NOTE_STEM_HEIGHT;
+            }
+        }
+    }
 
     function renderNoteHeadOuter(canvas, ctx, x, y, rotation) {
         var s = Notate.settings;
@@ -289,14 +318,14 @@ var Notate = (function() {
         var s = Notate.settings;
 
         return { 
-            top: s.NOTE_STEM_HEIGHT, 
+            top: -s.NOTE_STEM_HEIGHT, 
             bottom: 0,
             left: -.5 * s.NOTE_STEM_WIDTH,
             right: .5 * s.NOTE_STEM_WIDTH, 
         };
     }
 
-    layoutCallback['stem'] = function(stem) { } // TODO
+    layoutCallback['stem'] = function(stem) { }
 
     renderCallback['stem'] = function(canvas, ctx, stem, x, y) {
         var rect = translate(stem, { x: 0, y: 0 }, { x: x, y: y });
@@ -310,7 +339,7 @@ var Notate = (function() {
         return { top: 0, bottom: 21.5, left: 0, right: 11.2 };
     }
 
-    layoutCallback['flags'] = function(flags) { } // TODO
+    layoutCallback['flags'] = function(flags) { }
 
     renderCallback['flags'] = function(canvas, ctx, flags, x, y) {
         for (var i = 0; i < flags.count; ++i) {
@@ -471,7 +500,7 @@ var Notate = (function() {
         console.log(measures);
 
         var docGlyph = new Glyph('document');
-        docGlyph.children.push(measures[0]);
+        docGlyph.children.push(measures[4]);
 
         return docGlyph;
     }
