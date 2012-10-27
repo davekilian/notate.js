@@ -22,8 +22,6 @@ var Notate = (function() {
         this.WHOLENOTE_INNER_RADIUS_MIN = 2.25;
         this.WHOLENOTE_INNER_RADIUS_MAX = 3.25;
         this.WHOLENOTE_INNER_ROTATION = 1;
-        this.NOTE_FLAG_WIDTH = 12;
-        this.NOTE_FLAG_HEIGHT = 20;
         this.NOTE_STEM_WIDTH = 1;
         this.NOTE_STEM_HEIGHT = 30;
         this.BAR_LINE_WIDTH = 1;
@@ -76,35 +74,18 @@ var Notate = (function() {
     //
     var sizeCallback = { };
 
-    // 
-    // Per-glyph implementations of the position method:
     //
-    // function position(parent, child, params)
+    // Per-glyph implementations of the layout method:
     //
-    // Determines the position at which the child should be placed, in the
-    // parent's coordinate space.
+    // function layout(parent, child)
     //
-    // If stateful parameters are needed between invocations of this function
-    // on the same parent glyph object, they can be stored in the params
-    // object.
+    // Determines the final position/size of the child relative to its parent.
     //
     // @param parent    The parent glyph containing the child
+    // @param child     The chidl glyph to be positioned and sized
+    // @return void
     //
-    // @param child     The child glyph to be placed
-    //
-    // @param params    Params created by this function the last time this
-    //                  function was called on the same parent object.
-    //
-    //                  If this is the first time this function was called for
-    //                  the parent object, this parameter is null.
-    //
-    // @return          An object whose x and y properties are the position
-    //                  of the child glyph in its parent's coordinate space,
-    //                  and whose params property is the value that should be
-    //                  passed as the params paremeter the next time this method
-    //                  is called on the same parent object.
-    //
-    var positionCallback = { };
+    var layoutCallback = { };
 
     //
     // Per-glyph implementations of the render method:
@@ -117,13 +98,9 @@ var Notate = (function() {
     // systems).
     //
     // @param canvas    The canvas element that will be rendered to
-    //
     // @param ctx       The canvas2d context for the canvas element
-    //
     // @param glyph     The glyph to render (see Notate.Glyph)
-    //
     // @param x         The X coordinate of the glyph's origin in canvas coords
-    //
     // @param y         The Y coordinate of the glyph's origin in canvas coords
     //
     var renderCallback = { };
@@ -134,9 +111,7 @@ var Notate = (function() {
     // Translates a rectangle into a different coordinate space
     //
     // @param rect      The rect to translate (an object with top/bottom/left/right)
-    // 
     // @param src       The origin of rect's coordinate system (an object with x/y)
-    //
     // @param dst       The origin of the new coordinate system (object with x/y)
     //
     function translate(rect, src, dst) {
@@ -157,30 +132,6 @@ var Notate = (function() {
     // sizeCallback for glyphs that don't have a minimum size
     var noMinSize = function() { return { top: 0, bottom: 0, left: 0, right: 0 }; }
 
-    // positionCallback for glyphs that stack their elements horizontally
-    var stackHorizontally = function(parent, child, x) {
-        x = x || 0;
-
-        var ret = { };
-        ret.x = x - child.left;
-        ret.y = -child.top;
-        ret.params = x + child.width();
-
-        return ret;
-    }
-
-    // positionCallback for glyphs that stack their elements vertically
-    var stackVertically = function(parent, child, y) {
-        y = y || 0;
-
-        var ret = { };
-        ret.x = -child.left;
-        ret.y = y - child.top;
-        ret.params = y + child.height();
-
-        return ret;
-    }
-
     // renderCallback for glyphs that don't render anything
     var renderNothing = function(canvas, ctx, glyph, x, y) { }
 
@@ -188,7 +139,9 @@ var Notate = (function() {
     // document glyph
     //
     sizeCallback['document'] = noMinSize;
-    positionCallback['document'] = stackVertically;
+
+    layoutCallback['document'] = function(parent, child) { } // TODO
+
     renderCallback['document'] = renderNothing;
 
     //
@@ -205,7 +158,7 @@ var Notate = (function() {
         };
     }
 
-    positionCallback['staff'] = stackHorizontally;
+    layoutCallback['staff'] = function(parent, child) { } // TODO
 
     renderCallback['staff'] = function(canvas, ctx, staff, x, y) {
         var lines = staff.numLines;
@@ -235,7 +188,7 @@ var Notate = (function() {
         };
     }
 
-    positionCallback['measure'] = stackHorizontally;
+    layoutCallback['measure'] = function(parent, child) { } // TODO
 
     renderCallback['measure'] = function(canvas, ctx, measure, x, y) {
         var r = translate(measure, { x: 0, y: 0 }, { x: x, y: y });
@@ -258,17 +211,7 @@ var Notate = (function() {
         return { top: 0, bottom: 2 * r, left: 0, right: 2 * r };
     }
 
-    positionCallback['note'] = function(parent, child, arg) {
-        // TODO 'real' implementation, just doing rendering for now
-        // Based on pitch and measure clef, choose a y coordinate
-        // Origin of the note is the center of the note head
-
-        return {
-            x: -child.left,
-            y: -child.top,
-            params: null
-        };
-    }
+    layoutCallback['note'] = function(parent, child) { } // TODO
 
     function renderNoteHeadOuter(canvas, ctx, x, y, rotation) {
         var s = Notate.settings;
@@ -342,15 +285,7 @@ var Notate = (function() {
         };
     }
 
-    positionCallback['stem'] = function(parent, child, arg) {
-        var s = Notate.settings;
-
-        return {
-            x: s.STEM_OFFSET,
-            y: 0,
-            params: null,
-        };
-    }
+    layoutCallback['stem'] = function(parent, child) { } // TODO
 
     renderCallback['stem'] = function(canvas, ctx, stem, x, y) {
         var rect = translate(stem, { x: 0, y: 0 }, { x: x, y: y });
@@ -364,15 +299,7 @@ var Notate = (function() {
         return { top: 0, bottom: 21.5, left: 0, right: 11.2 };
     }
 
-    positionCallback['flags'] = function(parent, child, arg) {
-        var s = Notate.settings;
-
-        return {
-            x: s.STEM_OFFSET,
-            y: 0,
-            params: null,
-        };
-    }
+    layoutCallback['flags'] = function(parent, child) { } // TODO
 
     renderCallback['flags'] = function(canvas, ctx, flags, x, y) {
         for (var i = 0; i < flags.count; ++i) {
@@ -443,7 +370,6 @@ var Notate = (function() {
     Notate.settings = new Settings();
 
     return Notate;
-
 }());
 
 // DEBUG

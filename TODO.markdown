@@ -3,7 +3,6 @@
 
 ## Initial implementation
 
-* Replace the position() function with a more general layout() function
 * Layout algorithm
 * Hardcode a simple piece to lay out and render
 * Basic / static layouts for implemented glyph types
