@@ -320,6 +320,98 @@ var Notate = (function() {
         }
     }
 
+    //
+    // function toLength(nickname)
+    //
+    // Translates a note nickname ("whole" or "eighth") into a fraction ("1/1"
+    // or "1/8" respectively)
+    //
+    var toLength = function(nickname) {
+        if (nickname == "whole")        return "1/1";
+        if (nickname == "half")         return "1/2";
+        if (nickname == "quarter")      return "1/4";
+        if (nickname == "eighth")       return "1/8";
+        if (nickname == "sixteenth")    return "1/16";
+        if (nickname == "thirtysecond") return "1/32";
+        if (nickname == "sixtyfourth")  return "1/64";
+
+        return nickname;
+    }
+
+    //
+    // function hasStem(length)
+    //
+    // Returns a bool indicating whether a note with a given length has a stem.
+    // The input length must be a time division '1/X', where X is a power of 2.
+    //
+    var hasStem = function(length) {
+        return length != "1/1";
+    }
+
+    //
+    // function numFlags(length)
+    //
+    // Returns the number of flags a note with the given length has.
+    // The input length must be a time division '1/X', where X is a power of 2.
+    //
+    var numFlags = function(length) {
+        var denom = parseInt(length.substring(length.indexOf('/') + 1));
+
+        var pow = 0;    // such that length = 1/(2^{pow})
+        while (denom > 1) {
+            ++pow;
+            denom /= 2;
+        }
+
+        return pow >= 3 ? pow - 2 : 0;
+    }
+
+    //
+    // function convert(doc)
+    //
+    // Creates a list of layout trees containing the glyphs inside each
+    // measure of the given document. The return value of this method is
+    // a list of measure glyphs. None of the resulting glyphs will contain
+    // any position or size information.
+    //
+    // Notate.layout() uses this method as a subroutine. layout() computes
+    // sizes and positions for each glyph, then generates staves by placing
+    // as many measures in each staff as possible.
+    //
+    var convert = function(doc) {
+        var trees = [];
+
+        for (var i = 0; i < doc.length; ++i) {
+            var measure = doc[i];
+
+            var tree = new Glyph("measure");
+            trees.push(tree);
+
+            for (var j = 0; j < measure.notes.length; ++j) {
+                var note = measure.notes[j];
+
+                // The note itself
+                var glyph = new Glyph("note");
+                glyph.length = toLength(note.type);
+                
+                // Its stem
+                if (hasStem(glyph.length)) 
+                    glyph.children.push(new Glyph("stem"));
+
+                // Its flags
+                var flags = numFlags(glyph.length);
+                if (flags > 0) {
+                    var flagsGlyph = new Glyph("flags");
+                    flagsGlpyh.count = flags;
+
+                    glyph.children.push(flagsGlpyh);
+                }
+            }
+        }
+
+        return trees;
+    }
+
     // 
     // function layout(doc)
     //
