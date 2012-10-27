@@ -456,6 +456,69 @@ var Notate = (function() {
         return trees;
     }
 
+    //
+    // function fillStaves(measures, width)
+    //
+    // Creates as many staves as needed to fit every measure, in order, into
+    // a document. Returns the resulting document
+    //
+    // @param measures The measures to fit into the document
+    // @param width    The width of the document
+    //
+    var fillStaves = function(measures, width) {
+        function nextStaff(doc, y, width) {
+            var staff = new Glyph('staff');
+            staff.x = s.MARGIN_HORIZ;
+            staff.y = y;
+            staff.right = width - 2 * s.MARGIN_HORIZ;
+
+            doc.children.push(staff);
+
+            return staff;
+        }
+
+        function finishStaff(staff) {
+            var last = staff.children[staff.children.length - 1];
+            last.right = staff.width() - last.x;
+        }
+
+        var s = Notate.settings;
+
+        var doc = new Glyph('document');
+        doc.right = width;
+
+        var x = 0;
+        var y = s.MARGIN_VERT;
+
+        var staff = nextStaff(doc, y, width);
+
+        for (var i = 0; i < measures.length; ++i) {
+            var measure = measures[i];
+
+            // If this measure won't fit, finish the staff
+            var fits = x + measure.width() <= staff.width();
+            if (staff.children.length > 0 && !fits) {
+                finishStaff(staff);
+
+                x = 0;
+                y += staff.height() + s.STAFF_SPACING;
+                staff = nextStaff(doc, y, width);
+            }
+
+            // Measure fits, add it to the staff
+            measure.x = x;
+            x += measure.width();
+            staff.children.push(measure);
+            staff.union(measure);
+        }
+
+        finishStaff(staff);
+
+        console.log(measures);
+        console.log(doc);
+        return doc;
+    }
+
     // 
     // function layout(doc)
     //
@@ -495,14 +558,8 @@ var Notate = (function() {
             recur(measures[i]);
 
         // Build staves out of measures
-        // XXX for now just checking one measure is laid out correctly
-        // TODO need to know the width of the document
-        console.log(measures);
-
-        var docGlyph = new Glyph('document');
-        docGlyph.children.push(measures[4]);
-
-        return docGlyph;
+        var width = 800;    // TODO param?
+        return fillStaves(measures, width);
     }
 
     //
