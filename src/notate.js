@@ -1,6 +1,45 @@
 
 var Notate = (function() {
 
+    //
+    // class Settings
+    //
+    // Contains constants used for sizing and positioning glyphs in the
+    // layout and render engines
+    //
+    var Settings = function() {
+        this.MARGIN_HORIZ = 30;
+        this.MARGIN_VERT = 50;
+        this.STAFF_LINE_HEIGHT = 1;
+        this.STAFF_LINE_SPACING = 8;
+        this.STAFF_SPACING = 50;
+        this.STAFF_LINE_COUNT = 5;
+        this.NOTE_HEAD_RADIUS_MIN = 4;
+        this.NOTE_HEAD_RADIUS_MAX = 6;
+        this.NOTE_HEAD_ROTATION = -.5;
+        this.HALFNOTE_INNER_RADIUS_MIN = 2;
+        this.HALFNOTE_INNER_RADIUS_MAX = 5;
+        this.WHOLENOTE_INNER_RADIUS_MIN = 2.25;
+        this.WHOLENOTE_INNER_RADIUS_MAX = 3.25;
+        this.WHOLENOTE_INNER_ROTATION = 1;
+        this.NOTE_FLAG_WIDTH = 12;
+        this.NOTE_FLAG_HEIGHT = 20;
+        this.NOTE_STEM_WIDTH = 1;
+        this.NOTE_STEM_HEIGHT = 30;
+        this.BAR_LINE_WIDTH = 1;
+        this.BAR_BOLD_WIDTH = 3;
+
+        this.STEM_OFFSET = (function(s) {
+            var a = s.NOTE_HEAD_RADIUS_MAX,
+                b = s.NOTE_HEAD_RADIUS_MIN,
+                theta = -s.NOTE_HEAD_ROTATION,
+                bCosTheta = b * Math.cos(theta),
+                aSinTheta = a * Math.sin(theta);
+
+            return a * b / Math.sqrt(bCosTheta * bCosTheta + aSinTheta * aSinTheta);
+        })(this);
+    }
+
     // 
     // class Glyph
     //
@@ -156,52 +195,57 @@ var Notate = (function() {
     // staff glyph
     //
     sizeCallback['staff'] = function() { 
-        // TODO settings object (for bottom prop)
-        return { top: 0, bottom: 32, left: 0, right: 0 }; 
+        var s = Notate.settings;
+
+        return {
+            top: 0,
+            bottom: (s.STAFF_LINE_COUNT - 1) * s.STAFF_LINE_SPACING,
+            left: 0,
+            right: 0,
+        };
     }
 
     positionCallback['staff'] = stackHorizontally;
 
     renderCallback['staff'] = function(canvas, ctx, staff, x, y) {
-
         var lines = staff.numLines;
         var w = staff.width(), 
             h = staff.height();
         var r = translate(staff, { x: 0, y: 0 }, { x: x, y: y });
 
-        var STAFF_LINE_WIDTH = 1;  // TODO settings object
-        var MEASURE_BAR_WIDTH = 1; // TODO settings object
-
-        ctx.fillStyle = 'rgb(0, 0, 0)';
+        var s = Notate.settings;
 
         for (var dh = 0; dh <= h; dh += h / (lines - 1))
-            ctx.fillRect(r.left, r.top + dh, w, STAFF_LINE_WIDTH);
+            ctx.fillRect(r.left, r.top + dh, w, s.STAFF_LINE_HEIGHT);
 
-        ctx.fillRect(r.left, r.top, MEASURE_BAR_WIDTH, h);
+        ctx.fillRect(r.left, r.top, s.BAR_LINE_WIDTH, h);
     }
 
     //
     // measure glyph
     //
     sizeCallback["measure"] = function() {
-        // TODO look up the height of a staff
-        return { top: 0, bottom: 32, left: 0, right: 0 };
+        var s = Notate.settings;
+
+        return {
+            top: 0,
+            bottom: (s.STAFF_LINE_COUNT - 1) * s.STAFF_LINE_SPACING,
+            left: 0,
+            right: 0,
+        };
     }
 
     positionCallback['measure'] = stackHorizontally;
 
     renderCallback['measure'] = function(canvas, ctx, measure, x, y) {
-
         var r = translate(measure, { x: 0, y: 0 }, { x: x, y: y });
         var w = measure.width(), h = measure.height();
 
-        var MEASURE_BAR_WIDTH = 1; // TODO settings object
+        var s = Notate.settings;
 
-        ctx.fillStyle = 'rgb(0, 0, 0)';
-
-        ctx.fillRect(r.right - MEASURE_BAR_WIDTH,
+        ctx.fillRect(r.right - s.BAR_LINE_WIDTH,
                      r.top, 
-                     MEASURE_BAR_WIDTH, 
+                     s.BAR_LINE_WIDTH, 
                      h);
     }
 
@@ -209,8 +253,8 @@ var Notate = (function() {
     // note glyph
     //
     sizeCallback['note'] = function() {
-        // TODO settings
-        var r = 6;
+        var s = Notate.settings;
+        var r = s.NOTE_HEAD_RADIUS_MAX;
         return { top: 0, bottom: 2 * r, left: 0, right: 2 * r };
     }
 
@@ -227,25 +271,23 @@ var Notate = (function() {
     }
 
     function renderNoteHeadOuter(canvas, ctx, x, y, rotation) {
-        // TODO settings object
-        var NOTE_HEAD_RADIUS_MAX = 6;
-        var NOTE_HEAD_RADIUS_MIN = 4;
+        var s = Notate.settings;
 
         ctx.save();
 
         ctx.translate(x, y);
         ctx.rotate(rotation);
-        ctx.scale(1.0 * NOTE_HEAD_RADIUS_MAX / NOTE_HEAD_RADIUS_MIN, 1.0);
+        ctx.scale(1.0 * s.NOTE_HEAD_RADIUS_MAX / s.NOTE_HEAD_RADIUS_MIN, 1.0);
 
         ctx.beginPath();
-        ctx.arc(0, 0, NOTE_HEAD_RADIUS_MIN, 0, 6.28, false);
+        ctx.arc(0, 0, s.NOTE_HEAD_RADIUS_MIN, 0, 6.28, false);
         ctx.fill();
 
         ctx.restore();
     }
 
     function renderNoteHeadInner(canvas, ctx, x, y, minRadius, maxRadius, rotation) {
-        ctx.fillStyle = "rgb(255, 255, 255)";
+        ctx.fillStyle = '#fff';
         ctx.save();
 
         ctx.translate(x, y);
@@ -257,22 +299,16 @@ var Notate = (function() {
         ctx.fill();
 
         ctx.restore();
-        ctx.fillStyle = "rgb(0, 0, 0)";
+        ctx.fillStyle = '#000';
     }
 
     renderCallback['note'] = function(canvas, ctx, note, x, y) {
         // n.b. This renders the note head, with the origin at the center of the note head.
         //      Stems, flags, bars and dots are all children of the note glyph.
+   
+        var s = Notate.settings;
 
-        // TODO settings object :D
-        var NOTE_HEAD_ROTATION = -.5;
-        var HALFNOTE_INNER_RADIUS_MIN = 2;
-        var HALFNOTE_INNER_RADIUS_MAX = 5;
-        var WHOLENOTE_INNER_RADIUS_MIN = 2.25;
-        var WHOLENOTE_INNER_RADIUS_MAX = 3.25;
-        var WHOLENOTE_INNER_ROTATION = 1;
-
-        var rotation = (note.length == "1/1") ? 0 : NOTE_HEAD_ROTATION;
+        var rotation = (note.length == "1/1") ? 0 : s.NOTE_HEAD_ROTATION;
         renderNoteHeadOuter(canvas, ctx, x, y, rotation);
 
         var isHollow = (note.length == "1/1") || (note.length == "1/2");
@@ -280,12 +316,12 @@ var Notate = (function() {
             var minRadius, maxRadius;
 
             if (note.length == "1/1") {
-                minRadius = WHOLENOTE_INNER_RADIUS_MIN;
-                maxRadius = WHOLENOTE_INNER_RADIUS_MAX;
-                rotation = WHOLENOTE_INNER_ROTATION;
+                minRadius = s.WHOLENOTE_INNER_RADIUS_MIN;
+                maxRadius = s.WHOLENOTE_INNER_RADIUS_MAX;
+                rotation = s.WHOLENOTE_INNER_ROTATION;
             } else {
-                minRadius = HALFNOTE_INNER_RADIUS_MIN;
-                maxRadius = HALFNOTE_INNER_RADIUS_MAX;
+                minRadius = s.HALFNOTE_INNER_RADIUS_MIN;
+                maxRadius = s.HALFNOTE_INNER_RADIUS_MAX;
             }
 
             renderNoteHeadInner(canvas, ctx, x, y, minRadius, maxRadius, rotation);
@@ -296,40 +332,27 @@ var Notate = (function() {
     // stem glyph
     //
     sizeCallback['stem'] = function() {
-        // TODO settings
-        var NOTE_STEM_WIDTH = 1;
-        var NOTE_STEM_HEIGHT = 30;
+        var s = Notate.settings;
 
-        return { top: NOTE_STEM_HEIGHT, bottom: 0,
-                 left: -.5 * NOTE_STEM_WIDTH,
-                 right: .5 * NOTE_STEM_WIDTH, 
+        return { 
+            top: s.NOTE_STEM_HEIGHT, 
+            bottom: 0,
+            left: -.5 * s.NOTE_STEM_WIDTH,
+            right: .5 * s.NOTE_STEM_WIDTH, 
         };
     }
 
     positionCallback['stem'] = function(parent, child, arg) {
-        // TODO cache this value in the settings
-        var NOTE_HEAD_RADIUS_MIN = 4;
-        var NOTE_HEAD_RADIUS_MAX = 6;
-        var NOTE_HEAD_ROTATION = -.5;
-
-        var a = NOTE_HEAD_RADIUS_MAX,
-            b = NOTE_HEAD_RADIUS_MIN,
-            theta = -NOTE_HEAD_ROTATION,
-            bCosTheta = b * Math.cos(theta),
-            aSinTheta = a * Math.sin(theta),
-            r = a * b / Math.sqrt(bCosTheta * bCosTheta + aSinTheta * aSinTheta);
+        var s = Notate.settings;
 
         return {
-            x: r,
+            x: s.STEM_OFFSET,
             y: 0,
             params: null,
         };
     }
 
     renderCallback['stem'] = function(canvas, ctx, stem, x, y) {
-        var NOTE_STEM_WIDTH = 1;
-        var NOTE_STEM_HEIGHT = 30;
-
         var rect = translate(stem, { x: 0, y: 0 }, { x: x, y: y });
         ctx.fillRect(rect.left, rect.top, rect.width(), rect.height());
     }
@@ -342,20 +365,10 @@ var Notate = (function() {
     }
 
     positionCallback['flags'] = function(parent, child, arg) {
-        // TODO cache this value in the settings
-        var NOTE_HEAD_RADIUS_MIN = 4;
-        var NOTE_HEAD_RADIUS_MAX = 6;
-        var NOTE_HEAD_ROTATION = -.5;
-
-        var a = NOTE_HEAD_RADIUS_MAX,
-            b = NOTE_HEAD_RADIUS_MIN,
-            theta = -NOTE_HEAD_ROTATION,
-            bCosTheta = b * Math.cos(theta),
-            aSinTheta = a * Math.sin(theta),
-            r = a * b / Math.sqrt(bCosTheta * bCosTheta + aSinTheta * aSinTheta);
+        var s = Notate.settings;
 
         return {
-            x: r,
+            x: s.STEM_OFFSET,
             y: 0,
             params: null,
         };
@@ -405,9 +418,9 @@ var Notate = (function() {
     // @param glyph  The glyph to be rendered
     //
     var render = function(canvas, ctx, glyph) {
+        ctx.fillStyle = '#000';
 
         function recur(canvas, ctx, glyph, x, y) {
-
             renderCallback[glyph.type](canvas, ctx, glyph, x, y);
 
             for (var i = 0; i < glyph.children.length; ++i) {
@@ -420,9 +433,15 @@ var Notate = (function() {
     }
 
     var Notate = { };
+
     Notate.Glyph = Glyph;
+    Notate.Settings = Settings;
+
     Notate.layout = layout;
     Notate.render = render;
+
+    Notate.settings = new Settings();
+
     return Notate;
 
 }());
@@ -508,18 +527,10 @@ function debug() {
         denom *= 2;
 
         if (i > 0) {
-            var NOTE_HEAD_RADIUS_MIN = 4;
-            var NOTE_HEAD_RADIUS_MAX = 6;
-            var NOTE_HEAD_ROTATION = -.5;
-            var a = NOTE_HEAD_RADIUS_MAX,
-                b = NOTE_HEAD_RADIUS_MIN,
-                theta = -NOTE_HEAD_ROTATION,
-                bCosTheta = b * Math.cos(theta),
-                aSinTheta = a * Math.sin(theta),
-                r = a * b / Math.sqrt(bCosTheta * bCosTheta + aSinTheta * aSinTheta);
+            var s = Notate.settings;
             
             var stem = new Notate.Glyph("stem");
-            stem.x = r;
+            stem.x = s.STEM_OFFSET;
             stem.y = 0;
             stem.top = -30;
             stem.bottom = 0;
