@@ -173,17 +173,18 @@ var Notate = (function() {
     layoutCallback['staff'] = function(staff) { }
 
     renderCallback['staff'] = function(canvas, ctx, staff, x, y) {
-        var lines = staff.numLines;
-        var w = staff.width(), 
-            h = staff.height();
-        var r = translate(staff, { x: 0, y: 0 }, { x: x, y: y });
+        var s = Notate.settings;
+        var lines = s.STAFF_LINE_COUNT;
+        var w = staff.width();
 
         var s = Notate.settings;
 
-        for (var dh = 0; dh <= h; dh += h / (lines - 1))
-            ctx.fillRect(r.left, r.top + dh, w, s.STAFF_LINE_HEIGHT);
+        for (var i = 0; i < s.STAFF_LINE_COUNT; ++i) {
+            var dh = i * s.STAFF_LINE_SPACING;
+            ctx.fillRect(x, y + dh, w, s.STAFF_LINE_HEIGHT);
+        }
 
-        ctx.fillRect(r.left, r.top, s.BAR_LINE_WIDTH, h);
+        ctx.fillRect(x, y, s.BAR_LINE_WIDTH, s.STAFF_HEIGHT);
     }
 
     //
@@ -207,7 +208,7 @@ var Notate = (function() {
         for (var i = 0; i < measure.children.length; ++i) {
             var note = measure.children[i];
             note.x = x;
-            note.y = 40;    // TODO determine based on pitch
+            note.y = 20.5;    // TODO determine based on pitch
 
             x += s.NOTE_SPACING;
         }
@@ -218,14 +219,10 @@ var Notate = (function() {
     renderCallback['measure'] = function(canvas, ctx, measure, x, y) {
         var s = Notate.settings;
 
-        var r = translate(measure, { x: 0, y: 0 }, { x: x, y: y });
-        var w = measure.width(), 
-            h = s.STAFF_HEIGHT;
-
-        ctx.fillRect(r.right - s.BAR_LINE_WIDTH,
-                     r.top, 
-                     s.BAR_LINE_WIDTH, 
-                     h);
+        ctx.fillRect(x + measure.width() - s.BAR_LINE_WIDTH, 
+                     y,
+                     s.BAR_LINE_WIDTH,
+                     s.STAFF_HEIGHT);
     }
 
     //

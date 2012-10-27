@@ -3,9 +3,7 @@
 
 ## Initial implementation
 
-* Layout algorithm
 * Document changes to layout algorithm
-* Basic / static layouts for implemented glyph types
 * Lay out notes based on pitch and clef
 * Ledger lines 
 
