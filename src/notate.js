@@ -394,6 +394,7 @@ var Notate = (function() {
                 if (note.type != "note") continue;
                 var glyph = new Glyph("note");
                 glyph.length = toLength(note.length);
+                glyph.pitch = note.pitch;
                 
                 // Its stem
                 if (hasStem(glyph.length)) 
@@ -403,10 +404,12 @@ var Notate = (function() {
                 var flags = numFlags(glyph.length);
                 if (flags > 0) {
                     var flagsGlyph = new Glyph("flags");
-                    flagsGlpyh.count = flags;
+                    flagsGlyph.count = flags;
 
-                    glyph.children.push(flagsGlpyh);
+                    glyph.children.push(flagsGlyph);
                 }
+
+                tree.children.push(glyph);
             }
         }
 
@@ -425,7 +428,9 @@ var Notate = (function() {
     // @return a layout tree corresponding to the document.
     // 
     var layout = function(doc) {
+        var measures = convert(doc);
 
+        console.log(measures);
     }
 
     //
@@ -490,7 +495,6 @@ function enableRetina(canvas, ctx) {
 }
 
 function debugRenderer(canvas, ctx) {
-    // document, staff, register
     var doc = new Notate.Glyph("document");
     var staff = new Notate.Glyph("staff");
     var measure = new Notate.Glyph("measure");
@@ -610,6 +614,8 @@ function debugLayout(canvas, ctx) {
 
         return ret;
     })();
+
+    Notate.render(canvas, ctx, Notate.layout(doc));
 }
 
 function debug() {
