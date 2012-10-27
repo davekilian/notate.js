@@ -391,8 +391,9 @@ var Notate = (function() {
                 var note = measure.notes[j];
 
                 // The note itself
+                if (note.type != "note") continue;
                 var glyph = new Glyph("note");
-                glyph.length = toLength(note.type);
+                glyph.length = toLength(note.length);
                 
                 // Its stem
                 if (hasStem(glyph.length)) 
@@ -488,13 +489,7 @@ function enableRetina(canvas, ctx) {
     }
 }
 
-function debug() {
-    var canvas = document.getElementById('testCanvas');
-    var ctx = canvas.getContext('2d');
-    enableRetina(canvas, ctx);
-
-    renderBackground(canvas, ctx);
-
+function debugRenderer(canvas, ctx) {
     // document, staff, register
     var doc = new Notate.Glyph("document");
     var staff = new Notate.Glyph("staff");
@@ -579,5 +574,52 @@ function debug() {
     staff.children.push(fill);
     
     Notate.render(canvas, ctx, doc);
+}
+
+function debugLayout(canvas, ctx) {
+    doc = (function() {
+        var ret = [ ];
+
+        var incrPitch = function(pitch) {
+            var octave = parseInt(pitch[1]);
+
+            var note = String.fromCharCode(pitch.charCodeAt(0) + 1);
+            if (note == 'H') {
+                note = 'A';
+                ++octave;
+            }
+
+            return note + octave;
+        }
+
+        var denom = 1;
+        var pitch = 'C3';
+
+        for (var i = 0; i < 5; ++i) {
+            var notes = [ ];
+            var length = '1/' + denom;
+
+            for (var j = 0; j < denom; ++j) {
+                notes.push({ type: 'note', length: length, pitch: pitch });
+                pitch = incrPitch(pitch);
+            }
+
+            ret.push({ notes: notes });
+            denom *= 2;
+        }
+
+        return ret;
+    })();
+}
+
+function debug() {
+    var canvas = document.getElementById('testCanvas');
+    var ctx = canvas.getContext('2d');
+    enableRetina(canvas, ctx);
+
+    renderBackground(canvas, ctx);
+
+    //debugRenderer(canvas, ctx);
+    debugLayout(canvas, ctx);
 }
 

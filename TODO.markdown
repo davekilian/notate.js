@@ -4,7 +4,6 @@
 ## Initial implementation
 
 * Layout algorithm
-* Hardcode a simple piece to lay out and render
 * Basic / static layouts for implemented glyph types
 * Lay out notes based on pitch and clef
 * Ledger lines 
