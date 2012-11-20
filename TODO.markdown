@@ -1,12 +1,28 @@
 
 # TODO
 
+## Barring
+
+* Prototype by hardcoding bar between two notes
+* Extend JSON format so barring groups are parents of the notes themselves in
+  the glyph tree.
+* Bar glyph representing the barring group in the glyph tree
+* Parse and position bar glyphs
+* Position notes inside the bar glyph (probably need to duplicate the pitch
+  offset logic from measures, which is messy)
+* Notes inside a barring group shouldn't have flags
+* Figure out a heuristic for positioning bars based on note pitches / vertical
+  positions
+* Change child stem sizes based on the position of the bar
+* Support 16, 32, 64th note barring
+* Support multiple barring types in a single system
+
 ## Add basics to layout and rendering engines
 
-* Barring
+* Triplets
 * Rests
 * Time signatures
-* Clefs
+* Clef markers
 * Key signatures
 * Accidentals
 * Tempo markers
