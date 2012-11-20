@@ -75,30 +75,6 @@ var Notate = (function() {
     }
 
     //
-    // function translate()
-    //
-    // Translates a rectangle into a different coordinate space
-    //
-    // @param rect      The rect to translate (an object with top/bottom/left/right)
-    // @param src       The origin of rect's coordinate system (an object with x/y)
-    // @param dst       The origin of the new coordinate system (object with x/y)
-    //
-    function translate(rect, src, dst) {
-        var dx = dst.x - src.x;
-        var dy = dst.y - src.y;
-
-        return { 
-            top: rect.top + dy,
-            bottom: rect.bottom + dy,
-            left: rect.left + dx,
-            right: rect.right + dx,
-
-            width: Glyph.prototype.width,
-            height: Glyph.prototype.height,
-        };
-    }
-
-    //
     // Per-glyph implementions of the initial size method:
     //
     // function size()
@@ -141,220 +117,28 @@ var Notate = (function() {
     //
     var renderCallback = { };
 
-    // sizeCallback for glyphs that don't have a minimum size
-    var noMinSize = function() { return { top: 0, bottom: 0, left: 0, right: 0 }; }
-
-    // renderCallback for glyphs that don't render anything
-    var renderNothing = function(canvas, ctx, glyph, x, y) { }
-
-    // 
-    // document glyph
     //
-    sizeCallback['document'] = noMinSize;
-
-    layoutCallback['document'] = function(doc) { }
-
-    renderCallback['document'] = renderNothing;
-
+    // function translate()
     //
-    // staff glyph
+    // Translates a rectangle into a different coordinate space
     //
-    sizeCallback['staff'] = function() { 
-        var s = Notate.settings;
-
-        return {
-            top: 0,
-            bottom: (s.STAFF_LINE_COUNT - 1) * s.STAFF_LINE_SPACING,
-            left: 0,
-            right: 0,
-        };
-    }
-
-    layoutCallback['staff'] = function(staff) { }
-
-    renderCallback['staff'] = function(canvas, ctx, staff, x, y) {
-        var s = Notate.settings;
-        var lines = s.STAFF_LINE_COUNT;
-        var w = staff.width();
-
-        var s = Notate.settings;
-
-        for (var i = 0; i < s.STAFF_LINE_COUNT; ++i) {
-            var dh = i * s.STAFF_LINE_SPACING;
-            ctx.fillRect(x, y + dh, w, s.STAFF_LINE_HEIGHT);
-        }
-
-        ctx.fillRect(x, y, s.BAR_LINE_WIDTH, s.STAFF_HEIGHT);
-    }
-
+    // @param rect      The rect to translate (an object with top/bottom/left/right)
+    // @param src       The origin of rect's coordinate system (an object with x/y)
+    // @param dst       The origin of the new coordinate system (object with x/y)
     //
-    // measure glyph
-    //
-    sizeCallback["measure"] = function() {
-        var s = Notate.settings;
-
-        return {
-            top: 0,
-            bottom: (s.STAFF_LINE_COUNT - 1) * s.STAFF_LINE_SPACING,
-            left: 0,
-            right: 0,
-        };
-    }
-
-    layoutCallback['measure'] = function(measure) {
-        var s = Notate.settings;
-        var x = s.NOTE_SPACING;
-
-        for (var i = 0; i < measure.children.length; ++i) {
-            var note = measure.children[i];
-            note.x = x;
-            note.y = 20.5;    // TODO determine based on pitch
-
-            x += s.NOTE_SPACING;
-        }
-
-        measure.right = x;
-    }
-
-    renderCallback['measure'] = function(canvas, ctx, measure, x, y) {
-        var s = Notate.settings;
-
-        ctx.fillRect(x + measure.width() - s.BAR_LINE_WIDTH, 
-                     y,
-                     s.BAR_LINE_WIDTH,
-                     s.STAFF_HEIGHT);
-    }
-
-    //
-    // note glyph
-    //
-    sizeCallback['note'] = function() {
-        var s = Notate.settings;
-        var r = s.NOTE_HEAD_RADIUS_MAX;
-
-        return { top: -r, bottom: r, left: -r, right: r };
-    }
-
-    layoutCallback['note'] = function(note) {
-        var s = Notate.settings;
-
-        for (var i = 0; i < note.children.length; ++i) {
-            var child = note.children[i];
-
-            if (child.type == 'stem') {
-                child.x = s.STEM_OFFSET;
-            } else if (child.type == 'flags') {
-                child.x = s.STEM_OFFSET;
-                child.y = -s.NOTE_STEM_HEIGHT;
-            }
-        }
-    }
-
-    function renderNoteHeadOuter(canvas, ctx, x, y, rotation) {
-        var s = Notate.settings;
-
-        ctx.save();
-
-        ctx.translate(x, y);
-        ctx.rotate(rotation);
-        ctx.scale(1.0 * s.NOTE_HEAD_RADIUS_MAX / s.NOTE_HEAD_RADIUS_MIN, 1.0);
-
-        ctx.beginPath();
-        ctx.arc(0, 0, s.NOTE_HEAD_RADIUS_MIN, 0, 6.28, false);
-        ctx.fill();
-
-        ctx.restore();
-    }
-
-    function renderNoteHeadInner(canvas, ctx, x, y, minRadius, maxRadius, rotation) {
-        ctx.fillStyle = '#fff';
-        ctx.save();
-
-        ctx.translate(x, y);
-        ctx.rotate(rotation);
-        ctx.scale(1.0 * maxRadius / minRadius, 1.0);
-
-        ctx.beginPath();
-        ctx.arc(0, 0, minRadius, 0, 6.28, false);
-        ctx.fill();
-
-        ctx.restore();
-        ctx.fillStyle = '#000';
-    }
-
-    renderCallback['note'] = function(canvas, ctx, note, x, y) {
-        // n.b. This renders the note head, with the origin at the center of the note head.
-        //      Stems, flags, bars and dots are all children of the note glyph.
-   
-        var s = Notate.settings;
-
-        var rotation = (note.length == "1/1") ? 0 : s.NOTE_HEAD_ROTATION;
-        renderNoteHeadOuter(canvas, ctx, x, y, rotation);
-
-        var isHollow = (note.length == "1/1") || (note.length == "1/2");
-        if (isHollow) {
-            var minRadius, maxRadius;
-
-            if (note.length == "1/1") {
-                minRadius = s.WHOLENOTE_INNER_RADIUS_MIN;
-                maxRadius = s.WHOLENOTE_INNER_RADIUS_MAX;
-                rotation = s.WHOLENOTE_INNER_ROTATION;
-            } else {
-                minRadius = s.HALFNOTE_INNER_RADIUS_MIN;
-                maxRadius = s.HALFNOTE_INNER_RADIUS_MAX;
-            }
-
-            renderNoteHeadInner(canvas, ctx, x, y, minRadius, maxRadius, rotation);
-        }
-    }
-
-    //
-    // stem glyph
-    //
-    sizeCallback['stem'] = function() {
-        var s = Notate.settings;
+    function translate(rect, src, dst) {
+        var dx = dst.x - src.x;
+        var dy = dst.y - src.y;
 
         return { 
-            top: -s.NOTE_STEM_HEIGHT, 
-            bottom: 0,
-            left: -.5 * s.NOTE_STEM_WIDTH,
-            right: .5 * s.NOTE_STEM_WIDTH, 
+            top: rect.top + dy,
+            bottom: rect.bottom + dy,
+            left: rect.left + dx,
+            right: rect.right + dx,
+
+            width: Glyph.prototype.width,
+            height: Glyph.prototype.height,
         };
-    }
-
-    layoutCallback['stem'] = function(stem) { }
-
-    renderCallback['stem'] = function(canvas, ctx, stem, x, y) {
-        var rect = translate(stem, { x: 0, y: 0 }, { x: x, y: y });
-        ctx.fillRect(rect.left, rect.top, rect.width(), rect.height());
-    }
-
-    // 
-    // flags glyph
-    //
-    sizeCallback['flags'] = function() {
-        return { top: 0, bottom: 21.5, left: 0, right: 11.2 };
-    }
-
-    layoutCallback['flags'] = function(flags) { }
-
-    renderCallback['flags'] = function(canvas, ctx, flags, x, y) {
-        for (var i = 0; i < flags.count; ++i) {
-            ctx.save();
-            ctx.translate(x, y + 6.5 * i);
-
-            ctx.beginPath();
-            ctx.moveTo(.6, 0);
-            ctx.bezierCurveTo(.6, 0, 0, 1.5, 4.9, 6.2);
-            ctx.bezierCurveTo(9.8, 10.8, 9.6, 19.7, 7.3, 21.5);
-            ctx.bezierCurveTo(7.3, 21.5, 11.2, 7.8, .9, 7.3);
-            ctx.lineTo(.6, 0);
-            ctx.closePath();
-
-            ctx.fill();
-
-            ctx.restore();
-        }
     }
 
     //
@@ -363,7 +147,7 @@ var Notate = (function() {
     // Translates a note nickname ("whole" or "eighth") into a fraction ("1/1"
     // or "1/8" respectively)
     //
-    var toLength = function(nickname) {
+    function toLength(nickname) {
         if (nickname == "whole")        return "1/1";
         if (nickname == "half")         return "1/2";
         if (nickname == "quarter")      return "1/4";
@@ -381,7 +165,7 @@ var Notate = (function() {
     // Returns a bool indicating whether a note with a given length has a stem.
     // The input length must be a time division '1/X', where X is a power of 2.
     //
-    var hasStem = function(length) {
+    function hasStem(length) {
         return length != "1/1";
     }
 
@@ -391,7 +175,7 @@ var Notate = (function() {
     // Returns the number of flags a note with the given length has.
     // The input length must be a time division '1/X', where X is a power of 2.
     //
-    var numFlags = function(length) {
+    function numFlags(length) {
         var denom = parseInt(length.substring(length.indexOf('/') + 1));
 
         var pow = 0;    // such that length = 1/(2^{pow})
@@ -585,6 +369,7 @@ var Notate = (function() {
 
     var Notate = { };
 
+    // Export public interface
     Notate.Glyph = Glyph;
     Notate.Settings = Settings;
 
@@ -593,165 +378,22 @@ var Notate = (function() {
 
     Notate.settings = new Settings();
 
+    // These callbacks are published so other source files can add to them.
+    // This allows for other source files to extend notate's glyph system. The
+    // core glyphs also use this mechanism - see the files in src/glyphs.
+    Notate.sizeCallback = sizeCallback;
+    Notate.layoutCallback = layoutCallback;
+    Notate.renderCallback = renderCallback;
+
+    // The following methods are provided to glyphs as helpers. Glyphs may
+    // choose to add items as necessary, but are strongly discouraged from
+    // removing helpers.
+    Notate.Helpers = { };
+    Notate.Helpers.translate = translate;
+    Notate.Helpers.toLength = toLength;
+    Notate.Helpers.hasStem = hasStem;
+    Notate.Helpers.numFlags = numFlags;
+
     return Notate;
 }());
-
-// DEBUG
-
-function renderBackground(canvas, ctx) { 
-    ctx.fillStyle = 'rgb(255, 255, 255)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
-
-function enableRetina(canvas, ctx) {
-    if (window.devicePixelRatio) {
-        var ratio = window.devicePixelRatio;
-
-        var w = canvas.width;
-        var h = canvas.height;
-
-        canvas.width = w * ratio;
-        canvas.height = h * ratio;
-
-        canvas.style.width = w + 'px';
-        canvas.style.height = h + 'px';
-
-        ctx.scale(ratio, ratio);
-    }
-}
-
-function debugRenderer(canvas, ctx) {
-    var doc = new Notate.Glyph("document");
-    var staff = new Notate.Glyph("staff");
-    var measure = new Notate.Glyph("measure");
-    var fill = new Notate.Glyph("measure");
-
-    var MARGINX = 50;
-    var MARGINY = 50;
-    var ratio = window.devicePixelRatio; 
-    var w = canvas.width / ratio;
-    var h = canvas.height / ratio;
-
-    doc.top = 0;
-    doc.bottom = h;
-    doc.left = 0;
-    doc.right = w;
-
-    staff.x = MARGINX;
-    staff.y = MARGINY;
-    staff.top = 0;
-    staff.bottom = 32;
-    staff.left = 0;
-    staff.right = doc.width() - 2 * MARGINX;
-    staff.numLines = 5;
-
-    measure.top = 0;
-    measure.left = 0;
-    measure.right = 180;
-    measure.bottom = staff.height();
-
-    fill.x = measure.width();
-    fill.y = 0;
-    fill.top = 0;
-    fill.bottom = measure.height();
-    fill.left = 0;
-    fill.right = staff.width() - measure.width();
-
-    var denom = 1;
-    for (var i = 0; i < 6; ++i) {
-        var note = new Notate.Glyph("note");
-        note.x = 15 + 23 * i;
-        note.y = 24.5;
-        note.top = -10;
-        note.bottom = 10;
-        note.left = -10;
-        note.right = 10;
-        note.length = "1/" + denom;
-        denom *= 2;
-
-        if (i > 0) {
-            var s = Notate.settings;
-            
-            var stem = new Notate.Glyph("stem");
-            stem.x = s.STEM_OFFSET;
-            stem.y = 0;
-            stem.top = -30;
-            stem.bottom = 0;
-            stem.left = -.5;
-            stem.right = .5;
-
-            for (var j = 0; j < i - 2; ++j) {
-                var flags = new Notate.Glyph("flags");
-                flags.x = 0;
-                flags.y = -stem.height();
-                flags.top = 0;
-                flags.bottom = 21.5;
-                flags.left = 0;
-                flags.right = 11.2;
-                flags.count = j + 1;
-
-                stem.children.push(flags);
-            }
-
-            note.children.push(stem);
-        }
-
-        measure.children.push(note);
-    }
-
-    doc.children.push(staff);
-    staff.children.push(measure);
-    staff.children.push(fill);
-    
-    Notate.render(canvas, ctx, doc);
-}
-
-function debugLayout(canvas, ctx) {
-    doc = (function() {
-        var ret = [ ];
-
-        var incrPitch = function(pitch) {
-            var octave = parseInt(pitch[1]);
-
-            var note = String.fromCharCode(pitch.charCodeAt(0) + 1);
-            if (note == 'H') {
-                note = 'A';
-                ++octave;
-            }
-
-            return note + octave;
-        }
-
-        var denom = 1;
-        var pitch = 'C3';
-
-        for (var i = 0; i < 5; ++i) {
-            var notes = [ ];
-            var length = '1/' + denom;
-
-            for (var j = 0; j < denom; ++j) {
-                notes.push({ type: 'note', length: length, pitch: pitch });
-                pitch = incrPitch(pitch);
-            }
-
-            ret.push({ notes: notes });
-            denom *= 2;
-        }
-
-        return ret;
-    })();
-
-    Notate.render(canvas, ctx, Notate.layout(doc));
-}
-
-function debug() {
-    var canvas = document.getElementById('testCanvas');
-    var ctx = canvas.getContext('2d');
-    enableRetina(canvas, ctx);
-
-    renderBackground(canvas, ctx);
-
-    //debugRenderer(canvas, ctx);
-    debugLayout(canvas, ctx);
-}
 
