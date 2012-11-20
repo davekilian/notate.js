@@ -145,6 +145,21 @@ function debugLayout(canvas, ctx) {
     Notate.render(canvas, ctx, Notate.layout(doc));
 }
 
+function debugBarring(canvas, ctx) {
+    var beg = { x: 172.7, y: 76.5 };
+    var end = { x: 195.8, y: 72.5 };
+    var HEIGHT = 4;
+
+    ctx.beginPath();
+
+    ctx.moveTo(beg.x, beg.y);
+    ctx.lineTo(end.x, end.y);
+    ctx.lineTo(end.x, end.y + HEIGHT);
+    ctx.lineTo(beg.x, beg.y + HEIGHT);
+
+    ctx.fill();
+}
+
 function debug() {
     var canvas = document.getElementById('testCanvas');
     var ctx = canvas.getContext('2d');
@@ -154,5 +169,7 @@ function debug() {
 
     //debugRenderer(canvas, ctx);
     debugLayout(canvas, ctx);
+
+    debugBarring(canvas, ctx);
 }
 

@@ -3,7 +3,6 @@
 
 ## Barring
 
-* Prototype by hardcoding bar between two notes
 * Extend JSON format so barring groups are parents of the notes themselves in
   the glyph tree.
 * Bar glyph representing the barring group in the glyph tree
