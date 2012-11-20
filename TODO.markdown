@@ -1,11 +1,6 @@
 
 # TODO
 
-## Modularization
-
-* Break glyphs out of notate.js
-* build.py
-
 ## Initial implementation
 
 * Lay out notes based on pitch and clef
