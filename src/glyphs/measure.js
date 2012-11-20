@@ -39,7 +39,6 @@
 
     function pitchOffset(delta) {
         var s = Notate.settings;
-        console.log(s.STAFF_LINE_SPACING);
         return -delta * .5 * s.STAFF_LINE_SPACING + 0.5;
     }
 

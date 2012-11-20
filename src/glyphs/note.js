@@ -4,7 +4,8 @@
 //
 // The note glyph acts as the root for a node. The glyph itself renders the
 // note head, but stems and flags (if applicable) are rendered as children of
-// the note glyph -- see stem.js, flags.js. 
+// the note glyph -- see stem.js, flags.js. This glyph also handles ledger
+// lines.
 //
 
 (function(Notate) {
@@ -63,11 +64,38 @@
         ctx.fillStyle = '#000';
     }
 
+    function renderLedgers(canvas, ctx, x, y, note) {
+        var s = Notate.settings;
+        var dy = note.y;
+        y -= dy;
+
+        var h = (s.STAFF_LINE_COUNT - 1) * s.STAFF_LINE_SPACING;
+        if (dy >= 0 && dy <= h)
+            return;
+
+        var min = 0, max = 0;
+
+        if (dy < 0) {
+            min = y + dy - ((dy - 0.5) % s.STAFF_LINE_SPACING);
+            max = y;
+        } else {
+            min = y + h + s.STAFF_LINE_SPACING;
+            max = y + dy;
+        }
+
+        var w = s.LEDGER_WIDTH, h = s.LEDGER_HEIGHT;
+        for (var y = min; y < max; y += s.STAFF_LINE_SPACING) {
+            ctx.fillRect(x - .5 * w, y, w, h);
+        }
+    }
+
     Notate.renderCallback['note'] = function(canvas, ctx, note, x, y) {
         // n.b. This renders the note head, with the origin at the center of the note head.
         //      Stems, flags, bars and dots are all children of the note glyph.
    
         var s = Notate.settings;
+
+        renderLedgers(canvas, ctx, x, y, note);
 
         var rotation = (note.length == "1/1") ? 0 : s.NOTE_HEAD_ROTATION;
         renderNoteHeadOuter(canvas, ctx, x, y, rotation);

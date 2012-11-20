@@ -25,6 +25,8 @@ var Notate = (function() {
         this.WHOLENOTE_INNER_ROTATION = 1;
         this.NOTE_STEM_WIDTH = 1;
         this.NOTE_STEM_HEIGHT = 30;
+        this.LEDGER_WIDTH = 18;
+        this.LEDGER_HEIGHT = 1;
         this.BAR_LINE_WIDTH = 1;
         this.BAR_BOLD_WIDTH = 3;
 

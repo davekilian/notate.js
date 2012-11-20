@@ -1,15 +1,8 @@
 
 # TODO
 
-## Initial implementation
-
-* Lay out notes based on pitch and clef
-* Ledger lines 
-* General refactoring & cleanup
-
 ## Add basics to layout and rendering engines
 
-* Different note types
 * Barring
 * Rests
 * Time signatures
