@@ -34,6 +34,12 @@
 * Render the bar
 * Support multiple bar types in a single group
 
+## Chords
+
+* Support in JSON
+* Support in rendering
+* Should work exactly like regular notes otherwise
+
 ## Add basics to layout and rendering engines
 
 * Rests
