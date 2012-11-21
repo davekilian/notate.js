@@ -22,7 +22,7 @@ The measures in the list are specified in the order they should be rendered.
         { ... },    // Second measure
     ]
 
-Mesure objects contain some metadata and a list of notes, each of which is 
+Measure objects contain some metadata and a list of notes, each of which is 
 also an object:
 
     {
@@ -55,9 +55,45 @@ Note objects are specified as follows:
         "dots": 0,              // Number of times the note is dotted
         "pitch": "C4",          // Pitch name and octave
         "accidental": "none",   // "sharp", "flat", "doublesharp", "doubleflat"
-        "bar": false,           // Whether this note is barred with the next note
-        "slur": false,          // Whether this note is slurred with the next note
     }
+
+### Chords
+
+Chords are a special case of the note object. Instead of `type` `note`, chords
+have type `chord`. They also contain multiple pitches:
+
+    {
+        "type": "chord",
+        "pitches": [ "C4", "G4" ],
+        // (other note flags)
+    }
+
+### Groupings
+
+The measure object's note list can have items that specify a group of notes
+instead of a note. This is used for notation that affects multiple notes as a
+group, e.g. eighth-note barring, slurring or rendering as a triplet.
+
+Group objects work as follows:
+
+    {
+        "type": "group",
+        "barred": true,
+        "barcount": 2,
+        "slurred": true,
+        "triplet": true,
+        "notes":                // List of notes in the group of barred notes
+        [
+            { ... },            // First note
+            { ... },            // Second note
+        ]
+    }
+
+Note that groups are not nestable. The notes in a group must be valid notes
+
+TODO should they be nestable? We might want to bar many notes and slur only
+some of the notes in the barred group. Slurs can actually be meta-elements that
+are defined at the measure level though. Similar crises?
 
 ### TODO
 

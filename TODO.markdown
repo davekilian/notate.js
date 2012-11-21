@@ -19,6 +19,7 @@
 ## Add basics to layout and rendering engines
 
 * Triplets
+* Chords
 * Rests
 * Time signatures
 * Clef markers
@@ -30,10 +31,6 @@
 * Codas
 * Note accents
 * [Anything else I missed](http://en.wikipedia.org/wiki/List_of_musical_symbols)
-
-## Chords
-
-* Can the existing JSON model support chords?
 
 ## Multi-stave systems
 
