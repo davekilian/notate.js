@@ -150,14 +150,19 @@ function debugBarring(canvas, ctx) {
     var end = { x: 195.8, y: 72.5 };
     var HEIGHT = 4;
 
-    ctx.beginPath();
+    for (var i = 0; i < 2; ++i) {
+        ctx.beginPath();
 
-    ctx.moveTo(beg.x, beg.y);
-    ctx.lineTo(end.x, end.y);
-    ctx.lineTo(end.x, end.y + HEIGHT);
-    ctx.lineTo(beg.x, beg.y + HEIGHT);
+        ctx.moveTo(beg.x, beg.y);
+        ctx.lineTo(end.x, end.y);
+        ctx.lineTo(end.x, end.y + HEIGHT);
+        ctx.lineTo(beg.x, beg.y + HEIGHT);
 
-    ctx.fill();
+        ctx.fill();
+
+        beg.y += 1.6 * HEIGHT;
+        end.y += 1.6 * HEIGHT;
+    }
 }
 
 function debug() {
