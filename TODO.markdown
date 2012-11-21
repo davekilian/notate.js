@@ -1,7 +1,7 @@
 
 # TODO
 
-## Fliped Stems
+## Flipped Stems
 
 * Flip notes upside-down when their pitch puts them above the middle of the
   staff
