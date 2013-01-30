@@ -48,8 +48,9 @@
 
         for (var i = 0; i < measure.children.length; ++i) {
             var note = measure.children[i];
+            note.pitchDelta = pitchDelta(note.pitch, 'treble');
             note.x = x;
-            note.y = pitchOffset(pitchDelta(note.pitch, 'treble'));
+            note.y = pitchOffset(note.pitchDelta);
 
             x += s.NOTE_SPACING;
         }

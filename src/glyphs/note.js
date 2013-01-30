@@ -20,14 +20,35 @@
     Notate.layoutCallback['note'] = function(note) {
         var s = Notate.settings;
 
-        for (var i = 0; i < note.children.length; ++i) {
-            var child = note.children[i];
+        var mid = -s.STAFF_LINE_COUNT;  // * 2 = num half steps
+                                        // * 2 / 2 = midpoint
+        var flipped = note.pitchDelta > mid;
 
-            if (child.type == 'stem') {
-                child.x = s.STEM_OFFSET;
-            } else if (child.type == 'flags') {
-                child.x = s.STEM_OFFSET;
-                child.y = -s.NOTE_STEM_HEIGHT;
+        if (flipped) {  // Stem points down
+            for (var i = 0; i < note.children.length; ++i) {
+                var child = note.children[i];
+
+                if (child.type == 'stem') {
+                    child.x = -s.STEM_OFFSET;
+                    child.y = s.NOTE_STEM_HEIGHT;
+
+                } else if (child.type == 'flags') {
+                    child.x = -s.STEM_OFFSET;
+                    child.y = s.NOTE_STEM_HEIGHT;
+                    child.flipped = true;
+                }
+            }
+        } else {    // Stem points up
+            for (var i = 0; i < note.children.length; ++i) {
+                var child = note.children[i];
+
+                if (child.type == 'stem') {
+                    child.x = s.STEM_OFFSET;
+
+                } else if (child.type == 'flags') {
+                    child.x = s.STEM_OFFSET;
+                    child.y = -s.NOTE_STEM_HEIGHT;
+                }
             }
         }
     }

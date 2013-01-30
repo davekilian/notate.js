@@ -175,6 +175,6 @@ function debug() {
     //debugRenderer(canvas, ctx);
     debugLayout(canvas, ctx);
 
-    debugBarring(canvas, ctx);
+//    debugBarring(canvas, ctx);
 }
 

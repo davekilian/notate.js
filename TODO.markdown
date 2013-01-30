@@ -1,11 +1,6 @@
 
 # TODO
 
-## Flipped Stems
-
-* Flip notes upside-down when their pitch puts them above the middle of the
-  staff
-
 ## Groups
 
 * Create a group glyph that can stand in place of a note glyph in some cases

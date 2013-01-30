@@ -18,7 +18,13 @@
 
         for (var i = 0; i < flags.count; ++i) {
             ctx.save();
-            ctx.translate(x, y + 6.5 * i);
+
+            if (flags.flipped) {
+                ctx.translate(x, y - 6 * i);
+                ctx.scale(1.0, -1.0);
+            } else {
+                ctx.translate(x, y + 6 * i);
+            }
 
             ctx.beginPath();
             ctx.moveTo(.6, 0);

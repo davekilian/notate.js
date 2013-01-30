@@ -317,12 +317,12 @@ var Notate = (function() {
         var measures = convert(doc);
 
         function recur(glyph) {
+            // Move child glyphs and determine this glyph's size
+            layoutCallback[glyph.type](glyph);
+
             // Size and lay out the children glyph subtrees
             for (var i = 0; i < glyph.children.length; ++i)
                 recur(glyph.children[i]);
-
-            // Move child glyphs and determine this glyph's size
-            layoutCallback[glyph.type](glyph);
 
             // Expand the glyph's bounding rect to hold its children
             var minbounds = sizeCallback[glyph.type]();
