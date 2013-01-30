@@ -39,7 +39,7 @@ var Notate = (function() {
                 bCosTheta = b * Math.cos(theta),
                 aSinTheta = a * Math.sin(theta);
 
-            return a * b / Math.sqrt(bCosTheta * bCosTheta + aSinTheta * aSinTheta);
+            return a * b / Math.sqrt(bCosTheta * bCosTheta + aSinTheta * aSinTheta) - 1.0;
         })(this);
     }
 
@@ -358,7 +358,9 @@ var Notate = (function() {
         ctx.fillStyle = '#000';
 
         function recur(canvas, ctx, glyph, x, y) {
-            renderCallback[glyph.type](canvas, ctx, glyph, x, y);
+            var ix = Math.floor(x),
+                iy = Math.floor(y);
+            renderCallback[glyph.type](canvas, ctx, glyph, ix, iy);
 
             for (var i = 0; i < glyph.children.length; ++i) {
                 var c = glyph.children[i];

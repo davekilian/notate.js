@@ -37,7 +37,7 @@
 
         ctx.save();
 
-        ctx.translate(x, y);
+        ctx.translate(x - 0.5, y + 0.5);
         ctx.rotate(rotation);
         ctx.scale(1.0 * s.NOTE_HEAD_RADIUS_MAX / s.NOTE_HEAD_RADIUS_MIN, 1.0);
 
@@ -52,7 +52,7 @@
         ctx.fillStyle = '#fff';
         ctx.save();
 
-        ctx.translate(x, y);
+        ctx.translate(x - 0.5, y + 0.5);
         ctx.rotate(rotation);
         ctx.scale(1.0 * maxRadius / minRadius, 1.0);
 
@@ -66,7 +66,7 @@
 
     function renderLedgers(canvas, ctx, x, y, note) {
         var s = Notate.settings;
-        var dy = note.y;
+        var dy = Math.floor(note.y);
         y -= dy;
 
         var h = (s.STAFF_LINE_COUNT - 1) * s.STAFF_LINE_SPACING;
@@ -76,7 +76,7 @@
         var min = 0, max = 0;
 
         if (dy < 0) {
-            min = y + dy - ((dy - 0.5) % s.STAFF_LINE_SPACING);
+            min = y + dy - (dy % s.STAFF_LINE_SPACING);
             max = y;
         } else {
             min = y + h + s.STAFF_LINE_SPACING;
@@ -84,7 +84,7 @@
         }
 
         var w = s.LEDGER_WIDTH, h = s.LEDGER_HEIGHT;
-        for (var y = min; y < max; y += s.STAFF_LINE_SPACING) {
+        for (var y = min; y <= max; y += s.STAFF_LINE_SPACING) {
             ctx.fillRect(x - .5 * w, y, w, h);
         }
     }

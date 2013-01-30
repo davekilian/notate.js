@@ -13,8 +13,8 @@
         return { 
             top: -s.NOTE_STEM_HEIGHT, 
             bottom: 0,
-            left: -.5 * s.NOTE_STEM_WIDTH,
-            right: .5 * s.NOTE_STEM_WIDTH, 
+            left: 0,
+            right: s.NOTE_STEM_WIDTH, 
         };
     }
 
