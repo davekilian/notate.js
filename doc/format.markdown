@@ -5,97 +5,116 @@ JSON Representation
 This document describes the JSON representation for documents that can
 be rendered by notate.js.
 
-### Note
+## Note
 
 notate.js is just a rendering engine; it does not understand your
 document beyond what it needs to render it. If you want to validate your
 document (e.g. check the number of beats per measure matches the time
 signature), you're on your own! :)
 
-### Format
+## Format
 
-A document is just a list of measures, each of which is an object.
-The measures in the list are specified in the order they should be rendered.
+A document consists of a list of glyphs, each of which is an object:
 
     [
-        { ... },    // First measure
-        { ... },    // Second measure
+        { ... },    // First glyph
+        { ... },    // Second glyph
     ]
 
-Measure objects contain some metadata and a list of notes, each of which is 
-also an object:
+A glyph is something can appear inside a staff. Most glyphs are either notes,
+rests or measure markers; other glyphs include time / key signatures and codas.
+
+    [
+        { type: "clef", clef: "treble" },
+        { type: "keysig", key="C major" },
+        { type: "timesig", over: 6, under: 8 },
+        { ... notes ... },
+    ]
+
+Notes are glyphs too. They're a little more complicated:
 
     {
-        "clef": "treble",
-        "timesig-over": 6,
-        "timesig-under": 8,
-        // ... (other metadata)
-        "notes": 
-        [
-            { ... },    // First note
-            { ... },    // Second note
-        ]
+        type: "note",         // or "rest"
+        length: "whole",      // "half", "eighth", ..., "1/4", "1/8", ...
+        dots: 0,              // Number of times the note is dotted
+        pitch: "C4",          // Pitch name and octave
+        accidental: "none",   // "sharp", "flat", "doublesharp", "doubleflat"
     }
 
-Measure metadata is applied modally. That is, if the first measure in the 
-docuemnt specifies the "clef" attribute, then the rest of the measures 
-afterward inherit that clef value. If a measure halfway through the document
-changes the clef attribute, then all the measures after that measure inherit
-the new clef value.
+Clefs and key signatures affect the document modally; that is, after a treble
+clef declaration, all notes encountered will be placed on the treble clef until
+the clef is changed by declaring another note.
 
-Redundantly specifying measure metadata (e.g. "clef", "timesig-...") will cause
-relevant glyphs to be rendered again, even if the value of the attribute is the
-same as what the measure would have inherited anyway.
+The `end-measure` glyph denotes the end of a measure (i.e. a single vertical
+line). It should be placed after the last note of a measure and the first 
+note of the next:
 
-Note objects are specified as follows:
+    [
+        { type: "note", ... },
+        { type: "note", ... },
+        { type: "note", ... },
+        { type: "note", ... },
 
-    {
-        "type": "note",         // or "rest"
-        "length": "whole",      // "half", "eighth", ..., "1/4", "1/8", ...
-        "dots": 0,              // Number of times the note is dotted
-        "pitch": "C4",          // Pitch name and octave
-        "accidental": "none",   // "sharp", "flat", "doublesharp", "doubleflat"
-    }
+        { type: "end-measure" },
 
-### Chords
+        { type: "note", ... },
+    ]
+
+## Chords
 
 Chords are a special case of the note object. Instead of `type` `note`, chords
 have type `chord`. They also contain multiple pitches:
 
     {
-        "type": "chord",
-        "pitches": [ "C4", "G4" ],
-        // (other note flags)
+       type: "chord",
+       pitches: [ "C4", "G4" ],
+       // (other note flags)
     }
 
-### Groupings
+## References
 
-The measure object's note list can have items that specify a group of notes
-instead of a note. This is used for notation that affects multiple notes as a
-group, e.g. eighth-note barring, slurring or rendering as a triplet.
+Each glyph has a unique ID, specified by the `id` attribute. If no `id` is
+specified in the JSON file, notate will auto-assign one for future use. IDs
+must be unique throughout the document.
 
-Group objects work as follows:
+Some glyphs depend on other glyphs. For example, bar and slur glyphs bar notes
+together and slur notes together (respectively) -- in order to do their jobs,
+they need to know which notes they're barring and slurring together. They do
+this simply by referring to the IDs of the glyphs they group.
 
-    {
-        "type": "group",
-        "barred": true,
-        "barcount": 2,
-        "slurred": true,
-        "triplet": true,
-        "notes":                // List of notes in the group of barred notes
-        [
-            { ... },            // First note
-            { ... },            // Second note
-        ]
-    }
+## Groupings
 
-Note that groups are not nestable. The notes in a group must be valid notes
+Since manually choosing IDs for notes can be tedius, notate can do it for you.
+As mentioned earlier, notate will auto-assign an ID to any glyph that doesn't
+already have an ID. 
 
-TODO should they be nestable? We might want to bar many notes and slur only
-some of the notes in the barred group. Slurs can actually be meta-elements that
-are defined at the measure level though. Similar crises?
+An alternate syntax allows you to group glyphs together. For example, the
+following example slurs a set of barred eighth notes:
 
-### TODO
+
+    [
+        { type: "group", bar: [
+            { type: "group", slur: [
+                { ... some note ... },
+                { ... some note ... },
+                { ... some note ... },
+                { ... some note ... },
+            ], },
+        ], },
+    ]
+
+This is shorthand for:
+
+    [
+        { type: "note", id: "note1", ... },
+        { type: "note", id: "note2", ... },
+        { type: "note", id: "note3", ... },
+        { type: "note", id: "note4", ... },
+        { type: bar, children: [ "note1", "note2", "note3", "note4" ] },
+        { type: slur, children: [ "note1", "note2", "note3", "note4" ] },
+    ]
+
+## TODO
 
 As more advanced capabilities are added, update the format above. Currently 
 missing information like tempo, multi-measure rests, etc.

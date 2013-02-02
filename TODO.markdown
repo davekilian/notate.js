@@ -30,7 +30,6 @@ Then bar / slur / etc glyphs can refer to those child glyphs and use them to
 lay themselves out. This requires us to have some notion of the order in which
 glyphs are laid out. 
 
-* Change the JSON doc to reflect the flatter hierarcy
 * Move note layout logic to staff glyph
 * Measure glyph should become an end-of-measure glyph
 * Change conversion engine to handle the new format, and test extensively
