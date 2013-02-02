@@ -247,10 +247,9 @@ var Notate = (function() {
     // @param width    The width of the document
     //
     var fillStaves = function(glyphs, width) {
-        function nextStaff(doc, y, width) {
+        function nextStaff(doc, width) {
             var staff = new Glyph('staff');
             staff.x = s.MARGIN_HORIZ;
-            staff.y = y;
             staff.right = width - 2 * s.MARGIN_HORIZ;
 
             doc.children.push(staff);
@@ -279,10 +278,18 @@ var Notate = (function() {
             return staff.width();
         }
 
-        function finishStaff(staff) {
+        function finishStaff(staff, prev) {
             layoutGlyph(staff);
+
             var last = staff.children[staff.children.length - 1];
             last.x = staff.width();
+
+            var s = Notate.settings;
+
+            if (prev == null)
+                staff.y = Math.floor(s.MARGIN_VERT - staff.top);
+            else
+                staff.y = Math.floor((prev.y + prev.bottom) + s.STAFF_SPACING - staff.top);
         }
 
         var s = Notate.settings;
@@ -290,11 +297,10 @@ var Notate = (function() {
         var doc = new Glyph('document');
         doc.right = width;
 
-        var x = 0;
-        var y = s.MARGIN_VERT;
-
         var prev = null;
-        var staff = nextStaff(doc, y, width);
+        var staff = nextStaff(doc, width);
+
+        var x = 0;
 
         for (var i = 0; i < glyphs.length; ) {
             // Find the glyphs in this measure
@@ -309,9 +315,8 @@ var Notate = (function() {
                 finishStaff(staff, prev);
 
                 x = 0;
-                y += staff.height() + s.STAFF_SPACING;
                 prev = staff;
-                staff = nextStaff(doc, y, width);
+                staff = nextStaff(doc, width);
             }
 
             // Measure fits, add it to the staff
@@ -321,16 +326,9 @@ var Notate = (function() {
             x += measureWidth;
         }
 
-        finishStaff(staff);
+        finishStaff(staff, prev);
         return doc;
 
-        // TODO this layout algorithm is going to fail if staves have a large
-        // bounding area above their y = 0 lines (i.e. due to lots of notes)
-        // because we never move the finished staff relative to the previous
-        // staff.
-        // So, track the previous staff and move the current staff when
-        // finishing the current staff before moving onto the next staff.
-        //
         // TODO all the doc comments for the layout subroutines are probably
         // totally wrong now that I changed everything
     }
