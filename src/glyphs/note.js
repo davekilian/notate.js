@@ -29,12 +29,12 @@
                 var child = note.children[i];
 
                 if (child.type == 'stem') {
-                    child.x = -s.STEM_OFFSET;
-                    child.y = s.NOTE_STEM_HEIGHT;
+                    child.x = -s.STEM_OFFSET - 1.0;
+                    child.y = s.NOTE_STEM_HEIGHT + 1.0;
 
                 } else if (child.type == 'flags') {
-                    child.x = -s.STEM_OFFSET;
-                    child.y = s.NOTE_STEM_HEIGHT;
+                    child.x = -s.STEM_OFFSET - 1.0;
+                    child.y = s.NOTE_STEM_HEIGHT + 1.0;
                     child.flipped = true;
                 }
             }

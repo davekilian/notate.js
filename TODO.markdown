@@ -1,12 +1,50 @@
 
 # TODO
 
-## Groups
+## Grouped Semantics
 
-* Create a group glyph that can stand in place of a note glyph in some cases
-* Duplicate note-positioning logic inside the group glyph
-    * Split out into a helper
-    * Or maybe a measure is a note group? mind=blown
+Older design is clunky due to the fact that groups (notably slurs) can overlap
+measure boundaries. The most straightforward solution it seems is to make
+measure boundaries just another glyph, thus flattening the document model. 
+
+Then we can change the document format so that groups are nested, like so:
+
+    {
+        bar:
+        [
+            slur:
+            [
+                { ... some note ... },
+                { ... some note ... },
+                { ... some note ... },
+                { ... some note ... },
+            ],
+        ],
+    }
+
+The parser can desugar this by
+* Assigning a unique ID to each note in the document
+* Creating bar / slur glyphs that reference the child notes
+
+Then bar / slur / etc glyphs can refer to those child glyphs and use them to
+lay themselves out. This requires us to have some notion of the order in which
+glyphs are laid out. 
+
+* Change the JSON doc to reflect the flatter hierarcy
+* Move note layout logic to staff glyph
+* Measure glyph should become an end-of-measure glyph
+* Change conversion engine to handle the new format, and test extensively
+* Mention how to group things in the JSON doc
+* Write the desugarer that assigns glyph IDs and creates grouping glyphs (bar,
+  slur, etc) with inter-glyph references. Assuming layout engine processes
+  glyphs in order (I believe it will naively), we can just jam the new glyph at
+  the end of the document
+* Eventually we'll need logic for splitting groups that span multiple lines,
+  but we can get to that once we have basic functionality for triplets and
+  slurs and bars and stuff
+
+Finally, the work items below for triplets, slurs and barring are probably out
+of date now.
 
 ## Triplets
 
