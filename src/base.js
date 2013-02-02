@@ -328,9 +328,6 @@ var Notate = (function() {
 
         finishStaff(staff, prev);
         return doc;
-
-        // TODO all the doc comments for the layout subroutines are probably
-        // totally wrong now that I changed everything
     }
 
     //
