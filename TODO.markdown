@@ -3,33 +3,6 @@
 
 ## Grouped Semantics
 
-Older design is clunky due to the fact that groups (notably slurs) can overlap
-measure boundaries. The most straightforward solution it seems is to make
-measure boundaries just another glyph, thus flattening the document model. 
-
-Then we can change the document format so that groups are nested, like so:
-
-    {
-        bar:
-        [
-            slur:
-            [
-                { ... some note ... },
-                { ... some note ... },
-                { ... some note ... },
-                { ... some note ... },
-            ],
-        ],
-    }
-
-The parser can desugar this by
-* Assigning a unique ID to each note in the document
-* Creating bar / slur glyphs that reference the child notes
-
-Then bar / slur / etc glyphs can refer to those child glyphs and use them to
-lay themselves out. This requires us to have some notion of the order in which
-glyphs are laid out. 
-
 * Move note layout logic to staff glyph
 * Measure glyph should become an end-of-measure glyph
 * Change conversion engine to handle the new format, and test extensively
@@ -41,9 +14,8 @@ glyphs are laid out.
 * Eventually we'll need logic for splitting groups that span multiple lines,
   but we can get to that once we have basic functionality for triplets and
   slurs and bars and stuff
-
-Finally, the work items below for triplets, slurs and barring are probably out
-of date now.
+* Change triplet / slur / barring sections below to mention groups need to
+  refer to other notes to lay themselves out.
 
 ## Triplets
 
