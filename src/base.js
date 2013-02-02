@@ -193,9 +193,9 @@ var Notate = (function() {
     //
     // function convert(doc)
     //
-    // Creates a list of layout trees containing the glyphs inside each
-    // measure of the given document. The return value of this method is
-    // a list of measure glyphs. None of the resulting glyphs will contain
+    // Creates a list of layout trees for each glyph in the document. The
+    // return value of this method is a list of glyphs that go inside staves
+    // (e.g. 'note', 'end-measure'). None of the resulting glyphs will contain
     // any position or size information.
     //
     // Notate.layout() uses this method as a subroutine. layout() computes
@@ -243,7 +243,7 @@ var Notate = (function() {
     // Creates as many staves as needed to fit every measure, in order, into
     // a document. Returns the resulting document
     //
-    // @param measures The measures to fit into the document
+    // @param glyphs   The measures to fit into the document
     // @param width    The width of the document
     //
     var fillStaves = function(glyphs, width) {
@@ -333,6 +333,13 @@ var Notate = (function() {
         // totally wrong now that I changed everything
     }
 
+    //
+    // function layoutGlyph
+    //
+    // Recursively computes the positions and sizes of the glyph's subtree,
+    // then determines the glyph's size (the union of its minimum size and the
+    // bounding rectangles of all its descendents)
+    //
     function layoutGlyph(glyph) {
         // Determine where children of this glyph belong
         layoutCallback[glyph.type](glyph);
