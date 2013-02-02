@@ -3,9 +3,6 @@
 
 ## Grouped Semantics
 
-* Move note layout logic to staff glyph
-* Measure glyph should become an end-of-measure glyph
-* Change conversion engine to handle the new format, and test extensively
 * Mention how to group things in the JSON doc
 * Write the desugarer that assigns glyph IDs and creates grouping glyphs (bar,
   slur, etc) with inter-glyph references. Assuming layout engine processes
