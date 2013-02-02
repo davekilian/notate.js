@@ -124,18 +124,17 @@ function debugLayout(canvas, ctx) {
         }
 
         var denom = 1;
-        var pitch = 'C3';
+        var pitch = 'C4';
 
         for (var i = 0; i < 5; ++i) {
-            var notes = [ ];
             var length = '1/' + denom;
 
             for (var j = 0; j < denom; ++j) {
-                notes.push({ type: 'note', length: length, pitch: pitch });
+                ret.push({ type: 'note', length: length, pitch: pitch });
                 pitch = incrPitch(pitch);
             }
 
-            ret.push({ notes: notes });
+            ret.push({ type: 'end-measure' });
             denom *= 2;
         }
 

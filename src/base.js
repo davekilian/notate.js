@@ -30,7 +30,8 @@ var Notate = (function() {
         this.BAR_LINE_WIDTH = 1;
         this.BAR_BOLD_WIDTH = 3;
 
-        this.STAFF_HEIGHT = (this.STAFF_LINE_COUNT - 1) * this.STAFF_LINE_SPACING;
+        this.STAFF_HEIGHT = (this.STAFF_LINE_COUNT - 1) * this.STAFF_LINE_SPACING 
+                          + this.STAFF_LINE_HEIGHT;
 
         this.STEM_OFFSET = (function(s) {
             var a = s.NOTE_HEAD_RADIUS_MAX,
@@ -205,34 +206,31 @@ var Notate = (function() {
         var trees = [];
 
         for (var i = 0; i < doc.length; ++i) {
-            var measure = doc[i];
+            var glyph = doc[i];
 
-            var tree = new Glyph("measure");
-            trees.push(tree);
-
-            for (var j = 0; j < measure.notes.length; ++j) {
-                var note = measure.notes[j];
+            if (glyph.type == 'note') {
+                var note = new Glyph('note');
 
                 // The note itself
-                if (note.type != "note") continue;
-                var glyph = new Glyph("note");
-                glyph.length = toLength(note.length);
-                glyph.pitch = note.pitch;
+                note.length = toLength(glyph.length);
+                note.pitch = glyph.pitch;
                 
                 // Its stem
-                if (hasStem(glyph.length)) 
-                    glyph.children.push(new Glyph("stem"));
+                if (hasStem(note.length)) 
+                    note.children.push(new Glyph('stem'));
 
                 // Its flags
-                var flags = numFlags(glyph.length);
-                if (flags > 0) {
-                    var flagsGlyph = new Glyph("flags");
-                    flagsGlyph.count = flags;
+                var nFlags = numFlags(note.length);
+                if (nFlags > 0) {
+                    var flags = new Glyph('flags');
+                    flags.count = nFlags;
 
-                    glyph.children.push(flagsGlyph);
+                    note.children.push(flags);
                 }
 
-                tree.children.push(glyph);
+                trees.push(note);
+            } else if (glyph.type == 'end-measure') {
+                trees.push(new Glyph('end-measure'));
             }
         }
 
@@ -248,7 +246,7 @@ var Notate = (function() {
     // @param measures The measures to fit into the document
     // @param width    The width of the document
     //
-    var fillStaves = function(measures, width) {
+    var fillStaves = function(glyphs, width) {
         function nextStaff(doc, y, width) {
             var staff = new Glyph('staff');
             staff.x = s.MARGIN_HORIZ;
@@ -260,9 +258,31 @@ var Notate = (function() {
             return staff;
         }
 
+        function nextEndMeasure(glyphs, start) {
+            for (var i = start; i < glyphs.length; ++i) {
+                if (glyphs[i].type == 'end-measure')
+                    return i;
+            }
+
+            // If we get here, there are glyphs after the final end-measure.
+            // That probably means someone forgot to finish with an end-measure
+            glyphs.push({ type: 'end-measure' });
+            return glyphs.length - 1;
+        }
+
+        function sizeof(glyphs, start, end) {
+            var staff = new Glyph('staff');
+            for (var i = start; i <= end; ++i)
+                staff.children.push(glyphs[i]);
+
+            layoutGlyph(staff);
+            return staff.width();
+        }
+
         function finishStaff(staff) {
+            layoutGlyph(staff);
             var last = staff.children[staff.children.length - 1];
-            last.right = staff.width() - last.x;
+            last.x = staff.width();
         }
 
         var s = Notate.settings;
@@ -273,33 +293,66 @@ var Notate = (function() {
         var x = 0;
         var y = s.MARGIN_VERT;
 
+        var prev = null;
         var staff = nextStaff(doc, y, width);
 
-        for (var i = 0; i < measures.length; ++i) {
-            var measure = measures[i];
+        for (var i = 0; i < glyphs.length; ) {
+            // Find the glyphs in this measure
+            var start = i;
+            var end = nextEndMeasure(glyphs, start);
+            i = end + 1;
 
-            // If this measure won't fit, finish the staff
-            var fits = x + measure.width() <= staff.width();
+            // If the measure won't fit, finish the staff and start a new one
+            var measureWidth = sizeof(glyphs, start, end);
+            var fits = x + measureWidth <= staff.width();
             if (staff.children.length > 0 && !fits) {
-                finishStaff(staff);
+                finishStaff(staff, prev);
 
                 x = 0;
                 y += staff.height() + s.STAFF_SPACING;
+                prev = staff;
                 staff = nextStaff(doc, y, width);
             }
 
             // Measure fits, add it to the staff
-            measure.x = x;
-            x += measure.width();
-            staff.children.push(measure);
-            staff.union(measure);
+            for (var j = start; j <= end; ++j) 
+                staff.children.push(glyphs[j]);
+
+            x += measureWidth;
         }
 
         finishStaff(staff);
-
-        console.log(measures);
-        console.log(doc);
         return doc;
+
+        // TODO this layout algorithm is going to fail if staves have a large
+        // bounding area above their y = 0 lines (i.e. due to lots of notes)
+        // because we never move the finished staff relative to the previous
+        // staff.
+        // So, track the previous staff and move the current staff when
+        // finishing the current staff before moving onto the next staff.
+        //
+        // TODO all the doc comments for the layout subroutines are probably
+        // totally wrong now that I changed everything
+    }
+
+    function layoutGlyph(glyph) {
+        // Determine where children of this glyph belong
+        layoutCallback[glyph.type](glyph);
+
+        // Size and lay out the children glyph subtrees
+        for (var i = 0; i < glyph.children.length; ++i)
+            layoutGlyph(glyph.children[i]);
+
+        // Expand the glyph's bounding rect to hold its children
+        var minbounds = sizeCallback[glyph.type]();
+        glyph.union(minbounds);
+
+        for (var i = 0; i < glyph.children.length; ++i) {
+            var child = glyph.children[i];
+            var bounds = translate(child, { x:0, y:0 }, child);
+
+            glyph.union(bounds);
+        }
     }
 
     // 
@@ -314,35 +367,15 @@ var Notate = (function() {
     // @return a layout tree corresponding to the document.
     // 
     var layout = function(doc) {
-        var measures = convert(doc);
+        var glyphs = convert(doc);
 
-        function recur(glyph) {
-            // Move child glyphs and determine this glyph's size
-            layoutCallback[glyph.type](glyph);
+        // Lay out each individual glyph
+        for (var i = 0; i < glyphs.length; ++i)
+            layoutGlyph(glyphs[i]);
 
-            // Size and lay out the children glyph subtrees
-            for (var i = 0; i < glyph.children.length; ++i)
-                recur(glyph.children[i]);
-
-            // Expand the glyph's bounding rect to hold its children
-            var minbounds = sizeCallback[glyph.type]();
-            glyph.union(minbounds);
-
-            for (var i = 0; i < glyph.children.length; ++i) {
-                var child = glyph.children[i];
-                var bounds = translate(child, { x:0, y:0 }, child);
-
-                glyph.union(bounds);
-            }
-        }
-
-        // Lay out each individual measure
-        for (var i = 0; i < measures.length; ++i)
-            recur(measures[i]);
-
-        // Build staves out of measures
+        // Build staves out of glyphs
         var width = 800;    // TODO param?
-        return fillStaves(measures, width);
+        return fillStaves(glyphs, width);
     }
 
     //

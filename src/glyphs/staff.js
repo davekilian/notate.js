@@ -19,7 +19,50 @@
         };
     }
 
-    Notate.layoutCallback['staff'] = function(staff) { }
+    function pitchDelta(pitch, clef) {
+        var originNote, originPitch;
+
+        if (clef == 'treble') {
+            originNote = 'F'.charCodeAt(0);
+            originPitch = 5;
+        } else {
+            console.log('NYI: note pitch on ' + clef + ' clef');
+        }
+
+        var note = pitch.charCodeAt(0);
+        var octave = parseInt(pitch.charAt(1));
+
+        return 7 * (octave - originPitch) + (note - originNote);
+    }
+
+    function pitchOffset(delta) {
+        var s = Notate.settings;
+        return -delta * .5 * s.STAFF_LINE_SPACING + 0.5;
+    }
+
+    Notate.layoutCallback['staff'] = function(staff) {
+        var s = Notate.settings;
+        var x = s.NOTE_SPACING;
+
+        for (var i = 0; i < staff.children.length; ++i) {
+            var glyph = staff.children[i];
+
+            if (glyph.type == 'note') {
+                var note = glyph;
+                note.pitchDelta = pitchDelta(note.pitch, 'treble');
+                note.x = x;
+                note.y = pitchOffset(note.pitchDelta);
+
+                x += s.NOTE_SPACING;
+            } else if (glyph.type == 'end-measure') {
+                var measure = glyph;
+                measure.x = x;
+                measure.y = 0;
+
+                x += s.NOTE_SPACING;
+            }
+        }
+    }
 
     Notate.renderCallback['staff'] = function(canvas, ctx, staff, x, y) {
         var s = Notate.settings;
