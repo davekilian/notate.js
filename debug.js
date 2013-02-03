@@ -124,7 +124,7 @@ function debugLayout(canvas, ctx) {
         }
 
         var denom = 1;
-        var pitch = 'C4';
+        var pitch = 'C3';
 
         for (var i = 0; i < 5; ++i) {
             var length = '1/' + denom;

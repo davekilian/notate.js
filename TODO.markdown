@@ -3,7 +3,21 @@
 
 ## Grouped Semantics
 
-* Mention how to group things in the JSON doc
+A little more design is needed here. Currently there isn't a way for a group
+glyph to find the other glyphs it depends on. Worse, there's no way for the
+glyph to know finally where in the document the glyph it depends on will end up
+unless it traverses the tree to find out).
+
+The best thing I can come up with is, as the final step of laying out, to walk
+the tree and bake absolute coordinates into each glyph. Do the same traversal
+as Notate.render(), storing the x/y coordinates into each Glyph in the tree.
+
+I like the second better, so let's do that.
+
+* Write the absolute coordinate calculation step
+* Change internal specifications so a map from ID string to glyph is passed
+  around during layout and rendering. Have need for the first but not the
+  second, but I can't see the second hurting anything.
 * Write the desugarer that assigns glyph IDs and creates grouping glyphs (bar,
   slur, etc) with inter-glyph references. Assuming layout engine processes
   glyphs in order (I believe it will naively), we can just jam the new glyph at

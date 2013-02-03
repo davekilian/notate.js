@@ -73,9 +73,8 @@ have type `chord`. They also contain multiple pitches:
 
 ## References
 
-Each glyph has a unique ID, specified by the `id` attribute. If no `id` is
-specified in the JSON file, notate will auto-assign one for future use. IDs
-must be unique throughout the document.
+Each glyph can be assigned a unique ID, specified by the `id` attribute. IDs
+must be unique on the document level.
 
 Some glyphs depend on other glyphs. For example, bar and slur glyphs bar notes
 together and slur notes together (respectively) -- in order to do their jobs,
