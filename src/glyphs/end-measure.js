@@ -21,8 +21,10 @@
 
     Notate.layoutCallback['end-measure'] = function(measure) { }
 
-    Notate.renderCallback['end-measure'] = function(canvas, ctx, measure, x, y) {
-        var s = Notate.settings;
+    Notate.renderCallback['end-measure'] = function(canvas, ctx, measure) {
+        var s = Notate.settings,
+            x = measure.x,
+            y = measure.y;
 
         ctx.fillRect(x, y, s.BAR_LINE_WIDTH, s.STAFF_HEIGHT);
     }

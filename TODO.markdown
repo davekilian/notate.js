@@ -12,21 +12,19 @@ The best thing I can come up with is, as the final step of laying out, to walk
 the tree and bake absolute coordinates into each glyph. Do the same traversal
 as Notate.render(), storing the x/y coordinates into each Glyph in the tree.
 
-I like the second better, so let's do that.
+Then we lay things out in two passes. In the first pass, we lay out 'normal'
+glyphs, and in the second we lay out group glyphs / glyphs that depend on note
+positions.
 
-* Write the absolute coordinate calculation step
-* Change internal specifications so a map from ID string to glyph is passed
-  around during layout and rendering. Have need for the first but not the
-  second, but I can't see the second hurting anything.
 * Write the desugarer that assigns glyph IDs and creates grouping glyphs (bar,
-  slur, etc) with inter-glyph references. Assuming layout engine processes
-  glyphs in order (I believe it will naively), we can just jam the new glyph at
-  the end of the document
-* Eventually we'll need logic for splitting groups that span multiple lines,
-  but we can get to that once we have basic functionality for triplets and
-  slurs and bars and stuff
-* Change triplet / slur / barring sections below to mention groups need to
-  refer to other notes to lay themselves out.
+  slur, etc) with inter-glyph references. This should happen first, before we
+  convert() the document into a list of layout trees
+* Write logic for processing glyphs in two passes: non-groups first, groups
+  second.
+
+Eventually we'll need logic for splitting groups that span multiple lines,
+but we can get to that once we have basic functionality for triplets and
+slurs and bars and stuff
 
 ## Triplets
 

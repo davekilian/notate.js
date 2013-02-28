@@ -105,18 +105,13 @@ var Notate = (function() {
     //
     // Per-glyph implementations of the render method:
     //
-    // function render(canvas, ctx, glyph, x, y)
+    // function render(canvas, ctx, glyph)
     //
-    // Renders a glyph on a canvas at a specified location. This location is
-    // specified in canvas coordiantes; it is not superceded by the glyph's
-    // x and y properties (which are defined in their parents' coordinate
-    // systems).
+    // Renders a given glyph
     //
     // @param canvas    The canvas element that will be rendered to
     // @param ctx       The canvas2d context for the canvas element
     // @param glyph     The glyph to render (see Notate.Glyph)
-    // @param x         The X coordinate of the glyph's origin in canvas coords
-    // @param y         The Y coordinate of the glyph's origin in canvas coords
     //
     var renderCallback = { };
 
@@ -207,6 +202,11 @@ var Notate = (function() {
 
         for (var i = 0; i < doc.length; ++i) {
             var glyph = doc[i];
+
+            // TODO if we can guarantee glyph.type is always the same as the
+            //      type name used in the input document JSON, then maybe we
+            //      should factor each of these cases into a convertCallback()
+            //      or something.
 
             if (glyph.type == 'note') {
                 var note = new Glyph('note');
@@ -303,6 +303,7 @@ var Notate = (function() {
         var x = 0;
 
         for (var i = 0; i < glyphs.length; ) {
+
             // Find the glyphs in this measure
             var start = i;
             var end = nextEndMeasure(glyphs, start);
@@ -338,6 +339,7 @@ var Notate = (function() {
     // bounding rectangles of all its descendents)
     //
     function layoutGlyph(glyph) {
+
         // Determine where children of this glyph belong
         layoutCallback[glyph.type](glyph);
 
@@ -355,6 +357,33 @@ var Notate = (function() {
 
             glyph.union(bounds);
         }
+    }
+
+    //
+    // function bakeCoords(tree)
+    //
+    // Replaces relative coordinates stored at each node in the glyph tree and
+    // converts them to absolute coordinates in document canvas space
+    //
+    // @tree    A tree of Glyph objects whose coordinates are always relative
+    //          to their parents
+    //
+    var bakeCoords = function(tree) {
+        function recur(tree, x, y) {
+            var dx = tree.x;
+            var dy = tree.y;
+
+            for (var i = 0; i < tree.children.length; ++i)
+                recur(tree.children[i], x + dx, y + dy);
+
+            tree.dx = Math.floor(dx);
+            tree.dy = Math.floor(dy);
+
+            tree.x = Math.floor(x + dx);
+            tree.y = Math.floor(y + dy);
+        }
+
+        recur(tree, 0, 0);
     }
 
     // 
@@ -377,7 +406,12 @@ var Notate = (function() {
 
         // Build staves out of glyphs
         var width = 800;    // TODO param?
-        return fillStaves(glyphs, width);
+        tree = fillStaves(glyphs, width);
+    
+        // Convert relative coordinates to absolute coordinates
+        bakeCoords(tree);
+
+        return tree;
     }
 
     //
@@ -392,18 +426,14 @@ var Notate = (function() {
     var render = function(canvas, ctx, glyph) {
         ctx.fillStyle = '#000';
 
-        function recur(canvas, ctx, glyph, x, y) {
-            var ix = Math.floor(x),
-                iy = Math.floor(y);
-            renderCallback[glyph.type](canvas, ctx, glyph, ix, iy);
+        function recur(canvas, ctx, glyph) {
+            renderCallback[glyph.type](canvas, ctx, glyph);
 
-            for (var i = 0; i < glyph.children.length; ++i) {
-                var c = glyph.children[i];
-                recur(canvas, ctx, c, x + c.x, y + c.y);
-            }
+            for (var i = 0; i < glyph.children.length; ++i)
+                recur(canvas, ctx, glyph.children[i]);
         }
 
-        recur(canvas, ctx, glyph, glyph.x, glyph.y);
+        recur(canvas, ctx, glyph);
     }
 
     var Notate = { };

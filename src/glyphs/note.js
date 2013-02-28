@@ -87,7 +87,7 @@
 
     function renderLedgers(canvas, ctx, x, y, note) {
         var s = Notate.settings;
-        var dy = Math.floor(note.y);
+        var dy = note.dy;
         y -= dy;
 
         var h = (s.STAFF_LINE_COUNT - 1) * s.STAFF_LINE_SPACING;
@@ -114,9 +114,11 @@
         // n.b. This renders the note head, with the origin at the center of the note head.
         //      Stems, flags, bars and dots are all children of the note glyph.
    
-        var s = Notate.settings;
+        var s = Notate.settings,
+            x = note.x,
+            y = note.y;
 
-        renderLedgers(canvas, ctx, x, y, note);
+        renderLedgers(canvas, ctx, note.x, note.y, note);
 
         var rotation = (note.length == "1/1") ? 0 : s.NOTE_HEAD_ROTATION;
         renderNoteHeadOuter(canvas, ctx, x, y, rotation);

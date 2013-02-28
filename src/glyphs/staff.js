@@ -64,12 +64,12 @@
         }
     }
 
-    Notate.renderCallback['staff'] = function(canvas, ctx, staff, x, y) {
+    Notate.renderCallback['staff'] = function(canvas, ctx, staff) {
         var s = Notate.settings;
         var lines = s.STAFF_LINE_COUNT;
         var w = staff.width();
-
-        var s = Notate.settings;
+        var x = staff.x,
+            y = staff.y;
 
         for (var i = 0; i < s.STAFF_LINE_COUNT; ++i) {
             var dh = i * s.STAFF_LINE_SPACING;

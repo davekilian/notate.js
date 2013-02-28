@@ -13,8 +13,10 @@
 
     Notate.layoutCallback['flags'] = function(flags) { }
 
-    Notate.renderCallback['flags'] = function(canvas, ctx, flags, x, y) {
+    Notate.renderCallback['flags'] = function(canvas, ctx, flags) {
         var translate = Notate.Helpers.translate;
+        var x = flags.x, 
+            y = flags.y;
 
         for (var i = 0; i < flags.count; ++i) {
             ctx.save();

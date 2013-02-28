@@ -20,9 +20,9 @@
 
     Notate.layoutCallback['stem'] = function(stem) { }
 
-    Notate.renderCallback['stem'] = function(canvas, ctx, stem, x, y) {
+    Notate.renderCallback['stem'] = function(canvas, ctx, stem) {
         var translate = Notate.Helpers.translate;
-        var rect = translate(stem, { x: 0, y: 0 }, { x: x, y: y });
+        var rect = translate(stem, { x: 0, y: 0 }, { x: stem.x, y: stem.y });
         ctx.fillRect(rect.left, rect.top, rect.width(), rect.height());
     }
 

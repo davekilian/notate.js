@@ -14,7 +14,7 @@
 
     Notate.layoutCallback['document'] = function(doc) { }
 
-    Notate.renderCallback['document'] = function(a, b, c, d, e) { }
+    Notate.renderCallback['document'] = function(a, b, c) { }
 
 })(Notate);
 
