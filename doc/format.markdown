@@ -1,126 +1,165 @@
 
-JSON Representation
-===================
+Note Format
+===========
 
-This document describes the JSON representation for documents that can
-be rendered by notate.js.
+notate uses a domain-specific language built on top of JSON. At its core, the
+language is simply a list of JSON objects, each of which represents a rendering
+command.
 
 ## Note
 
-notate.js is just a rendering engine; it does not understand your
-document beyond what it needs to render it. If you want to validate your
-document (e.g. check the number of beats per measure matches the time
-signature), you're on your own! :)
+notate.js is just a rendering engine. It does not understand your document
+beyond what it needs to render it. If you want to validate your document (e.g.
+check the number of beats in a measure matches the time signature), you're on
+your own :)
 
-## Format
+## Example
 
-A document consists of a list of glyphs, each of which is an object:
+     1  [
+     2      { title: "Hot Cross Buns (Sample Document)" },
+     3      { composer: "notate.js" },
+     4
+     5      { clef: "treble" },
+     6
+     7      { show: "clef", type: "treble" },
+     8      { show: "timesig", over: 4, under: 4 },
+     9      { show: "keysig", key: "C major" },
+    10
+    11      { show: "note", pitch: "B5", length: "quarter" },
+    12      { show: "note", pitch: "A5", length: "quarter" },
+    13      { show: "note", pitch: "G4", length: "half" },
+    14      { show: "measure" },
+    15
+    16      { show: "note", pitch: "B5", length: "quarter" },
+    17      { show: "note", pitch: "A5", length: "quarter" },
+    18      { show: "note", pitch: "G4", length: "half" },
+    19      { show: "measure" },
+    20
+    21      { begin: "bar" },
+    22      { show: "note", pitch: "G4", length: "eighth" },
+    23      { show: "note", pitch: "G4", length: "eighth" },
+    24      { show: "note", pitch: "G4", length: "eighth" },
+    25      { show: "note", pitch: "G4", length: "eighth" },
+    26      { end: "bar" },
+    27      
+    28      { begin: "bar" },
+    29      { show: "note", pitch: "A5", length: "eighth" },
+    30      { show: "note", pitch: "A5", length: "eighth" },
+    31      { show: "note", pitch: "A5", length: "eighth" },
+    32      { show: "note", pitch: "A5", length: "eighth" },
+    33      { end: "bar" },
+    34      { show: "measure" },
+    35
+    36      { show: "note", pitch: "B5", length: "quarter" },
+    37      { show: "note", pitch: "A5", length: "quarter" },
+    38      { show: "note", pitch: "G4", length: "half" },
+    39      { show: "measure" },
+    40  ]
 
-    [
-        { ... },    // First glyph
-        { ... },    // Second glyph
-    ]
+### What's Going On?
 
-A glyph is something can appear inside a staff. Most glyphs are either notes,
-rests or measure markers; other glyphs include time / key signatures and codas.
+As previously mentioned, the notate DSL consists of a list of command objects. 
 
-    [
-        { type: "clef", clef: "treble" },
-        { type: "keysig", key="C major" },
-        { type: "timesig", over: 6, under: 8 },
-        { ... notes ... },
-    ]
+The document above begins with some metadata like the title and author.
+notate.js will render this in a pretty way at the top of the document. If you'd
+rather handle this yourself, you're free to omit these parameters and render
+them onto the document canvas yourself.
 
-Notes are glyphs too. They're a little more complicated:
+Next, on line 5, is the `clef` command. The `clef` command denotes which clef
+notes are rendered in. It is applied modally; that is, once you specify a
+`clef` command, all notes after it are affected until you specify a different
+clef. Note that the `clef` command doesn't actually draw a clef symbol. That
+will come later in the document. Since the default `clef` is `treble`, we could
+have ommitted line 5 from our document.
 
-    {
-        type: "note",         // or "rest"
-        length: "whole",      // "half", "eighth", ..., "1/4", "1/8", ...
-        dots: 0,              // Number of times the note is dotted
-        pitch: "C4",          // Pitch name and octave
-        accidental: "none",   // "sharp", "flat", "doublesharp", "doubleflat"
-    }
+On line 7 we see our first `show` command. The `show` command is used for the
+majority of things notate.js renders. Different parameters are required when
+showing different objects. A complete list of show commands are specified later
+in this document. Notably, the `show` command draws the vertical bars that
+terminate a measure (see line 14).
 
-Clefs and key signatures affect the document modally; that is, after a treble
-clef declaration, all notes encountered will be placed on the treble clef until
-the clef is changed by declaring another note.
+Some pieces of musical notation affect multiple notes. On line 21, we see an
+example: the bar that connects a group of eighth notes. All `show: "note"`
+commands inside a `begin`/`end` command block are affected by that `begin`
+command. In this case, the four notes between `begin: "bar"` and `end: "bar"`
+are barred together.
 
-The `end-measure` glyph denotes the end of a measure (i.e. a single vertical
-line). It should be placed after the last note of a measure and the first 
-note of the next:
+## Commands
 
-    [
-        { type: "note", ... },
-        { type: "note", ... },
-        { type: "note", ... },
-        { type: "note", ... },
+### Metadata
 
-        { type: "end-measure" },
+These commands specify textual information that can be rendered on your notate
+document:
 
-        { type: "note", ... },
-    ]
+* `{ title: "The Title of Your Piece" }`
+* `{ composer: "He Who Composed the Piece" }`
+* `{ arranged: "He Who Arranged the Piece? }`
+* `{ year: "Like 2000 or MM }`
 
-## Chords
+### `clef`
 
-Chords are a special case of the note object. Instead of `type` `note`, chords
-have type `chord`. They also contain multiple pitches:
+The `clef` command changes what clef your document is currently using. Notes
+after the current `clef` command use the specified clef to determine how to map
+their pitches to places on the staff. Specifying a clef only affects the
+subsequent notes.
 
-    {
-       type: "chord",
-       pitches: [ "C4", "G4" ],
-       // (other note flags)
-    }
+The default clef is `treble`. Other possibilities are 
 
-## References
+* `violin`, the French violin clef
+* `soprano`
+* `mezzo-soprano`,
+* `alto`
+* `tenor`
+* `baritone`
+* `bass`
+* `sub-bass`
 
-Each glyph can be assigned a unique ID, specified by the `id` attribute. IDs
-must be unique on the document level.
+### `show`
 
-Some glyphs depend on other glyphs. For example, bar and slur glyphs bar notes
-together and slur notes together (respectively) -- in order to do their jobs,
-they need to know which notes they're barring and slurring together. They do
-this simply by referring to the IDs of the glyphs they group.
+The `show` command renders an object. There are many different objects that can
+be rendered with the `show` command, and many of these objects require a
+different set of parameters to be passed in via the show command. A full list
+of objects that can be rendered with `show`, complete with necessary
+parameters, is provided in another section.
 
-## Groupings
+### `begin` & `end`
 
-Since manually choosing IDs for notes can be tedius, notate can do it for you.
-As mentioned earlier, notate will auto-assign an ID to any glyph that doesn't
-already have an ID. 
+`begin` and `end` are used to render notation that affects or depends on
+multiple notes. Examples include bars and slurs. Any `show` command between
+`begin` and `end` is processed normally. Any `show: "note"` command between
+`begin` and `end` gets included in the bar/slur/etc.
 
-An alternate syntax allows you to group glyphs together. For example, the
-following example slurs a set of barred eighth notes:
+Things that can be included in a begin or end:
 
+* `begin: "bar"` causes all notes in the block to get barred together. notate
+  automatically determines what kind of barring to use (eighth-note,
+  sixteenth-note, etc)
+* `begin: "slur"` renders a slur that covers all notes in the block
+* `TODO` anything else?
 
-    [
-        { type: "group", bar: [
-            { type: "group", slur: [
-                { ... some note ... },
-                { ... some note ... },
-                { ... some note ... },
-                { ... some note ... },
-            ], },
-        ], },
-    ]
+`begin`/`end` blocks are designed so they can overlap:
 
-This is shorthand for:
+    { begin: "bar" },
+        { show: "note", length: "eighth", pitch: "C4" },
+        { show: "note", length: "eighth", pitch: "C4" },
+        { show: "note", length: "eighth", pitch: "C4" },
+    { begin: "slur" },
+        { show: "note", length: "eighth", pitch: "C4" },
+    { end: "bar" },
 
-    [
-        { type: "note", id: "note1", ... },
-        { type: "note", id: "note2", ... },
-        { type: "note", id: "note3", ... },
-        { type: "note", id: "note4", ... },
-        { type: bar, children: [ "note1", "note2", "note3", "note4" ] },
-        { type: slur, children: [ "note1", "note2", "note3", "note4" ] },
-    ]
+    { show: "measure" }
 
-## TODO
+    { begin: "bar" },
+        { show: "note", length: "eighth", pitch: "C4" },
+    { end: "slur" },
+        { show: "note", length: "eighth", pitch: "C4" },
+        { show: "note", length: "eighth", pitch: "C4" },
+        { show: "note", length: "eighth", pitch: "C4" },
+    { end: "bar" },
 
-As more advanced capabilities are added, update the format above. Currently 
-missing information like tempo, multi-measure rests, etc.
+## `show`able Objects
 
-[This page](http://en.wikipedia.org/wiki/List_of_musical_symbols) is a pretty
-good list of things that should eventually make it into the format and then
-the rendering engine.
+TODO -- use [this page](http://en.wikipedia.org/wiki/List_of_musical_symbols) 
 
-Will need to fundamentally change the format a bit to support systems.
+Don't forget to talk about notes, chords, and things that affect both.
 
