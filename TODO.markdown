@@ -1,6 +1,109 @@
 
 # TODO
 
+## New Document Format
+
+I'm starting to think the document format (at least the initial document
+format) is too hierarchical. It could make more sense for decorators to be
+apply modally. Then you can make something of a DSL. For example, you could 
+have:
+
+    [
+        { start: "bar" },
+        { start: "slur" },
+
+        { show: "note", ... },
+        { show: "note", ... },
+        ...
+
+        { end: "slur" },
+        { end: "bar" },
+    ]
+
+That gives you the ability to easily overlap different groups:
+
+    [
+        { start: "bar" },
+            { show: "note", ... },
+            { show: "note", ... },
+            { show: "note", ... },
+        { start: "slur" },
+            { show: "note", ... },
+        { end: "bar" },
+        { start: "bar" },
+            { show: "note", ... },
+        { end: "slur" },
+            { show: "note", ... },
+            { show: "note", ... },
+            { show: "note", ... },
+        { end: "bar" },
+    ]
+
+If you need to overlap two of the same sort of thing (for example, you're
+barring eighth notes together and you need a sixteenth note section), you can
+specify names to your start/end glyphs:
+
+    [
+        { start: "bar", named: "outer", ... },
+            { show: "note", ... },
+        { start: "bar", named: "inner", ... },
+            { show: "note", ... },
+            { show: "note", ... },
+        { end: "inner" },
+            { show: "note", ... },
+        { end: "outer" },
+    ]
+
+I'm not yet certain whether we'd then want to scrap the idea of a layout tree
+and just go with document glyphs. There seem to only be a few classes of glyphs
+we need to consider:
+
+1. Things that appear on the clef and take up some amount of horizonal space.
+   Examples: notes, measure bars, clefs, time signatures
+2. Things that decorate a single note.
+   Examples: note accents
+3. Things that decorate multiple notes.
+   Examples: bar lines, slurs
+4. Things that decorate measures.
+   Examples: tempo / dynamic text
+
+Items in class (1) can appear on their own in the document as "show" commands.
+Items in class (2) can basically be parameters of the "show" command for notes.
+Items in class (3) can appear modally as begin/end commands.
+Items in class (4) can either appear as a different command ("text"?) or just
+use "show" commands like class (1).
+
+It might be worthwhile at this point to look through a lot of musical notation
+and figure out if there are more classes of things I missed.
+
+Once that's done, it's worthwhile to think about
+
+* How we'd parse such a document
+* How we'd fit this document into measures
+* Whether we can simplify the layout tree for the intermediate representation.
+  Maybe talk a about a notate.js object model? (NOM lol)
+
+I'm starting to wonder if it wouldn't make sense to parse and lay out at the
+same time. Maybe it'd make sense to generate glyph subtrees as we parse, and
+then either
+
+* Fit the measures into the staves in a second pass
+* Have some kind of lookahead where we preparse an entire measure and then lay
+  it out
+
+Items can still know how to lay themselves out relative to some anchor (e.g.
+the top of the staff). 
+
+We can also have modally-applied commands. For example, you can specify the
+clef:
+
+    { clef: "treble" }
+    ... (notes)
+
+Every `show: "note"` command after the `clef: "treble"` command will then use
+the treble clef with the note's `pitch` parameter to decide how to lay out the
+note vertically.
+
 ## Grouped Semantics
 
 A little more design is needed here. Currently there isn't a way for a group
