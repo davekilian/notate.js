@@ -194,8 +194,8 @@ var Notate = (function() {
     // any position or size information.
     //
     // Notate.layout() uses this method as a subroutine. layout() computes
-    // sizes and positions for each glyph, then generates staves by placing
-    // as many measures in each staff as possible.
+    // sizes and positions for each glyph. Notate.layout() then generates 
+    // staves by placing as many measures in each staff as possible.
     //
     var convert = function(doc) {
         var trees = [];
@@ -243,7 +243,7 @@ var Notate = (function() {
     // Creates as many staves as needed to fit every measure, in order, into
     // a document. Returns the resulting document
     //
-    // @param glyphs   The measures to fit into the document
+    // @param glyphs   The list of subtrees to fit into the document
     // @param width    The width of the document
     //
     var fillStaves = function(glyphs, width) {
