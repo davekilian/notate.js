@@ -7,7 +7,15 @@
 
 (function(Notate) {
 
-    Notate.sizeCallback['end-measure'] = function() {
+    var EndMeasure = function() {
+        Notate.Glyph.call(this);
+    }
+
+    EndMeasure.prototype = new Notate.Glyph();
+    EndMeasure.constructor = EndMeasure;
+    Notate.glyphs['end-measure'] = EndMeasure;
+
+    EndMeasure.prototype.size = function() {
         var s = Notate.settings;
 
         return {
@@ -18,15 +26,12 @@
         };
     }
 
+    EndMeasure.prototype.layout = function() { }
 
-    Notate.layoutCallback['end-measure'] = function(measure) { }
+    EndMeasure.prototype.render = function(canvas, ctx) {
+        var s = Notate.settings;
 
-    Notate.renderCallback['end-measure'] = function(canvas, ctx, measure) {
-        var s = Notate.settings,
-            x = measure.x,
-            y = measure.y;
-
-        ctx.fillRect(x, y, s.BAR_LINE_WIDTH, s.STAFF_HEIGHT);
+        ctx.fillRect(this.x, this.y, s.BAR_LINE_WIDTH, s.STAFF_HEIGHT);
     }
     
 })(Notate);

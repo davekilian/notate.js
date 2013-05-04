@@ -7,7 +7,15 @@
     
 (function(Notate) {
 
-    Notate.sizeCallback['stem'] = function() {
+    var Stem = function() {
+        Notate.Glyph.call(this);
+    }
+
+    Stem.prototype = new Notate.Glyph();
+    Stem.constructor = Stem;
+    Notate.glyphs['stem'] = Stem;
+
+    Stem.prototype.size = function() {
         var s = Notate.settings;
 
         return { 
@@ -18,11 +26,11 @@
         };
     }
 
-    Notate.layoutCallback['stem'] = function(stem) { }
+    Stem.prototype.layout = function() { }
 
-    Notate.renderCallback['stem'] = function(canvas, ctx, stem) {
+    Stem.prototype.render = function(canvas, ctx) {
         var translate = Notate.Helpers.translate;
-        var rect = translate(stem, { x: 0, y: 0 }, { x: stem.x, y: stem.y });
+        var rect = translate(this, { x: 0, y: 0 }, { x: this.x, y: this.y });
         ctx.fillRect(rect.left, rect.top, rect.width(), rect.height());
     }
 

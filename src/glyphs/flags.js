@@ -7,21 +7,29 @@
 
 (function(Notate) {
 
-    Notate.sizeCallback['flags'] = function() {
+    var Flags = function() {
+        Notate.Glyph.call(this);
+    }
+
+    Flags.prototype = new Notate.Glyph();
+    Flags.constructor = Flags;
+    Notate.glyphs['flags'] = Flags;
+
+    Flags.prototype.size = function() {
         return { top: 0, bottom: 21.5, left: 0, right: 11.2 };
     }
 
-    Notate.layoutCallback['flags'] = function(flags) { }
+    Flags.prototype.layout = function() { }
 
-    Notate.renderCallback['flags'] = function(canvas, ctx, flags) {
+    Flags.prototype.render = function(canvas, ctx) {
         var translate = Notate.Helpers.translate;
-        var x = flags.x, 
-            y = flags.y;
+        var x = this.x, 
+            y = this.y;
 
-        for (var i = 0; i < flags.count; ++i) {
+        for (var i = 0; i < this.count; ++i) {
             ctx.save();
 
-            if (flags.flipped) {
+            if (this.flipped) {
                 ctx.translate(x, y - 6 * i);
                 ctx.scale(1.0, -1.0);
             } else {

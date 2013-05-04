@@ -8,7 +8,15 @@
 
 (function(Notate) {
 
-    Notate.sizeCallback['staff'] = function() { 
+    var Staff = function() {
+        Notate.Glyph.call(this);
+    }
+
+    Staff.prototype = new Notate.Glyph();
+    Staff.prototype.constructor = Staff;
+    Notate.glyphs['staff'] = Staff;
+
+    Staff.prototype.size = function() {
         var s = Notate.settings;
 
         return {
@@ -40,21 +48,21 @@
         return -delta * .5 * s.STAFF_LINE_SPACING + 0.5;
     }
 
-    Notate.layoutCallback['staff'] = function(staff) {
+    Staff.prototype.layout = function() {
         var s = Notate.settings;
         var x = s.NOTE_SPACING;
 
-        for (var i = 0; i < staff.children.length; ++i) {
-            var glyph = staff.children[i];
+        for (var i = 0; i < this.children.length; ++i) {
+            var glyph = this.children[i];
 
-            if (glyph.type == 'note') {
+            if (glyph.type() == 'note') {
                 var note = glyph;
                 note.pitchDelta = pitchDelta(note.pitch, 'treble');
                 note.x = x;
                 note.y = pitchOffset(note.pitchDelta);
 
                 x += s.NOTE_SPACING;
-            } else if (glyph.type == 'end-measure') {
+            } else if (glyph.type() == 'end-measure') {
                 var measure = glyph;
                 measure.x = x;
                 measure.y = 0;
@@ -64,12 +72,12 @@
         }
     }
 
-    Notate.renderCallback['staff'] = function(canvas, ctx, staff) {
+    Staff.prototype.render = function(canvas, ctx) {
         var s = Notate.settings;
         var lines = s.STAFF_LINE_COUNT;
-        var w = staff.width();
-        var x = staff.x,
-            y = staff.y;
+        var w = this.width();
+        var x = this.x,
+            y = this.y;
 
         for (var i = 0; i < s.STAFF_LINE_COUNT; ++i) {
             var dh = i * s.STAFF_LINE_SPACING;

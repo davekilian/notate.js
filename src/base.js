@@ -44,30 +44,38 @@ var Notate = (function() {
         })(this);
     }
 
-    // 
-    // class Glyph
+
     //
-    // Node in the intermediate layout tree.
-    // Generated from a document in Notate.layout()
-    // Can be rendered using Notate.render()
-    // 
-    var Glyph = function(type) {
-        this.type = type;
+    // class Rect
+    //
+    // Defines a rectangular area in 2D pixel coordinates:
+    // - (0, 0) is at the top-left of the canvas
+    // - The horizontal axis values increase as you move right
+    // - The vertical axis values increase as you move down
+    //
+    var Rect = function() {
+        this.x = 0;         // The X coordinate of this rectangle's origin
+        this.y = 0;         // The Y coordinate of this rectangle's origin
 
-        this.top = 0;
-        this.bottom = 0;
-        this.left = 0;
-        this.right = 0;
-
-        this.x = 0;
-        this.y = 0;
-
-        this.children = new Array();
+        this.top = 0;       // The top bound of this rectangle, relative to this.y
+        this.bottom = 0;    // The bototm bound of this rectangle, relative to this.y
+        this.left = 0;      // The left bound of this rectangle, relative to this.x
+        this.right = 0;     // The right bound of this rectangle, relative to this.x
     }
 
-    Glyph.prototype.width = function() { return this.right - this.left; }
-    Glyph.prototype.height = function() { return this.bottom - this.top; }
-    Glyph.prototype.union = function(rect) {
+    // Returns the width of this region
+    Rect.prototype.width = function() { return Math.abs(this.right - this.left); }
+
+    // Returns the height of this region
+    Rect.prototype.height = function() { return Math.abs(this.bottom - this.top); }
+
+    //
+    // Sets this rectangle to the smallest possible rectangle that encompasses
+    // both this rectangle and the given rectangle
+    //
+    // @param rect The other rectangle to union this rectangle with
+    //
+    Rect.prototype.union = function(rect) {
         function min(a, b) { return a <= b ? a : b; }
         function max(a, b) { return a >= b ? a : b; }
 
@@ -77,43 +85,81 @@ var Notate = (function() {
         this.right  = max(this.right, rect.right);
     }
 
+
+    // 
+    // class Glyph
     //
-    // Per-glyph implementions of the initial size method:
+    // Node in the intermediate layout tree. Generated in Notate.layout() and
+    // rendered in Notate.render().
     //
-    // function size()
-    //
-    // Determines the minimum bounding box coordinates for a type of glyph
-    //
-    // @return      A rectangle object containing top, bottom, left, and 
-    //              right integer properties
-    //
-    var sizeCallback = { };
+    // Everything drawn by Notate is a Glyph object. To subclass, override the
+    // methods 'size', 'layout' and 'render', and then add your glyph to
+    // Notate.glyphs. See some of the stock implementations in src/glyphs for
+    // examples.
+    // 
+    var Glyph = function() {
+        Rect.call(this);
+
+        this.children = new Array();    // This Glyph's list of child Glyphs
+    }
+
+    Glyph.prototype = new Rect();
+    Glyph.constructor = Glyph;
 
     //
-    // Per-glyph implementations of the layout method:
+    // Returns this glyph's type string.
     //
-    // function layout(glyph)
+    // If you do not implement this method in your Glyph subclass, the base
+    // class implementation will fall back by searching Notate.glyphs. If this
+    // search doesn't turn up anything, this method will return null.
     //
-    // Determines the final positions of the children of a glyph, as well as
-    // the final size of the glyph itself. 
-    //
-    // @param glyph The glyph whose size should be determined and whose contents
-    //              should be positioned
-    //
-    var layoutCallback = { };
+    Glyph.prototype.type = function() {
+        for (var key in Notate.glyphs) {
+            if (this instanceof Notate.glyphs[key]) 
+                return key;
+        }
+
+        return null;
+    }
 
     //
-    // Per-glyph implementations of the render method:
+    // TODO this should really be called minSize() or something
     //
-    // function render(canvas, ctx, glyph)
+    // Returns the minimum bounding box for this glyph, assuming the glyph has
+    // no children
     //
-    // Renders a given glyph
+    // @return      A rectangle object containing top, bottom, left and right
+    //              properties, containing the bounding box sides relative to 
+    //              this glyph's origin (i.e. this.x and this.y)
     //
-    // @param canvas    The canvas element that will be rendered to
-    // @param ctx       The canvas2d context for the canvas element
-    // @param glyph     The glyph to render (see Notate.Glyph)
+    Glyph.prototype.size = function() {
+        console.log("This glyph does not override .size()!");
+        console.log(this);
+    }
+
     //
-    var renderCallback = { };
+    // Determines the final positions of each of this glyph's children, and
+    // then computes the final dimensions of this glyph's bounding box. This
+    // method may assume the glyph's children have already been laid out. This
+    // method is *not* responsible for recursively calling layout on its
+    // children.
+    //
+    Glyph.prototype.layout = function() {
+        console.log("This glyph does not override .layout()!");
+        console.log(this);
+    }
+
+    //
+    // Renders this glyph 
+    //
+    // @param canvas    The canvas element to render to
+    // @param ctx       The canvas2d context associated with the canvas element
+    //
+    Glyph.prototype.render = function(canvas, ctx) {
+        console.log("This glyph does not override .render()!");
+        console.log(this);
+    }
+
 
     //
     // function translate()
@@ -203,13 +249,8 @@ var Notate = (function() {
         for (var i = 0; i < doc.length; ++i) {
             var glyph = doc[i];
 
-            // TODO if we can guarantee glyph.type is always the same as the
-            //      type name used in the input document JSON, then maybe we
-            //      should factor each of these cases into a convertCallback()
-            //      or something.
-
             if (glyph.type == 'note') {
-                var note = new Glyph('note');
+                var note = new Notate.glyphs['note']();
 
                 // The note itself
                 note.length = toLength(glyph.length);
@@ -217,12 +258,12 @@ var Notate = (function() {
                 
                 // Its stem
                 if (hasStem(note.length)) 
-                    note.children.push(new Glyph('stem'));
+                    note.children.push(new Notate.glyphs['stem']());
 
                 // Its flags
                 var nFlags = numFlags(note.length);
                 if (nFlags > 0) {
-                    var flags = new Glyph('flags');
+                    var flags = new Notate.glyphs['flags']();
                     flags.count = nFlags;
 
                     note.children.push(flags);
@@ -230,7 +271,7 @@ var Notate = (function() {
 
                 trees.push(note);
             } else if (glyph.type == 'end-measure') {
-                trees.push(new Glyph('end-measure'));
+                trees.push(new Notate.glyphs['end-measure']());
             }
         }
 
@@ -248,7 +289,7 @@ var Notate = (function() {
     //
     var fillStaves = function(glyphs, width) {
         function nextStaff(doc, width) {
-            var staff = new Glyph('staff');
+            var staff = new Notate.glyphs['staff']();
             staff.x = s.MARGIN_HORIZ;
             staff.right = width - 2 * s.MARGIN_HORIZ;
 
@@ -259,18 +300,18 @@ var Notate = (function() {
 
         function nextEndMeasure(glyphs, start) {
             for (var i = start; i < glyphs.length; ++i) {
-                if (glyphs[i].type == 'end-measure')
+                if (glyphs[i].type() == 'end-measure')
                     return i;
             }
 
             // If we get here, there are glyphs after the final end-measure.
             // That probably means someone forgot to finish with an end-measure
-            glyphs.push({ type: 'end-measure' });
+            glyphs.push(new Notate.glyphs['end-measure']);
             return glyphs.length - 1;
         }
 
         function sizeof(glyphs, start, end) {
-            var staff = new Glyph('staff');
+            var staff = new Notate.glyphs['staff']();
             for (var i = start; i <= end; ++i)
                 staff.children.push(glyphs[i]);
 
@@ -294,7 +335,7 @@ var Notate = (function() {
 
         var s = Notate.settings;
 
-        var doc = new Glyph('document');
+        var doc = new Notate.glyphs['document']();
         doc.right = width;
 
         var prev = null;
@@ -341,14 +382,14 @@ var Notate = (function() {
     function layoutGlyph(glyph) {
 
         // Determine where children of this glyph belong
-        layoutCallback[glyph.type](glyph);
+        glyph.layout();
 
         // Size and lay out the children glyph subtrees
         for (var i = 0; i < glyph.children.length; ++i)
             layoutGlyph(glyph.children[i]);
 
         // Expand the glyph's bounding rect to hold its children
-        var minbounds = sizeCallback[glyph.type]();
+        var minbounds = glyph.size();
         glyph.union(minbounds);
 
         for (var i = 0; i < glyph.children.length; ++i) {
@@ -427,7 +468,7 @@ var Notate = (function() {
         ctx.fillStyle = '#000';
 
         function recur(canvas, ctx, glyph) {
-            renderCallback[glyph.type](canvas, ctx, glyph);
+            glyph.render(canvas, ctx);
 
             for (var i = 0; i < glyph.children.length; ++i)
                 recur(canvas, ctx, glyph.children[i]);
@@ -436,9 +477,11 @@ var Notate = (function() {
         recur(canvas, ctx, glyph);
     }
 
+
     var Notate = { };
 
     // Export public interface
+    Notate.Rect = Rect;
     Notate.Glyph = Glyph;
     Notate.Settings = Settings;
 
@@ -447,12 +490,9 @@ var Notate = (function() {
 
     Notate.settings = new Settings();
 
-    // These callbacks are published so other source files can add to them.
-    // This allows for other source files to extend notate's glyph system. The
-    // core glyphs also use this mechanism - see the files in src/glyphs.
-    Notate.sizeCallback = sizeCallback;
-    Notate.layoutCallback = layoutCallback;
-    Notate.renderCallback = renderCallback;
+    // Published so subclasses of Notate.Glyph can register themselves
+    // Maps from glyph type (e.g. 'document') to the glyph constructor
+    Notate.glyphs = { };
 
     // The following methods are provided to glyphs as helpers. Glyphs may
     // choose to add items as necessary, but are strongly discouraged from
