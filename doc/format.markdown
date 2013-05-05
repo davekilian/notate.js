@@ -163,3 +163,9 @@ TODO -- use [this page](http://en.wikipedia.org/wiki/List_of_musical_symbols)
 
 Don't forget to talk about notes, chords, and things that affect both.
 
+## TODO
+
+Would we ever want to nest group objects? If so, we need a `named: ` parameter
+for the `begin` and `end` commands. Otherwise the end command will be
+ambiguous.
+
