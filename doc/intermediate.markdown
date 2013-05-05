@@ -12,52 +12,35 @@ consumed by the `render` step.
 
 ## Tree Structure
 
-The nodes of the trees are Javascript objects called glyphs. Each 
-glyph is defined as follows:
+The nodes of the tree are subtypes of the `Notate.Glyph` objects. The nodes are
+colloquially known as glyphs. Each glyph contains its absolute position on the
+canvas (i.e. its origin), a bounding box describing the area is occupies, and a
+list of child glyphs (which are also subtypes of `Notate.Glyph`). 
 
-    {
-        'top': -10, 'bottom': -10, 'left': 20, 'right': 20, // bounds
-        'x': 5, 'y': 12,                                    // position
-        'type': 'wholeNote',                                // type
-        ...                                  // type-specific parameters
-        'children': [{...}, {...},],         // child glyphs
-    }
-
-Note that the layout tree is pure data, with no functions. You can use the
-layout engine to generate a layout tree, and then use that tree for your
-own purposes.
-
-### `top`, `bottom`, `left`, `right`
-
-The layout tree uses a recursive box model to lay out glyphs relative to
-each other. Each glyph has a bounding box large enough to contain the
-glyph itself and its children.
-
-The `top`/`bottom`/`left`/`right` parameters describe the respective
-boundaries of the glyph's bounding box, in the glyph's own coordinate
-system. 
-
-The origin of the glyph's coordinate system is defined at (0, 0). Each
-unit in the glyph's coordinate system is the same size as a `<canvas>`
-unit. Thus each glyph's coordinate system is a translation applied to the
-`<canvas>` coordinate system.
+The properties of the base type are listed below:
 
 ### `x`, `y`
 
-These parameters contain the position of this child element relative to
-its parent. Specifically, they specify the position of this glyph's 
-origin in the parent glyph's coordinate system.
+These parameters contain the absolute position of the glyph in canvas
+coordinates (which correspond to pixel coordinates). The coordinate system
+starts with (0, 0) at the top-left of the canvas. The horizontal axis values
+increase as you move right, and the vertical axis values increase as you move
+down. 
 
-### `type`
+### `top`, `bottom`, `left`, `right`
 
-Contains the type of current glyph. This decides which function is used
-to render the glyph. 
+Each glyph has a bounding box large enough to contain the glyph and its
+chidlren. The layout system uses a recursive box model, to make sure glyphs do
+not intersect each other. This bounding box should be tight, with no margins. 
 
-If more data is needed to render the glyph (e.g. the text for a dynamic),
-those parameters will be included as properties of the glyph object.
+`top`, `bottom`, `left` and `right` are each floating point numbers that
+represent the difference between the glyph's origin and the relevant boundary.
+For example:
 
-A list of glyph types, examples, and parameters can be found
-[here](TODO).
+    bounds.minX = glyph.x + glyph.left;
+    bounds.maxX = glyph.x + glyph.right;
+    bounds.minY = glyph.y + glyph.top;
+    bounds.maxY = glyph.y + glyph.bottom;
 
 ### `children`
 
@@ -66,4 +49,16 @@ this glyph.
 
 Parent-child relationships are determiend logically, usually in a way
 that is convenient for rendering.
+
+## Subclassing Glyphs
+
+To subclass `Notate.Glyph`, you must
+
+* Inherit from `Notate.Glyph`
+* Override `minSize`, `layout` and `render`
+* Register the glyph by adding an entry to `Notate.glyphs`
+
+notate.js ships with several built-in glyphs, which use the same process to
+hook into the system. You may consult any `Notate.Glyph` subtype in
+`src/glyphs` for examples.
 
