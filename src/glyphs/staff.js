@@ -16,7 +16,7 @@
     Staff.prototype.constructor = Staff;
     Notate.glyphs['staff'] = Staff;
 
-    Staff.prototype.size = function() {
+    Staff.prototype.minSize = function() {
         var s = Notate.settings;
 
         return {

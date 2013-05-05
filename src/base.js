@@ -123,8 +123,6 @@ var Notate = (function() {
     }
 
     //
-    // TODO this should really be called minSize() or something
-    //
     // Returns the minimum bounding box for this glyph, assuming the glyph has
     // no children
     //
@@ -132,8 +130,8 @@ var Notate = (function() {
     //              properties, containing the bounding box sides relative to 
     //              this glyph's origin (i.e. this.x and this.y)
     //
-    Glyph.prototype.size = function() {
-        console.log("This glyph does not override .size()!");
+    Glyph.prototype.minSize = function() {
+        console.log("This glyph does not override .minSize()!");
         console.log(this);
     }
 
@@ -389,7 +387,7 @@ var Notate = (function() {
             layoutGlyph(glyph.children[i]);
 
         // Expand the glyph's bounding rect to hold its children
-        var minbounds = glyph.size();
+        var minbounds = glyph.minSize();
         glyph.union(minbounds);
 
         for (var i = 0; i < glyph.children.length; ++i) {

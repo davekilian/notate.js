@@ -15,7 +15,7 @@
     Stem.constructor = Stem;
     Notate.glyphs['stem'] = Stem;
 
-    Stem.prototype.size = function() {
+    Stem.prototype.minSize = function() {
         var s = Notate.settings;
 
         return { 

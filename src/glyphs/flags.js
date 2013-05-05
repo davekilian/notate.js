@@ -15,7 +15,7 @@
     Flags.constructor = Flags;
     Notate.glyphs['flags'] = Flags;
 
-    Flags.prototype.size = function() {
+    Flags.prototype.minSize = function() {
         return { top: 0, bottom: 21.5, left: 0, right: 11.2 };
     }
 

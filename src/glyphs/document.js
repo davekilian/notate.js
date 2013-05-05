@@ -16,7 +16,7 @@
     Document.prototype.constructor = Document;
     Notate.glyphs['document'] = Document;
 
-    Document.prototype.size = function() {
+    Document.prototype.minSize = function() {
         return { top: 0, bottom: 0, left: 0, right: 0 };
     }
 

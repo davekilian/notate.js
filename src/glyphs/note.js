@@ -18,7 +18,7 @@
     Note.constructor = Note;
     Notate.glyphs['note'] = Note;
 
-    Note.prototype.size = function() {
+    Note.prototype.minSize = function() {
         var s = Notate.settings;
         var r = s.NOTE_HEAD_RADIUS_MAX;
 

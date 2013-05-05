@@ -15,7 +15,7 @@
     EndMeasure.constructor = EndMeasure;
     Notate.glyphs['end-measure'] = EndMeasure;
 
-    EndMeasure.prototype.size = function() {
+    EndMeasure.prototype.minSize = function() {
         var s = Notate.settings;
 
         return {
