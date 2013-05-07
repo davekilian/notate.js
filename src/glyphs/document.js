@@ -27,7 +27,9 @@
     Document.prototype.render = function(canvas, ctx) { }
 
     //
-    // TODO doc me
+    // Returns the amount of horizontal space that would be needed by the
+    // glyphs in the given list if they were placed next to each other in a
+    // staff.
     //
     function measureGlyphs(glyphs) {
         var staff = new Notate.glyphs['staff']();
@@ -43,7 +45,9 @@
     }
 
     //
-    // TODO doc me
+    // Helper for 'finishing' a staff after we have determined we will not be
+    // adding any more measures to it. This entails computing the staff's final
+    // position and bounding box
     //
     function finishStaff(staff, prev) {
         var s = Notate.settings;
@@ -90,6 +94,15 @@
                 staff.children = staff.children.concat(glyphs);
                 return;
             }
+            else {
+                // We couldn't fit the measure in this staff.
+                // Finish this staff so we can add a new one below
+                var len = this.children.length;
+                var finished = this.children[len - 1];
+                var prev = (len > 2) ? this.children[len - 2] : null;
+
+                finishStaff(finished, prev);
+            }
         }
 
         // The measure doesn't fit, or there is no staff. Create a new one.
@@ -98,15 +111,6 @@
         staff.children = staff.children.concat(glyphs);
 
         this.children.push(staff);
-
-        // Finish off the previous staff as well
-        var len = this.children.length;
-        if (len > 1) {
-            var finished = this.children[len - 1];
-            var prev = (len > 2) ? this.children[len - 2] : null;
-
-            finishStaff(finished, prev);
-        }
     }
 
     //
@@ -123,7 +127,7 @@
         }
 
         var finished = this.children[len - 1];
-        var prev = (len > 2) ? this.children[len - 2] : null;
+        var prev = (len > 1) ? this.children[len - 2] : null;
 
         finishStaff(finished, prev);
     }

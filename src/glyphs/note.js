@@ -172,11 +172,11 @@
         var min = 0, max = 0;
 
         if (dy < 0) {
-            min = y + dy - (dy % s.STAFF_LINE_SPACING);
-            max = y;
+            min = Math.floor(y + dy - (dy % s.STAFF_LINE_SPACING) + 1);
+            max = Math.floor(y);
         } else {
-            min = y + h + s.STAFF_LINE_SPACING;
-            max = y + dy;
+            min = Math.floor(y + h + s.STAFF_LINE_SPACING);
+            max = Math.floor(y + dy);
         }
 
         var w = s.LEDGER_WIDTH, h = s.LEDGER_HEIGHT;

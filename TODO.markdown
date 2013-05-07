@@ -3,8 +3,8 @@
 
 ## New Document Format
 
-* Ledger lines aren't working
-* Positioning is all wrong when there are multiple staves
+* Staves don't get separated properly when you add lots of octaves to the test
+  harness
 
 ## Triplets
 
