@@ -1,11 +1,11 @@
 
 # TODO
 
-## Triplets
+## [Tuplets](http://en.wikipedia.org/wiki/Tuplet)
 
 * Implement the begin/end commands in the layout engine
-* Support for the triplet command in the conversion step
-* Render the triplet markup 
+* Support for the tuplet command in the conversion step
+* Render the tuplet markup (see link for examples)
 
 ## Slurs
 
@@ -21,6 +21,7 @@
   stems created by the bar?)
 * Render the bar
 * Support multiple bar types in a single group
+* Support putting a tuplet 3 over the bar
 
 ## Chords
 
