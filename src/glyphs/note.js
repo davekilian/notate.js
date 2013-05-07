@@ -157,7 +157,7 @@
         ctx.fill();
 
         ctx.restore();
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = '#333';
     }
 
     function renderLedgers(canvas, ctx, x, y, note) {

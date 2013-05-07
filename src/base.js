@@ -339,7 +339,7 @@ var Notate = (function() {
     // @param glyph  The glyph to be rendered
     //
     var render = function(canvas, ctx, glyph) {
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = '#333';
 
         function recur(canvas, ctx, glyph) {
             glyph.render(canvas, ctx);
