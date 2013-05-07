@@ -3,7 +3,8 @@
 
 ## New Document Format
 
-* Hot cross buns works. Check things work with the multi-octave test.
+* Ledger lines aren't working
+* Positioning is all wrong when there are multiple staves
 
 ## Triplets
 

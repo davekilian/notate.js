@@ -162,7 +162,7 @@
 
     function renderLedgers(canvas, ctx, x, y, note) {
         var s = Notate.settings;
-        var dy = note.dy;
+        var dy = note.pitchOffset;
         y -= dy;
 
         var h = (s.STAFF_LINE_COUNT - 1) * s.STAFF_LINE_SPACING;

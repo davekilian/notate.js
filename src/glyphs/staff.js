@@ -60,8 +60,9 @@
             if (glyph.type() == 'note') {
                 var note = glyph;
                 note.pitchDelta = pitchDelta(note.pitch, 'treble');
-                note.moveTo(x, pitchOffset(note.pitchDelta));
+                note.pitchOffset = pitchOffset(note.pitchDelta);
 
+                note.moveTo(x, note.pitchOffset);
                 x += s.NOTE_SPACING;
             } else if (glyph.type() == 'bar') {
                 var bar = glyph;
