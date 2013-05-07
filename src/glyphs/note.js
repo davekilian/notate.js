@@ -18,6 +18,73 @@
     Note.constructor = Note;
     Notate.glyphs['note'] = Note;
 
+    //
+    // function toLength(nickname)
+    //
+    // Translates a note nickname ("whole" or "eighth") into a fraction ("1/1"
+    // or "1/8" respectively)
+    //
+    function toLength(nickname) {
+        if (nickname == "whole")        return "1/1";
+        if (nickname == "half")         return "1/2";
+        if (nickname == "quarter")      return "1/4";
+        if (nickname == "eighth")       return "1/8";
+        if (nickname == "sixteenth")    return "1/16";
+        if (nickname == "thirtysecond") return "1/32";
+        if (nickname == "sixtyfourth")  return "1/64";
+
+        return nickname;
+    }
+
+    //
+    // function hasStem(length)
+    //
+    // Returns a bool indicating whether a note with a given length has a stem.
+    // The input length must be a time division '1/X', where X is a power of 2.
+    //
+    function hasStem(length) {
+        return length != "1/1";
+    }
+
+    //
+    // function numFlags(length)
+    //
+    // Returns the number of flags a note with the given length has.
+    // The input length must be a time division '1/X', where X is a power of 2.
+    //
+    function numFlags(length) {
+        var denom = parseInt(length.substring(length.indexOf('/') + 1));
+
+        var pow = 0;    // such that length = 1/(2^{pow})
+        while (denom > 1) {
+            ++pow;
+            denom /= 2;
+        }
+
+        return pow >= 3 ? pow - 2 : 0;
+    }
+
+    Note.prototype.parseCommand = function(cmd, ctype) {
+
+        // The note itself
+        this.length = toLength(cmd.length);
+        this.pitch = cmd.pitch;
+
+        // Its stem
+        if (hasStem(this.length)) {
+            this.children.push(new Notate.glyphs['stem']());
+        }
+
+        // Its flags
+        var nFlags = numFlags(this.length);
+        if (nFlags > 0) {
+            var flags = new Notate.glyphs['flags']();
+            flags.count = nFlags;
+
+            this.children.push(flags);
+        }
+    }
+
     Note.prototype.minSize = function() {
         var s = Notate.settings;
         var r = s.NOTE_HEAD_RADIUS_MAX;

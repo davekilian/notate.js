@@ -15,6 +15,8 @@
     Flags.constructor = Flags;
     Notate.glyphs['flags'] = Flags;
 
+    Flags.prototype.parseCommand = function(cmd, ctype) { }
+
     Flags.prototype.minSize = function() {
         return { top: 0, bottom: 21.5, left: 0, right: 11.2 };
     }
@@ -22,7 +24,6 @@
     Flags.prototype.layout = function() { }
 
     Flags.prototype.render = function(canvas, ctx) {
-        var translate = Notate.Helpers.translate;
         var x = this.x, 
             y = this.y;
 

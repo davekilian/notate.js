@@ -141,6 +141,47 @@ function debugLayout(canvas, ctx) {
         return ret;
     })();
 
+    doc = [
+        { title: "Hot Cross Buns (Sample Document)" },
+        { composer: "notate.js" },
+                                                          
+        { clef: "treble" },
+                                                          
+        { show: "clef", type: "treble" },
+        { show: "timesig", over: 4, under: 4 },
+        { show: "keysig", key: "C major" },
+                                                          
+        { show: "note", pitch: "B5", length: "quarter" },
+        { show: "note", pitch: "A5", length: "quarter" },
+        { show: "note", pitch: "G4", length: "half" },
+        { show: "measure" },
+                                                          
+        { show: "note", pitch: "B5", length: "quarter" },
+        { show: "note", pitch: "A5", length: "quarter" },
+        { show: "note", pitch: "G4", length: "half" },
+        { show: "measure" },
+                                                          
+        { begin: "bar" },
+        { show: "note", pitch: "G4", length: "eighth" },
+        { show: "note", pitch: "G4", length: "eighth" },
+        { show: "note", pitch: "G4", length: "eighth" },
+        { show: "note", pitch: "G4", length: "eighth" },
+        { end: "bar" },
+        
+        { begin: "bar" },
+        { show: "note", pitch: "A5", length: "eighth" },
+        { show: "note", pitch: "A5", length: "eighth" },
+        { show: "note", pitch: "A5", length: "eighth" },
+        { show: "note", pitch: "A5", length: "eighth" },
+        { end: "bar" },
+        { show: "measure" },
+                                                          
+        { show: "note", pitch: "B5", length: "quarter" },
+        { show: "note", pitch: "A5", length: "quarter" },
+        { show: "note", pitch: "G4", length: "half" },
+        { show: "measure" },
+    ]
+
     Notate.render(canvas, ctx, Notate.layout(doc));
 }
 

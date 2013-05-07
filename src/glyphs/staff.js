@@ -16,6 +16,8 @@
     Staff.prototype.constructor = Staff;
     Notate.glyphs['staff'] = Staff;
 
+    Staff.prototype.parseCommand = function(cmd, ctype) { }
+
     Staff.prototype.minSize = function() {
         var s = Notate.settings;
 
@@ -58,14 +60,12 @@
             if (glyph.type() == 'note') {
                 var note = glyph;
                 note.pitchDelta = pitchDelta(note.pitch, 'treble');
-                note.x = x;
-                note.y = pitchOffset(note.pitchDelta);
+                note.moveTo(x, pitchOffset(note.pitchDelta));
 
                 x += s.NOTE_SPACING;
-            } else if (glyph.type() == 'end-measure') {
-                var measure = glyph;
-                measure.x = x;
-                measure.y = 0;
+            } else if (glyph.type() == 'bar') {
+                var bar = glyph;
+                bar.moveTo(x, 0);
 
                 x += s.NOTE_SPACING;
             }

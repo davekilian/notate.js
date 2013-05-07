@@ -3,14 +3,7 @@
 
 ## New Document Format
 
-* Implement the show command in the layout engine
-* I think we can add an extensibility point for command -> glyph subtree
-  conversion. The parser needs separate logic for show vs begin/end commands,
-  but the actual conversion to a subtree can be done as follows:
-
-        Look up the thing being shown/begun by type
-        Instantiate one
-        Call parseCommand()
+* Hot cross buns works. Check things work with the multi-octave test.
 
 ## Triplets
 

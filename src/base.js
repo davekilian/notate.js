@@ -71,18 +71,19 @@ var Notate = (function() {
 
     //
     // Sets this rectangle to the smallest possible rectangle that encompasses
-    // both this rectangle and the given rectangle
+    // both this rectangle and the given rectangle. Only the boundaries of this
+    // rectangle are modified; the ends are left unchanged.
     //
     // @param rect The other rectangle to union this rectangle with
     //
     Rect.prototype.union = function(rect) {
         function min(a, b) { return a <= b ? a : b; }
         function max(a, b) { return a >= b ? a : b; }
-
-        this.top    = min(this.top, rect.top);
-        this.bottom = max(this.bottom, rect.bottom);
-        this.left   = min(this.left, rect.left);
-        this.right  = max(this.right, rect.right);
+        
+        this.top    = min(this.top    + this.y, rect.top    + rect.y) - this.y;
+        this.bottom = max(this.bottom + this.y, rect.bottom + rect.y) - this.y;
+        this.left   = min(this.left   + this.x, rect.left   + rect.x) - this.x;
+        this.right  = max(this.right  + this.x, rect.right  + rect.x) - this.x;
     }
 
 
@@ -120,6 +121,43 @@ var Notate = (function() {
         }
 
         return null;
+    }
+
+    Glyph.prototype.moveBy = function(dx, dy) {
+        function recur(glyph) {
+            glyph.x += dx;
+            glyph.y += dy;
+
+            for (var i = 0; i < glyph.children.length; ++i)
+                recur(glyph.children[i]);
+        }
+
+        recur(this);
+    }
+
+    Glyph.prototype.moveTo = function(x, y) {
+        this.moveBy(x - this.x, y - this.y);
+    }
+
+    //
+    // Parses the given command (i.e. from the original document) and populates
+    // this object to match the command. This includes creating child glyphs as
+    // necessary.
+    //
+    // The input command will be either 'show' or 'begin'. The value associated
+    // with the show/begin key of the object (i.e. the type of thing to show or
+    // begin) is guaranteed to be the same as this.type().
+    //
+    // The resulting subtree should not be laid out yet. This method should not
+    // move the Glyph; when the method returns, this Glyph's x and y
+    // coordinates should both be 0.
+    //
+    // @param cmd   The command to parse
+    // @param ctype The type of command (either 'show' or 'begin')
+    //
+    Glyph.prototype.parseCommand = function(cmd, ctype) {
+        console.log("This glyph does not override .parseCommand()!");
+        console.log(this);
     }
 
     //
@@ -160,214 +198,22 @@ var Notate = (function() {
 
 
     //
-    // function translate()
+    // function commandType()
     //
-    // Translates a rectangle into a different coordinate space
+    // Given a command object from a document, returns the type of command.
+    // Used internally by the parser.
     //
-    // @param rect      The rect to translate (an object with top/bottom/left/right)
-    // @param src       The origin of rect's coordinate system (an object with x/y)
-    // @param dst       The origin of the new coordinate system (object with x/y)
-    //
-    function translate(rect, src, dst) {
-        var dx = dst.x - src.x;
-        var dy = dst.y - src.y;
+    var commandType = function(cmd) {
+        var commands = [
+            'show', 'begin', 'end', 'clef',
+            'title', 'composer', 'arranged', 'year',
+        ];
 
-        return { 
-            top: rect.top + dy,
-            bottom: rect.bottom + dy,
-            left: rect.left + dx,
-            right: rect.right + dx,
-
-            width: Glyph.prototype.width,
-            height: Glyph.prototype.height,
-        };
-    }
-
-    //
-    // function toLength(nickname)
-    //
-    // Translates a note nickname ("whole" or "eighth") into a fraction ("1/1"
-    // or "1/8" respectively)
-    //
-    function toLength(nickname) {
-        if (nickname == "whole")        return "1/1";
-        if (nickname == "half")         return "1/2";
-        if (nickname == "quarter")      return "1/4";
-        if (nickname == "eighth")       return "1/8";
-        if (nickname == "sixteenth")    return "1/16";
-        if (nickname == "thirtysecond") return "1/32";
-        if (nickname == "sixtyfourth")  return "1/64";
-
-        return nickname;
-    }
-
-    //
-    // function hasStem(length)
-    //
-    // Returns a bool indicating whether a note with a given length has a stem.
-    // The input length must be a time division '1/X', where X is a power of 2.
-    //
-    function hasStem(length) {
-        return length != "1/1";
-    }
-
-    //
-    // function numFlags(length)
-    //
-    // Returns the number of flags a note with the given length has.
-    // The input length must be a time division '1/X', where X is a power of 2.
-    //
-    function numFlags(length) {
-        var denom = parseInt(length.substring(length.indexOf('/') + 1));
-
-        var pow = 0;    // such that length = 1/(2^{pow})
-        while (denom > 1) {
-            ++pow;
-            denom /= 2;
-        }
-
-        return pow >= 3 ? pow - 2 : 0;
-    }
-
-    //
-    // function convert(doc)
-    //
-    // Creates a list of layout trees for each glyph in the document. The
-    // return value of this method is a list of glyphs that go inside staves
-    // (e.g. 'note', 'end-measure'). None of the resulting glyphs will contain
-    // any position or size information.
-    //
-    // Notate.layout() uses this method as a subroutine. layout() computes
-    // sizes and positions for each glyph. Notate.layout() then generates 
-    // staves by placing as many measures in each staff as possible.
-    //
-    var convert = function(doc) {
-        var trees = [];
-
-        for (var i = 0; i < doc.length; ++i) {
-            var glyph = doc[i];
-
-            if (glyph.type == 'note') {
-                var note = new Notate.glyphs['note']();
-
-                // The note itself
-                note.length = toLength(glyph.length);
-                note.pitch = glyph.pitch;
-                
-                // Its stem
-                if (hasStem(note.length)) 
-                    note.children.push(new Notate.glyphs['stem']());
-
-                // Its flags
-                var nFlags = numFlags(note.length);
-                if (nFlags > 0) {
-                    var flags = new Notate.glyphs['flags']();
-                    flags.count = nFlags;
-
-                    note.children.push(flags);
-                }
-
-                trees.push(note);
-            } else if (glyph.type == 'end-measure') {
-                trees.push(new Notate.glyphs['end-measure']());
+        for (var i = 0; i < commands.length; ++i) {
+            if (cmd.hasOwnProperty(commands[i])) {
+                return commands[i];
             }
         }
-
-        return trees;
-    }
-
-    //
-    // function fillStaves(measures, width)
-    //
-    // Creates as many staves as needed to fit every measure, in order, into
-    // a document. Returns the resulting document
-    //
-    // @param glyphs   The list of subtrees to fit into the document
-    // @param width    The width of the document
-    //
-    var fillStaves = function(glyphs, width) {
-        function nextStaff(doc, width) {
-            var staff = new Notate.glyphs['staff']();
-            staff.x = s.MARGIN_HORIZ;
-            staff.right = width - 2 * s.MARGIN_HORIZ;
-
-            doc.children.push(staff);
-
-            return staff;
-        }
-
-        function nextEndMeasure(glyphs, start) {
-            for (var i = start; i < glyphs.length; ++i) {
-                if (glyphs[i].type() == 'end-measure')
-                    return i;
-            }
-
-            // If we get here, there are glyphs after the final end-measure.
-            // That probably means someone forgot to finish with an end-measure
-            glyphs.push(new Notate.glyphs['end-measure']);
-            return glyphs.length - 1;
-        }
-
-        function sizeof(glyphs, start, end) {
-            var staff = new Notate.glyphs['staff']();
-            for (var i = start; i <= end; ++i)
-                staff.children.push(glyphs[i]);
-
-            layoutGlyph(staff);
-            return staff.width();
-        }
-
-        function finishStaff(staff, prev) {
-            layoutGlyph(staff);
-
-            var last = staff.children[staff.children.length - 1];
-            last.x = staff.width();
-
-            var s = Notate.settings;
-
-            if (prev == null)
-                staff.y = Math.floor(s.MARGIN_VERT - staff.top);
-            else
-                staff.y = Math.floor((prev.y + prev.bottom) + s.STAFF_SPACING - staff.top);
-        }
-
-        var s = Notate.settings;
-
-        var doc = new Notate.glyphs['document']();
-        doc.right = width;
-
-        var prev = null;
-        var staff = nextStaff(doc, width);
-
-        var x = 0;
-
-        for (var i = 0; i < glyphs.length; ) {
-
-            // Find the glyphs in this measure
-            var start = i;
-            var end = nextEndMeasure(glyphs, start);
-            i = end + 1;
-
-            // If the measure won't fit, finish the staff and start a new one
-            var measureWidth = sizeof(glyphs, start, end);
-            var fits = x + measureWidth <= staff.width();
-            if (staff.children.length > 0 && !fits) {
-                finishStaff(staff, prev);
-
-                x = 0;
-                prev = staff;
-                staff = nextStaff(doc, width);
-            }
-
-            // Measure fits, add it to the staff
-            for (var j = start; j <= end; ++j) 
-                staff.children.push(glyphs[j]);
-
-            x += measureWidth;
-        }
-
-        finishStaff(staff, prev);
-        return doc;
     }
 
     //
@@ -388,41 +234,44 @@ var Notate = (function() {
 
         // Expand the glyph's bounding rect to hold its children
         var minbounds = glyph.minSize();
+        minbounds.x = glyph.x;
+        minbounds.y = glyph.y;
         glyph.union(minbounds);
 
         for (var i = 0; i < glyph.children.length; ++i) {
-            var child = glyph.children[i];
-            var bounds = translate(child, { x:0, y:0 }, child);
-
-            glyph.union(bounds);
+            glyph.union(glyph.children[i]);
         }
     }
 
     //
-    // function bakeCoords(tree)
+    // function handleShowCommand
     //
-    // Replaces relative coordinates stored at each node in the glyph tree and
-    // converts them to absolute coordinates in document canvas space
+    // Helper for Notate.layout() that runs whenever layout() encounters a
+    // show: 'something' command.
     //
-    // @tree    A tree of Glyph objects whose coordinates are always relative
-    //          to their parents
+    // @param cmd   The show command
+    // @param ctx   The layout context to apply the command to
     //
-    var bakeCoords = function(tree) {
-        function recur(tree, x, y) {
-            var dx = tree.x;
-            var dy = tree.y;
+    var handleShowCommand = function(cmd, ctx) {
+        var type = cmd['show'];
 
-            for (var i = 0; i < tree.children.length; ++i)
-                recur(tree.children[i], x + dx, y + dy);
+        if (type == 'measure') {
+            ctx.measure.push(new Notate.glyphs['bar']());
 
-            tree.dx = Math.floor(dx);
-            tree.dy = Math.floor(dy);
-
-            tree.x = Math.floor(x + dx);
-            tree.y = Math.floor(y + dy);
+            ctx.outdoc.addMeasure(ctx.measure);
+            ctx.measure = [ ];
         }
+        else if (Notate.glyphs.hasOwnProperty(type)) {
+            var glyph = new Notate.glyphs[type]();
+            glyph.parseCommand(cmd);
 
-        recur(tree, 0, 0);
+            layoutGlyph(glyph);
+
+            ctx.measure.push(glyph);
+        }
+        else {
+            console.log('Unknown showable in Notate.layout(): ' + type);
+        }
     }
 
     // 
@@ -430,27 +279,54 @@ var Notate = (function() {
     //
     // Creates a layout tree from a document description.
     // The resulting layout tree contains a hierarchical tree of glyph objects
-    // (see Notate.Glyph) which can be further processed, analyzed, and / or
+    // (see Notate.Glyph) which can be further processed, analyzed, and/or
     // rendered (see Notate.render())
     //
     // @param doc The document to generate a layout tree for
     // @return a layout tree corresponding to the document.
     // 
     var layout = function(doc) {
-        var glyphs = convert(doc);
+        var context = {
+            outdoc: new Notate.glyphs['document'](),
+            measure: [ ],
+        };
 
-        // Lay out each individual glyph
-        for (var i = 0; i < glyphs.length; ++i)
-            layoutGlyph(glyphs[i]);
+        context.outdoc.right = 800; // TODO pass this in somehow
 
-        // Build staves out of glyphs
-        var width = 800;    // TODO param?
-        tree = fillStaves(glyphs, width);
-    
-        // Convert relative coordinates to absolute coordinates
-        bakeCoords(tree);
+        // Parse each command
+        for (var i = 0; i < doc.length; ++i) {
+            var cmd = doc[i];
+            var ctype = commandType(cmd);
 
-        return tree;
+            if (ctype == 'show') {
+                handleShowCommand(cmd, context);
+            }
+            else {
+                console.log('Unknown command type in Notate.layout(): ' 
+                            + ctype);
+            }
+        }
+
+        // Finish the document
+        if (context.measure.length > 0) {
+            context.outdoc.addMeasure(context.measure);
+            context.measure = [ ];
+        }
+
+        context.outdoc.finish();
+
+        // Recursively floor all coordinates (prevents partial-pixel offset
+        // blurs when rendering the document)
+        (function floorCoords(glyph) {
+            glyph.x = Math.floor(glyph.x);
+            glyph.y = Math.floor(glyph.y);
+
+            for (var i = 0; i < glyph.children.length; ++i) {
+                floorCoords(glyph.children[i]);
+            }
+        })(context.outdoc);
+
+        return context.outdoc;
     }
 
     //
@@ -491,15 +367,6 @@ var Notate = (function() {
     // Published so subclasses of Notate.Glyph can register themselves
     // Maps from glyph type (e.g. 'document') to the glyph constructor
     Notate.glyphs = { };
-
-    // The following methods are provided to glyphs as helpers. Glyphs may
-    // choose to add items as necessary, but are strongly discouraged from
-    // removing helpers.
-    Notate.Helpers = { };
-    Notate.Helpers.translate = translate;
-    Notate.Helpers.toLength = toLength;
-    Notate.Helpers.hasStem = hasStem;
-    Notate.Helpers.numFlags = numFlags;
 
     return Notate;
 }());

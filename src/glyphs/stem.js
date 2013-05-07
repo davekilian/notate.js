@@ -15,6 +15,8 @@
     Stem.constructor = Stem;
     Notate.glyphs['stem'] = Stem;
 
+    Stem.prototype.parseCommand = function(cmd, ctype) { }
+
     Stem.prototype.minSize = function() {
         var s = Notate.settings;
 
@@ -29,9 +31,10 @@
     Stem.prototype.layout = function() { }
 
     Stem.prototype.render = function(canvas, ctx) {
-        var translate = Notate.Helpers.translate;
-        var rect = translate(this, { x: 0, y: 0 }, { x: this.x, y: this.y });
-        ctx.fillRect(rect.left, rect.top, rect.width(), rect.height());
+        ctx.fillRect(this.x + this.left, 
+                     this.y + this.top,
+                     this.width(),
+                     this.height());
     }
 
 })(Notate);
