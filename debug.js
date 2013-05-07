@@ -123,19 +123,21 @@ function debugLayout(canvas, ctx) {
             return note + octave;
         }
 
-        var denom = 1;
-        var pitch = 'C3';
+        for (var iter = 0; iter < 3; ++iter) {
+            var denom = 1;
+            var pitch = 'C3';
 
-        for (var i = 0; i < 5; ++i) {
-            var length = '1/' + denom;
+            for (var i = 0; i < 5; ++i) {
+                var length = '1/' + denom;
 
-            for (var j = 0; j < denom; ++j) {
-                ret.push({ show: 'note', length: length, pitch: pitch });
-                pitch = incrPitch(pitch);
+                for (var j = 0; j < denom; ++j) {
+                    ret.push({ show: 'note', length: length, pitch: pitch });
+                    pitch = incrPitch(pitch);
+                }
+
+                ret.push({ show: 'measure' });
+                denom *= 2;
             }
-
-            ret.push({ show: 'measure' });
-            denom *= 2;
         }
 
         return ret;

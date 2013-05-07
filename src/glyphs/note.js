@@ -175,7 +175,7 @@
             min = Math.floor(y + dy - (dy % s.STAFF_LINE_SPACING) + 1);
             max = Math.floor(y);
         } else {
-            min = Math.floor(y + h + s.STAFF_LINE_SPACING);
+            min = Math.floor(y + h + s.STAFF_LINE_SPACING) + 1;
             max = Math.floor(y + dy);
         }
 

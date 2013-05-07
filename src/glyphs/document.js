@@ -99,7 +99,7 @@
                 // Finish this staff so we can add a new one below
                 var len = this.children.length;
                 var finished = this.children[len - 1];
-                var prev = (len > 2) ? this.children[len - 2] : null;
+                var prev = (len > 1) ? this.children[len - 2] : null;
 
                 finishStaff(finished, prev);
             }

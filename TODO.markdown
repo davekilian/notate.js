@@ -1,11 +1,6 @@
 
 # TODO
 
-## New Document Format
-
-* Staves don't get separated properly when you add lots of octaves to the test
-  harness
-
 ## Triplets
 
 * Implement the begin/end commands in the layout engine
