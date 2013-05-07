@@ -162,21 +162,24 @@
 
     function renderLedgers(canvas, ctx, x, y, note) {
         var s = Notate.settings;
-        var dy = note.pitchOffset;
-        y -= dy;
 
-        var h = (s.STAFF_LINE_COUNT - 1) * s.STAFF_LINE_SPACING;
+        var dy = note.pitchOffset;
         if (dy >= 0 && dy <= h)
             return;
 
+        var noteY = y;
+        var staffY = y - dy;
+        var h = (s.STAFF_LINE_COUNT - 1) * s.STAFF_LINE_SPACING;
+
         var min = 0, max = 0;
 
-        if (dy < 0) {
-            min = Math.floor(y + dy - (dy % s.STAFF_LINE_SPACING) + 1);
-            max = Math.floor(y);
-        } else {
-            min = Math.floor(y + h + s.STAFF_LINE_SPACING) + 1;
-            max = Math.floor(y + dy);
+        if (dy < 0) {   // Ledgers above staff line
+            min = Math.floor(noteY - ((dy - 1) % s.STAFF_LINE_SPACING));
+            max = Math.floor(staffY);
+        }
+        else {          // Ledgers below staff line
+            min = Math.floor(staffY + h + s.STAFF_LINE_SPACING + 1);
+            max = Math.floor(noteY);
         }
 
         var w = s.LEDGER_WIDTH, h = s.LEDGER_HEIGHT;
@@ -193,7 +196,7 @@
             x = this.x,
             y = this.y;
 
-        renderLedgers(canvas, ctx, this.x, this.y, this);
+        renderLedgers(canvas, ctx, x, y, this);
 
         var rotation = (this.length == "1/1") ? 0 : s.NOTE_HEAD_ROTATION;
         renderNoteHeadOuter(canvas, ctx, x, y, rotation);
