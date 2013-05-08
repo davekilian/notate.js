@@ -274,6 +274,74 @@ var Notate = (function() {
         }
     }
 
+    var handleBeginCommand = function(cmd, ctx) {
+    }
+
+    var handleEndCommand = function(cmd, ctx) {
+        /*
+         * TODO
+         *
+         * Still need to figure out how the glyph gets positioned. Its position
+         * can't be determined until the other glyphs are already placed, but
+         * staff positions can't be determined until this glyph is in the
+         * staff. So maybe we should always defer until a line break?
+         *
+         * Then what we'd want is:
+         * - context has a begun list and an ended list
+         * - handleShowCommand adds a child to every begun command
+         * - handleBeginCommand adds an entry to the begun list
+         * - handleEndCommand moves an entry from the begun list to the ended
+         *   list
+         * - handleLineBreak is complicated probably
+         */
+    }
+
+    var handleLineBreak = function(ctx) { 
+        /*
+         * TODO
+         *
+         * Figure out how to do this ^^
+         *
+         * First, let's consider anything that was begun and end on this line
+         * Then we can expand to cover things that wrapped at the start and/or
+         * end of this line.
+         *
+         * Basic idea:
+         * - Lay out the staff
+         * - Add each ended glyph
+         * - Lay out each of those glyphs
+         * - Clear the ended glyph list
+         * - Finish the staff
+         *
+         * Seems simple, but the semantics are kind of broken
+         * - layout() is supposed to lay out the glyph's chidlren
+         * - But we're calling layout() on the (e.g. tuplet) glyph to lay
+         *   itself out
+         * - We could change the semantics of layout so that the glyph
+         *   positions itself, but the glyph doesn't have a reference to its
+         *   parent glyph. Maybe it'd be okay if we added a parent glyph and
+         *   changed the semantics?
+         * - An alternative is to put layout logic for tuplets and stuff in the
+         *   staff glyph, but that's kinda shitty
+         * - Another alternative is to add another callback, but that's messy.
+         *
+         * I think the best bet is to change what layout does. This is going to
+         * require some refactoring before we can start begin/end commands
+         * though.
+         *
+         * As promised, we should also talk about what to do on a line break if
+         * there are any items in the begin list. The basic extension is:
+         * - Add each begun glyph as well as the ended glyphs
+         * - Set the endsWithLineBreak property = true on each of those glyphs
+         * - Clear the child lists of every begun glyph, but don't remove them
+         * - Set a flag so that each of glyphs in the list will have a
+         *   startsWithLineBreak property set to true
+         *
+         * Then child glyphs can handle the logic for changing the way they
+         * render based on those line break property flags
+         */
+    }
+
     // 
     // function layout(doc)
     //

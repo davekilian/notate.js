@@ -6,12 +6,20 @@
 * Implement the begin/end commands in the layout engine
 * Support for the tuplet command in the conversion step
 * Render the tuplet markup (see link for examples)
+* Support line breaks in the middle of a tuplet
+* Document the command
+
+## Line Break Command
+
+* Documentation
+* Implementation (basically, `layout()` can just call `handleLineBreak()`)
 
 ## Slurs
 
 * Support for the slur command in the conversion step
 * Heuristic for placing the slur above or below based on the note pitches
 * Render slurs
+* Document the command
 
 ## Bars
 
@@ -21,13 +29,15 @@
   stems created by the bar?)
 * Render the bar
 * Support multiple bar types in a single group
-* Support putting a tuplet 3 over the bar
+* Support putting a tuplet number over the bar
+* Document the command
 
 ## Chords
 
 * Support in JSON
 * Support in rendering
 * Should work exactly like regular notes otherwise
+* Document the command
 
 ## Add basics to layout and rendering engines
 
