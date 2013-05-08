@@ -21,7 +21,21 @@
         return { top: 0, bottom: 21.5, left: 0, right: 11.2 };
     }
 
-    Flags.prototype.layout = function() { }
+    Flags.prototype.layout = function() {
+        var s = Notate.settings;
+
+        this.moveTo(this.parent.x, this.parent.y);
+
+        this.flipped = this.parent.isFlipped();
+        if (this.flipped) {
+            this.moveBy(-s.STEM_OFFSET - 1,
+                        s.NOTE_STEM_HEIGHT + 1);
+        }
+        else {
+            this.moveBy(s.STEM_OFFSET,
+                        -s.NOTE_STEM_HEIGHT);
+        }
+    }
 
     Flags.prototype.render = function(canvas, ctx) {
         var x = this.x, 

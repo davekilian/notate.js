@@ -64,11 +64,45 @@
         return pow >= 3 ? pow - 2 : 0;
     }
 
+    function pitchDelta(pitch, clef) {
+        var originNote, originPitch;
+
+        if (clef == 'treble') {
+            originNote = 'F'.charCodeAt(0);
+            originPitch = 5;
+        } else {
+            console.log('NYI: note pitch on ' + clef + ' clef');
+        }
+
+        var note = pitch.charCodeAt(0);
+        var octave = parseInt(pitch.charAt(1));
+
+        return 7 * (octave - originPitch) + (note - originNote);
+    }
+
+    function pitchOffset(delta) {
+        var s = Notate.settings;
+        return -delta * .5 * s.STAFF_LINE_SPACING + 0.5;
+    }
+
+    //
+    // Indicates whether this note's stem is flipped.
+    // If true, the stem points down. Otherwise the stem points up.
+    //
+    Note.prototype.isFlipped = function() {
+        var s = Notate.settings;
+        var mid = -s.STAFF_LINE_COUNT;  // * 2 = num half steps
+                                        // * 2 / 2 = midpoint
+        return this.pitchDelta > mid;
+    }
+
     Note.prototype.parseCommand = function(cmd, ctype) {
 
         // The note itself
         this.length = toLength(cmd.length);
         this.pitch = cmd.pitch;
+        this.pitchDelta = pitchDelta(this.pitch, 'treble');
+        this.pitchOffset = pitchOffset(this.pitchDelta);
 
         // Its stem
         if (hasStem(this.length)) {
@@ -95,37 +129,8 @@
     Note.prototype.layout = function() {
         var s = Notate.settings;
 
-        var mid = -s.STAFF_LINE_COUNT;  // * 2 = num half steps
-                                        // * 2 / 2 = midpoint
-        var flipped = this.pitchDelta > mid;
-
-        if (flipped) {  // Stem points down
-            for (var i = 0; i < this.children.length; ++i) {
-                var child = this.children[i];
-
-                if (child.type() == 'stem') {
-                    child.x = -s.STEM_OFFSET - 1.0;
-                    child.y = s.NOTE_STEM_HEIGHT + 1.0;
-
-                } else if (child.type() == 'flags') {
-                    child.x = -s.STEM_OFFSET - 1.0;
-                    child.y = s.NOTE_STEM_HEIGHT + 1.0;
-                    child.flipped = true;
-                }
-            }
-        } else {    // Stem points up
-            for (var i = 0; i < this.children.length; ++i) {
-                var child = this.children[i];
-
-                if (child.type() == 'stem') {
-                    child.x = s.STEM_OFFSET;
-
-                } else if (child.type() == 'flags') {
-                    child.x = s.STEM_OFFSET;
-                    child.y = -s.NOTE_STEM_HEIGHT;
-                }
-            }
-        }
+        this.moveTo(this.staffX,
+                    this.pitchOffset);
     }
 
     function renderNoteHeadOuter(canvas, ctx, x, y, rotation) {

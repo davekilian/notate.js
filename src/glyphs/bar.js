@@ -29,7 +29,12 @@
         };
     }
 
-    Bar.prototype.layout = function() { }
+    Bar.prototype.layout = function() {
+        var s = Notate.settings;
+
+        this.moveTo(this.parent.x + this.staffX, 
+                    this.parent.y);
+    }
 
     Bar.prototype.render = function(canvas, ctx) {
         var s = Notate.settings;

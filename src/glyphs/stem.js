@@ -28,7 +28,19 @@
         };
     }
 
-    Stem.prototype.layout = function() { }
+    Stem.prototype.layout = function() {
+        var s = Notate.settings;
+
+        this.moveTo(this.parent.x, this.parent.y);
+
+        if (this.parent.isFlipped()) {
+            this.moveBy(-s.STEM_OFFSET - 1, 
+                        s.NOTE_STEM_HEIGHT + 1.0);
+        }
+        else {
+            this.moveBy(s.STEM_OFFSET, 0);
+        }
+    }
 
     Stem.prototype.render = function(canvas, ctx) {
         ctx.fillRect(this.x + this.left, 

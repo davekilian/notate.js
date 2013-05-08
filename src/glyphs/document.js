@@ -27,21 +27,43 @@
     Document.prototype.render = function(canvas, ctx) { }
 
     //
+    // Recursively computes the positions and sizes of the glyph's subtree,
+    // then determines the glyph's size (the union of its minimum size and the
+    // bounding rectangles of all its descendents)
+    //
+    function layoutGlyph(glyph) {
+
+        // Size and lay out the children glyph subtrees
+        for (var i = 0; i < glyph.children.length; ++i)
+            layoutGlyph(glyph.children[i]);
+
+        // Determine where children of this glyph belong
+        glyph.layout();
+
+        // Expand the glyph's bounding rect to hold its children
+        var minbounds = glyph.minSize();
+        minbounds.x = glyph.x;
+        minbounds.y = glyph.y;
+        glyph.union(minbounds);
+
+        for (var i = 0; i < glyph.children.length; ++i) {
+            glyph.union(glyph.children[i]);
+        }
+    }
+
+    //
     // Returns the amount of horizontal space that would be needed by the
     // glyphs in the given list if they were placed next to each other in a
     // staff.
     //
     function measureGlyphs(glyphs) {
         var staff = new Notate.glyphs['staff']();
-        staff.children = glyphs;
-        staff.layout();
+      
+        for (var i = 0; i < glyphs.length; ++i)
+            staff.addChild(glyphs[i]);
 
-        var bounds = new Notate.Rect();
-        for (var i = 0; i < staff.children.length; ++i) {
-            bounds.union(staff.children[i]);
-        }
-
-        return bounds.width();
+        layoutGlyph(staff);
+        return staff.width();
     }
 
     //
@@ -52,10 +74,8 @@
     function finishStaff(staff, prev) {
         var s = Notate.settings;
 
-        // Compute the staff's bounding box
-        staff.layout();
-        for (var i = 0; i < staff.children.length; ++i)
-            staff.union(staff.children[i]);
+        // Lay out the staff's children
+        layoutGlyph(staff);
 
         // Move the staff into position
         var x = s.MARGIN_HORIZ;

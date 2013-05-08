@@ -148,6 +148,12 @@ var Notate = (function() {
         return null;
     }
 
+    //
+    // Recursively moves this glyph and its children by the given amount
+    //
+    // @paran dx    The horizontal distance to move this glyph tree
+    // @param dy    The vertical distance to move this glyph tree
+    //
     Glyph.prototype.moveBy = function(dx, dy) {
         function recur(glyph) {
             glyph.x += dx;
@@ -160,6 +166,13 @@ var Notate = (function() {
         recur(this);
     }
 
+    //
+    // Moves this glyph to the given location, recursively moving this glyph's
+    // children so they remain in the same place relative to this glyph
+    //
+    // @param x     The X coordinate of the new origin of this glyph
+    // @param y     The Y coordinate of the new origin of this glyph
+    //
     Glyph.prototype.moveTo = function(x, y) {
         this.moveBy(x - this.x, y - this.y);
     }
@@ -246,33 +259,6 @@ var Notate = (function() {
     }
 
     //
-    // function layoutGlyph
-    //
-    // Recursively computes the positions and sizes of the glyph's subtree,
-    // then determines the glyph's size (the union of its minimum size and the
-    // bounding rectangles of all its descendents)
-    //
-    function layoutGlyph(glyph) {
-
-        // Determine where children of this glyph belong
-        glyph.layout();
-
-        // Size and lay out the children glyph subtrees
-        for (var i = 0; i < glyph.children.length; ++i)
-            layoutGlyph(glyph.children[i]);
-
-        // Expand the glyph's bounding rect to hold its children
-        var minbounds = glyph.minSize();
-        minbounds.x = glyph.x;
-        minbounds.y = glyph.y;
-        glyph.union(minbounds);
-
-        for (var i = 0; i < glyph.children.length; ++i) {
-            glyph.union(glyph.children[i]);
-        }
-    }
-
-    //
     // function handleShowCommand
     //
     // Helper for Notate.layout() that runs whenever layout() encounters a
@@ -293,8 +279,6 @@ var Notate = (function() {
         else if (Notate.glyphs.hasOwnProperty(type)) {
             var glyph = new Notate.glyphs[type]();
             glyph.parseCommand(cmd);
-
-            layoutGlyph(glyph);
 
             ctx.measure.push(glyph);
         }
