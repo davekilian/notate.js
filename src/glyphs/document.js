@@ -91,7 +91,10 @@
 
             var newWidth = measureGlyphs(glyphs);
             if (newWidth < remaining) {
-                staff.children = staff.children.concat(glyphs);
+                for (var i = 0; i < glyphs.length; ++i) {
+                    staff.addChild(glyphs[i]);
+                }
+
                 return;
             }
             else {
@@ -108,9 +111,11 @@
         // The measure doesn't fit, or there is no staff. Create a new one.
         var staff = new Notate.glyphs['staff']();
         staff.right = this.width() - 2 * s.MARGIN_HORIZ;
-        staff.children = staff.children.concat(glyphs);
+        for (var i = 0; i < glyphs.length; ++i) {
+            staff.addChild(glyphs[i]);
+        }
 
-        this.children.push(staff);
+        this.addChild(staff);
     }
 
     //

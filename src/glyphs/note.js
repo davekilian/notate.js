@@ -72,7 +72,7 @@
 
         // Its stem
         if (hasStem(this.length)) {
-            this.children.push(new Notate.glyphs['stem']());
+            this.addChild(new Notate.glyphs['stem']());
         }
 
         // Its flags
@@ -81,7 +81,7 @@
             var flags = new Notate.glyphs['flags']();
             flags.count = nFlags;
 
-            this.children.push(flags);
+            this.addChild(flags);
         }
     }
 

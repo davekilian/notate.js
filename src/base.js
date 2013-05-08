@@ -101,11 +101,36 @@ var Notate = (function() {
     var Glyph = function() {
         Rect.call(this);
 
+        this.parent = null;             // The Glyph that owns this one
         this.children = new Array();    // This Glyph's list of child Glyphs
     }
 
     Glyph.prototype = new Rect();
     Glyph.constructor = Glyph;
+
+    //
+    // Adds a child to this glyph's list of children glyphs. 
+    // Also manages the child's parent property.
+    //
+    Glyph.prototype.addChild = function(child) {
+        child.parent = this;
+        this.children.push(child);
+    }
+
+    //
+    // Removes a child from this glyph's list of children glyphs.
+    // Also manages the child's parent property.
+    //
+    Glyph.prototype.removeChild = function(child) {
+        if (child.parent == this) {
+            child.parent = null;
+        }
+
+        var index = this.children.indexOf(child);
+        if (index >= 0) {
+            this.children.splice(index, 1);
+        }
+    }
 
     //
     // Returns this glyph's type string.
@@ -174,11 +199,15 @@ var Notate = (function() {
     }
 
     //
-    // Determines the final positions of each of this glyph's children, and
-    // then computes the final dimensions of this glyph's bounding box. This
-    // method may assume the glyph's children have already been laid out. This
-    // method is *not* responsible for recursively calling layout on its
-    // children.
+    // Determines this glyph's final position, and then computes the final
+    // dimensions of the glyph's bounding box. 
+    //
+    // This method may assume the glyph's children have already been laid out,
+    // and is not responsible for calling layout on its children.
+    //
+    // This method is, however, responsible for moving the glyph's children
+    // along with the glyph, as necessary. Glyph.moveTo and Glyph.moveBy help
+    // with this.
     //
     Glyph.prototype.layout = function() {
         console.log("This glyph does not override .layout()!");
