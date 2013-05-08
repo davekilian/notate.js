@@ -259,7 +259,7 @@ var Notate = (function() {
     }
 
     //
-    // function handleShowCommand
+    // function handleShowCommand()
     //
     // Helper for Notate.layout() that runs whenever layout() encounters a
     // show: 'something' command.
@@ -269,11 +269,17 @@ var Notate = (function() {
     //
     var handleShowCommand = function(cmd, ctx) {
         var type = cmd['show'];
+        var doc = ctx.outdoc;
+        var measure = ctx.measure;
 
         if (type == 'measure') {
-            ctx.measure.push(new Notate.glyphs['bar']());
+            measure.push(new Notate.glyphs['bar']());
 
-            ctx.outdoc.addMeasure(ctx.measure);
+            if (doc.needsLineBreakFor(measure)) {
+                handleLineBreak(ctx);
+            }
+
+            doc.addMeasure(ctx.measure);
             ctx.measure = [ ];
         }
         else if (Notate.glyphs.hasOwnProperty(type)) {
@@ -281,78 +287,131 @@ var Notate = (function() {
             glyph.parseCommand(cmd);
 
             ctx.measure.push(glyph);
+            for (var i = 0; i < ctx.begun.length; ++i) {
+                ctx.begun[i].children.push(glyph);
+            }
         }
         else {
             console.log('Unknown showable in Notate.layout(): ' + type);
         }
     }
 
+    //
+    // function handleBeginCommand()
+    //
+    // Helper for Notate.layout() that runs whenever layout() encounters a
+    // begin: 'something' command.
+    //
+    // @param cmd   The begin command
+    // @param ctx   The layout context to apply the command to
+    //
     var handleBeginCommand = function(cmd, ctx) {
+        var type = cmd['begin'];
+
+        if (Notate.glyphs.hasOwnProperty(type)) {
+            ctx.begun.push({ 
+                cmd: cmd,
+                children: [ ],
+                type: type,
+                name: cmd['named'] || null,
+            });
+        }
+        else {
+            console.log('Unknown beginable in Notate.layout(): ' + type);
+        }
     }
 
+    //
+    // function handleEndCommand()
+    //
+    // Helper for Notate.layout() that runs whenever layout() encounters a
+    // end: 'something' command.
+    //
+    // @param cmd   The end command
+    // @param ctx   The layout context to apply the command to
+    //
     var handleEndCommand = function(cmd, ctx) {
-        /*
-         * TODO
-         *
-         * Still need to figure out how the glyph gets positioned. Its position
-         * can't be determined until the other glyphs are already placed, but
-         * staff positions can't be determined until this glyph is in the
-         * staff. So maybe we should always defer until a line break?
-         *
-         * Then what we'd want is:
-         * - context has a begun list and an ended list
-         * - handleShowCommand adds a child to every begun command
-         * - handleBeginCommand adds an entry to the begun list
-         * - handleEndCommand moves an entry from the begun list to the ended
-         *   list
-         * - handleLineBreak is complicated probably
-         */
+        var name = cmd['named'];
+        var type = cmd['end'];
+
+        // n.b. we loop through the list backwards here so we always end the
+        // matching glyph that was most recently begun. That way, if you nest
+        // multiple of the same glyph for some reason, Notate does what you'd
+        // expect.
+
+        for (var i = ctx.begun.length - 1; i >= 0; --i) {
+            var item = ctx.begun[i];
+
+            var match = (name && (cmd.name == name)) ||
+                        (cmd.type == type);
+
+            if (match) {
+                ctx.begun.splice(i, 0);
+                ctx.ended.push(item);
+                return;
+            }
+        }
+
+        console.log('No ' + type + (name ? ' named ' + name : '') +
+                    ' to end in Notate.layout()');
     }
 
+    //
+    // function handleLineBreak()
+    //
+    // Helper for Notate.layout() that runs whenever a line break is needed.
+    // A line break adds a new staff to the end of the current document.
+    //
+    // @param cmd   The end command
+    // @param ctx   The layout context to apply the command to
+    //
     var handleLineBreak = function(ctx) { 
-        /*
-         * TODO
-         *
-         * Figure out how to do this ^^
-         *
-         * First, let's consider anything that was begun and end on this line
-         * Then we can expand to cover things that wrapped at the start and/or
-         * end of this line.
-         *
-         * Basic idea:
-         * - Lay out the staff
-         * - Add each ended glyph
-         * - Lay out each of those glyphs
-         * - Clear the ended glyph list
-         * - Finish the staff
-         *
-         * Seems simple, but the semantics are kind of broken
-         * - layout() is supposed to lay out the glyph's chidlren
-         * - But we're calling layout() on the (e.g. tuplet) glyph to lay
-         *   itself out
-         * - We could change the semantics of layout so that the glyph
-         *   positions itself, but the glyph doesn't have a reference to its
-         *   parent glyph. Maybe it'd be okay if we added a parent glyph and
-         *   changed the semantics?
-         * - An alternative is to put layout logic for tuplets and stuff in the
-         *   staff glyph, but that's kinda shitty
-         * - Another alternative is to add another callback, but that's messy.
-         *
-         * I think the best bet is to change what layout does. This is going to
-         * require some refactoring before we can start begin/end commands
-         * though.
-         *
-         * As promised, we should also talk about what to do on a line break if
-         * there are any items in the begin list. The basic extension is:
-         * - Add each begun glyph as well as the ended glyphs
-         * - Set the endsWithLineBreak property = true on each of those glyphs
-         * - Clear the child lists of every begun glyph, but don't remove them
-         * - Set a flag so that each of glyphs in the list will have a
-         *   startsWithLineBreak property set to true
-         *
-         * Then child glyphs can handle the logic for changing the way they
-         * render based on those line break property flags
-         */
+        var staff = ctx.outdoc.children[ctx.outdoc.children.length - 1];
+
+        // Add all the glyphs that have been begun and ended since the last
+        // line break
+        for (var i = 0; i < ctx.ended.length; ++i) {
+            var item = ctx.ended[i];
+
+            var glyph = new Notate.glyphs[item.type];
+            if (item.beginsWithLineBreak) {
+                glyph.beginsWithLineBreak = true;
+            }
+
+            glyph.parseCommand(item.cmd);
+            for (var j = 0; j < item.children.length; ++j) {
+                glyph.addChild(item.children[j]);
+            }
+
+            staff.addChild(glyph);
+        }
+
+        ctx.ended = [ ];
+
+        // Add all the glyphs that have been begun but not ended since the last
+        // line break
+        for (var i = 0; i < ctx.begun.length; ++i) {
+            var item = ctx.begun[i];
+
+            var glyph = new Notate.glyphs[item.type];
+            glyph.endsWithLineBreak = true;
+            if (item.beginsWithLineBreak) {
+                glyph.beginsWithLineBreak = true;
+            }
+
+            glyph.parseCommand(item.cmd);
+            for (var j = 0; j < item.children.length; ++j) {
+                glyph.addChild(item.children[j]);
+            }
+
+            staff.addChild(glyph);
+
+            item.beginsWithLineBreak = true;
+            item.children = [ ];
+        }
+
+        // Add the newline
+        ctx.outdoc.breakLine();
     }
 
     // 
@@ -368,8 +427,10 @@ var Notate = (function() {
     // 
     var layout = function(doc) {
         var context = {
-            outdoc: new Notate.glyphs['document'](),
-            measure: [ ],
+            outdoc: new Notate.glyphs['document'](),    // The final document
+            measure: [ ],   // The glyphs that will form the next document
+            begun: [ ],     // State for begin:s without end:s
+            ended: [ ],     // State for end:s that aren't in outdoc yet
         };
 
         context.outdoc.right = 800; // TODO pass this in somehow
@@ -381,6 +442,12 @@ var Notate = (function() {
 
             if (ctype == 'show') {
                 handleShowCommand(cmd, context);
+            }
+            else if (ctype == 'begin') {
+                handleBeginCommand(cmd, context);
+            }
+            else if (ctype == 'end') {
+                handleEndCommand(cmd, context);
             }
             else {
                 console.log('Unknown command type in Notate.layout(): ' 

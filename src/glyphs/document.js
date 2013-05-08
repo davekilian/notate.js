@@ -94,6 +94,58 @@
     }
 
     //
+    // function needsLineBreakFor()
+    //
+    // Returns a value indicating whether the caller needs to call
+    // Document.breakLine() before calling Document.addMeasure() on the given
+    // glyphs. This function is called as a subroutine in Notate.layout(), and
+    // is not intended for public use.
+    //
+    // @param glyphs    The glyphs that will be added next time the caller
+    //                  calls Document.addMeasure()
+    //
+    Document.prototype.needsLineBreakFor = function(glyphs) {
+        if (this.children.length == 0) {
+            return true;
+        }
+
+        var staff = this.children[this.children.length - 1];
+        var oldWidth = measureGlyphs(staff.children);
+        var remaining = staff.width() - oldWidth;
+
+        var newWidth = measureGlyphs(glyphs);
+
+        return newWidth > remaining;
+    }
+
+    //
+    // function breakLine()
+    //
+    // Finishes the current staff and creates a new, empty one. Future calls to
+    // addMeasure() will add to this newly-created staff. This function is
+    // called as a subroutine in Notate.layout(), and is not intended for
+    // public use.
+    //
+    Document.prototype.breakLine = function() {
+        var s = Notate.settings;
+
+        // Finish the old staff
+        if (this.children.length > 0) {
+            var len = this.children.length;
+            var finished = this.children[len - 1];
+            var prev = (len > 1) ? this.children[len - 2] : null;
+
+            finishStaff(finished, prev);
+        }
+
+        // Add a new staff
+        var staff = new Notate.glyphs['staff']();
+        staff.right = this.width() - 2 * s.MARGIN_HORIZ;
+
+        this.addChild(staff);
+    }
+
+    //
     // function addMeasure()
     //
     // Adds a measure of glyphs to this document, creating a new staff if
@@ -101,41 +153,11 @@
     // and is not intended for public use.
     //
     Document.prototype.addMeasure = function(glyphs) {
-        var s = Notate.settings;
+        var staff = this.children[this.children.length - 1];
 
-        // See if we can fit the measure into an existing staff
-        if (this.children.length > 0) {
-            var staff = this.children[this.children.length - 1];
-            var oldWidth = measureGlyphs(staff.children);
-            var remaining = staff.width() - oldWidth;
-
-            var newWidth = measureGlyphs(glyphs);
-            if (newWidth < remaining) {
-                for (var i = 0; i < glyphs.length; ++i) {
-                    staff.addChild(glyphs[i]);
-                }
-
-                return;
-            }
-            else {
-                // We couldn't fit the measure in this staff.
-                // Finish this staff so we can add a new one below
-                var len = this.children.length;
-                var finished = this.children[len - 1];
-                var prev = (len > 1) ? this.children[len - 2] : null;
-
-                finishStaff(finished, prev);
-            }
-        }
-
-        // The measure doesn't fit, or there is no staff. Create a new one.
-        var staff = new Notate.glyphs['staff']();
-        staff.right = this.width() - 2 * s.MARGIN_HORIZ;
         for (var i = 0; i < glyphs.length; ++i) {
             staff.addChild(glyphs[i]);
         }
-
-        this.addChild(staff);
     }
 
     //

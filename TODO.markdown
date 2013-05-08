@@ -9,6 +9,12 @@
 * Support line breaks in the middle of a tuplet
 * Document the command
 
+## Validation
+
+* Instead of `Notate.glyphs`, have two dicts:
+    * `Notate.showable` is for things that can appear in a `show:`
+    * `Notate.beginable` is for things that can appear in a `begin:`
+
 ## Line Break Command
 
 * Documentation
