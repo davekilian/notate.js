@@ -29,6 +29,8 @@ var Notate = (function() {
         this.LEDGER_HEIGHT = 1;
         this.BAR_LINE_WIDTH = 1;
         this.BAR_BOLD_WIDTH = 3;
+        this.TUPLET_MARGIN = 10;
+        this.TUPLET_HEIGHT = 10;
 
         this.STAFF_HEIGHT = (this.STAFF_LINE_COUNT - 1) * this.STAFF_LINE_SPACING 
                           + this.STAFF_LINE_HEIGHT;
@@ -288,7 +290,7 @@ var Notate = (function() {
 
             ctx.measure.push(glyph);
             for (var i = 0; i < ctx.begun.length; ++i) {
-                ctx.begun[i].children.push(glyph);
+                ctx.begun[i].targets.push(glyph);
             }
         }
         else {
@@ -311,7 +313,7 @@ var Notate = (function() {
         if (Notate.glyphs.hasOwnProperty(type)) {
             ctx.begun.push({ 
                 cmd: cmd,
-                children: [ ],
+                targets: [ ],
                 type: type,
                 name: cmd['named'] || null,
             });
@@ -342,11 +344,11 @@ var Notate = (function() {
         for (var i = ctx.begun.length - 1; i >= 0; --i) {
             var item = ctx.begun[i];
 
-            var match = (name && (cmd.name == name)) ||
-                        (cmd.type == type);
+            var match = (name && (item.name == name)) ||
+                        (item.type == type);
 
             if (match) {
-                ctx.begun.splice(i, 0);
+                ctx.begun.splice(i, 1);
                 ctx.ended.push(item);
                 return;
             }
@@ -354,6 +356,46 @@ var Notate = (function() {
 
         console.log('No ' + type + (name ? ' named ' + name : '') +
                     ' to end in Notate.layout()');
+    }
+
+    var addBeginEndGlyphs = function(ctx) {
+        var staff = ctx.outdoc.children[ctx.outdoc.children.length - 1];
+
+        for (var i = 0; i < ctx.ended.length; ++i) {
+            var item = ctx.ended[i];
+
+            var glyph = new Notate.glyphs[item.type];
+            if (item.beginsWithLineBreak) {
+                glyph.beginsWithLineBreak = true;
+            }
+
+            glyph.parseCommand(item.cmd);
+            glyph.targets = item.targets;
+
+            staff.addChild(glyph);
+        }
+
+        ctx.ended = [ ];
+
+        for (var i = 0; i < ctx.begun.length; ++i) {
+            var item = ctx.begun[i];
+
+            var glyph = new Notate.glyphs[item.type];
+            glyph.endsWithLineBreak = true;
+            if (item.beginsWithLineBreak) {
+                glyph.beginsWithLineBreak = true;
+            }
+
+            glyph.parseCommand(item.cmd);
+            for (var j = 0; j < item.targets.length; ++j) {
+                glyph.addChild(item.targets[j]);
+            }
+
+            staff.addChild(glyph);
+
+            item.beginsWithLineBreak = true;
+            item.targets = [ ];
+        }
     }
 
     //
@@ -366,49 +408,9 @@ var Notate = (function() {
     // @param ctx   The layout context to apply the command to
     //
     var handleLineBreak = function(ctx) { 
-        var staff = ctx.outdoc.children[ctx.outdoc.children.length - 1];
-
-        // Add all the glyphs that have been begun and ended since the last
-        // line break
-        for (var i = 0; i < ctx.ended.length; ++i) {
-            var item = ctx.ended[i];
-
-            var glyph = new Notate.glyphs[item.type];
-            if (item.beginsWithLineBreak) {
-                glyph.beginsWithLineBreak = true;
-            }
-
-            glyph.parseCommand(item.cmd);
-            for (var j = 0; j < item.children.length; ++j) {
-                glyph.addChild(item.children[j]);
-            }
-
-            staff.addChild(glyph);
-        }
-
-        ctx.ended = [ ];
-
-        // Add all the glyphs that have been begun but not ended since the last
-        // line break
-        for (var i = 0; i < ctx.begun.length; ++i) {
-            var item = ctx.begun[i];
-
-            var glyph = new Notate.glyphs[item.type];
-            glyph.endsWithLineBreak = true;
-            if (item.beginsWithLineBreak) {
-                glyph.beginsWithLineBreak = true;
-            }
-
-            glyph.parseCommand(item.cmd);
-            for (var j = 0; j < item.children.length; ++j) {
-                glyph.addChild(item.children[j]);
-            }
-
-            staff.addChild(glyph);
-
-            item.beginsWithLineBreak = true;
-            item.children = [ ];
-        }
+        // Add any glyphs that have terminated or need to be carried onto the
+        // next line
+        addBeginEndGlyphs(ctx);
 
         // Add the newline
         ctx.outdoc.breakLine();
@@ -434,6 +436,7 @@ var Notate = (function() {
         };
 
         context.outdoc.right = 800; // TODO pass this in somehow
+        context.outdoc.breakLine(); // Create the first measure
 
         // Parse each command
         for (var i = 0; i < doc.length; ++i) {
@@ -457,10 +460,15 @@ var Notate = (function() {
 
         // Finish the document
         if (context.measure.length > 0) {
+            if (context.outdoc.needsLineBreakFor(context.measure)) {
+                handleLineBreak(context);
+            }
+
             context.outdoc.addMeasure(context.measure);
             context.measure = [ ];
         }
 
+        addBeginEndGlyphs(context);
         context.outdoc.finish();
 
         // Recursively floor all coordinates (prevents partial-pixel offset

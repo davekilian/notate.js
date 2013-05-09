@@ -89,8 +89,14 @@
         staff.moveTo(x, y);
 
         // Move the last end-measure bar to the end of the staff
-        var last = staff.children[staff.children.length - 1];
-        last.x = staff.x + staff.width();
+        for (var i = staff.children.length - 1; i >= 0; --i) {
+            var c = staff.children[i];
+
+            if (c.type() == 'bar') {
+                c.x = staff.x + staff.width();
+                break;
+            }
+        }
     }
 
     //

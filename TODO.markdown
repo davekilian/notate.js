@@ -3,9 +3,7 @@
 
 ## [Tuplets](http://en.wikipedia.org/wiki/Tuplet)
 
-* Implement the begin/end commands in the layout engine
-* Support for the tuplet command in the conversion step
-* Render the tuplet markup (see link for examples)
+* Tuplet glyph (layout and rendering)
 * Support line breaks in the middle of a tuplet
 * Document the command
 
