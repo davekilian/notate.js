@@ -62,7 +62,7 @@
         }
 
         var x = left;
-        y -= s.TUPLET_MARGIN;
+        y -= s.TUPLET_VMARGIN;
         this.moveTo(x, y);
 
         this.top = -s.TUPLET_HEIGHT;
@@ -71,11 +71,67 @@
         this.right = right - left;
     }
 
+    function hline(ctx, x0, x, y) {
+        var s = Notate.settings;
+
+        ctx.fillRect(x0, y, x - x0, s.TUPLET_THICKNESS);
+    }
+
+    function vline(ctx, x, y0, y) {
+        var s = Notate.settings;
+
+        ctx.fillRect(x, y0, s.TUPLET_THICKNESS, y - y0);
+    }
+
     Tuplet.prototype.render = function(canvas, ctx) {
-        ctx.fillRect(this.x + this.left, 
-                     this.y + this.top,
-                     this.width(),
-                     this.height());
+        var s = Notate.settings;
+
+        // Draw the text
+        ctx.font = s.FONT_STYLE + ' ' + s.TUPLET_FONT_SIZE + 'px ' + s.FONT_FAMILY;
+        ctx.textBaseline = 'middle';
+
+        var text = this.beats;
+        var size = ctx.measureText(text);
+
+        var x = this.x + .5 * (this.width() - size.width);
+        var y = this.y + .5 * this.height();
+
+        ctx.fillText(text, x, y);
+
+        // Draw the horizontal grouping lines
+        hline(ctx, 
+              this.x + s.TUPLET_HMARGIN,
+              x - s.TUPLET_FONT_MARGIN,
+              this.y + .5 * this.height());
+
+        hline(ctx,
+              x + size.width + s.TUPLET_FONT_MARGIN,
+              this.x + this.width() - s.TUPLET_HMARGIN,
+              this.y + .5 * this.height());
+
+        // Draw the vertical lines
+        if (!this.startsWithLineBreak) {
+            vline(ctx,
+                  this.x + s.TUPLET_HMARGIN,
+                  this.y + .5 * this.height(),
+                  this.y + this.height());
+        }
+
+        if (!this.endsWithLineBreak) {
+            vline(ctx,
+                  this.x + this.width() - s.TUPLET_HMARGIN,
+                  this.y + .5 * this.height(),
+                  this.y + this.height());
+        }
+
+        /*
+        this.TUPLET_VMARGIN = 22;
+        this.TUPLET_HMARGIN = 3;
+        this.TUPLET_HEIGHT = 15;
+        this.TUPLET_FONT_SIZE = 12;
+        this.TUPLET_FONT_MARGIN = 5;
+        this.TUPLET_THICKNESS = 1;
+         */
     }
 
 })(Notate);

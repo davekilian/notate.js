@@ -8,6 +8,8 @@ var Notate = (function() {
     // layout and render engines
     //
     var Settings = function() {
+        this.FONT_FAMILY = 'serif';
+        this.FONT_STYLE = 'bold italic';
         this.MARGIN_HORIZ = 30;
         this.MARGIN_VERT = 50;
         this.STAFF_LINE_HEIGHT = 1;
@@ -29,8 +31,12 @@ var Notate = (function() {
         this.LEDGER_HEIGHT = 1;
         this.BAR_LINE_WIDTH = 1;
         this.BAR_BOLD_WIDTH = 3;
-        this.TUPLET_MARGIN = 10;
-        this.TUPLET_HEIGHT = 10;
+        this.TUPLET_VMARGIN = 22;
+        this.TUPLET_HMARGIN = 3;
+        this.TUPLET_HEIGHT = 15;
+        this.TUPLET_FONT_SIZE = 13;
+        this.TUPLET_FONT_MARGIN = 5;
+        this.TUPLET_THICKNESS = 1;
 
         this.STAFF_HEIGHT = (this.STAFF_LINE_COUNT - 1) * this.STAFF_LINE_SPACING 
                           + this.STAFF_LINE_HEIGHT;
