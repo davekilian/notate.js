@@ -163,6 +163,27 @@ TODO -- use [this page](http://en.wikipedia.org/wiki/List_of_musical_symbols)
 
 Don't forget to talk about notes, chords, and things that affect both.
 
+## `begin`able Objects
+
+### `tuplet`
+
+`begin: 'tuplet'` draws a tuplet above the notes it groups. The `beats`
+parameter contains the text to draw on the tuplet bar.
+
+For example, the following three notes will be grouped into a triplet:
+
+    { begin: 'tuplet', beats: '3' },
+    
+    { show: 'note', length: 'eighth', pitch: 'C4' },
+    { show: 'note', length: 'eighth', pitch: 'C5' },
+    { show: 'note', length: 'eighth', pitch: 'C6' },
+
+    { end: 'tuplet' },
+
+Note that, if you're adding an irregular rhythm to a group of notes that is
+already barred together, you can use the `beats` parameter of the `begin:
+'bar'` command described below to draw an irregular rhythm above the bar.
+
 ## TODO
 
 Would we ever want to nest group objects? If so, we need a `named: ` parameter

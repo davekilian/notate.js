@@ -1,11 +1,10 @@
 
 # TODO
 
-## [Tuplets](http://en.wikipedia.org/wiki/Tuplet)
+## Line Breaks
 
-* Tuplet glyph (layout and rendering)
-* Support line breaks in the middle of a tuplet
-* Document the command
+* Currently things bug out if we overflow a single measure with a single
+  tuplet. Probably a bug in base.js somewhere.
 
 ## Validation
 
