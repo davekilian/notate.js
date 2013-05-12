@@ -245,7 +245,67 @@ var Notate = (function() {
         console.log("This glyph does not override .render()!");
         console.log(this);
     }
+    
 
+    //
+    // function addBeginEndGlyphs()
+    //
+    // Creates glyphs corresponding to the begun/ended lists in ctx
+    //
+    // @param ctx   The context containing the begun/ended glyph information to
+    //              use to instantiate the glyphs and the document to receive
+    //              the glyphs created.
+    //
+    var addBeginEndGlyphs = function(ctx) {
+        var targetStaff = ctx.outdoc.children[ctx.outdoc.children.length - 1];
+        if (!targetStaff) {
+            return;
+        }
+
+        var items = ctx.begun.concat(ctx.ended);
+
+        for (var i = 0; i < items.length; ++i) {
+            var item = items[i];
+            var ended = ctx.ended.indexOf(item) > -1; // begun list or ended list?
+
+            // Figure out which targets of this command (if any) belong to the
+            // staff we just finalized
+            var targets = [ ];
+            for (var j = item.targets.length - 1; j >= 0; --j) {
+                var target = item.targets[j];
+
+                if (target.parent == targetStaff) {
+                    targets.push(target);
+                    item.targets.splice(j, 1);
+                }
+            }
+
+            if (targets.length > 0) { 
+                // Create the glyph if necessary
+                var glyph = new Notate.glyphs[item.type]();
+                if (item.beginsWithLineBreak) {
+                    glyph.beginsWithLineBreak = true;
+                }
+
+                glyph.parseCommand(item.cmd);
+                glyph.targets = targets;
+
+                targetStaff.addChild(glyph);
+
+                // If the glyph has more targets coming, add line break flags
+                if (!ended || item.targets.length > 0) {
+                    glyph.endsWithLineBreak = true;
+                    item.beginsWithLineBreak = true;
+                }
+
+                // If the glyph is ended and has no more targets, 
+                // garbage collect it
+                else {
+                    ctx.ended.splice(ctx.ended.indexOf(item), 1);
+                }
+            }
+        }
+    }
 
     //
     // function commandType()
@@ -364,61 +424,16 @@ var Notate = (function() {
                     ' to end in Notate.layout()');
     }
 
-    var addBeginEndGlyphs = function(ctx) {
-        var staff = ctx.outdoc.children[ctx.outdoc.children.length - 1];
-
-        for (var i = 0; i < ctx.ended.length; ++i) {
-            var item = ctx.ended[i];
-
-            var glyph = new Notate.glyphs[item.type];
-            if (item.beginsWithLineBreak) {
-                glyph.beginsWithLineBreak = true;
-            }
-
-            glyph.parseCommand(item.cmd);
-            glyph.targets = item.targets;
-
-            staff.addChild(glyph);
-        }
-
-        ctx.ended = [ ];
-
-        for (var i = 0; i < ctx.begun.length; ++i) {
-            var item = ctx.begun[i];
-
-            var glyph = new Notate.glyphs[item.type];
-            glyph.endsWithLineBreak = true;
-            if (item.beginsWithLineBreak) {
-                glyph.beginsWithLineBreak = true;
-            }
-
-            glyph.parseCommand(item.cmd);
-            for (var j = 0; j < item.targets.length; ++j) {
-                glyph.addChild(item.targets[j]);
-            }
-
-            staff.addChild(glyph);
-
-            item.beginsWithLineBreak = true;
-            item.targets = [ ];
-        }
-    }
-
     //
     // function handleLineBreak()
     //
-    // Helper for Notate.layout() that runs whenever a line break is needed.
-    // A line break adds a new staff to the end of the current document.
+    // Inserts a new staff into the document.
+    // Adds glyphs from pending begin/end commands as necessary.
     //
-    // @param cmd   The end command
-    // @param ctx   The layout context to apply the command to
+    // @param ctx   The current layout context
     //
     var handleLineBreak = function(ctx) { 
-        // Add any glyphs that have terminated or need to be carried onto the
-        // next line
         addBeginEndGlyphs(ctx);
-
-        // Add the newline
         ctx.outdoc.breakLine();
     }
 

@@ -58,11 +58,20 @@
     //
     function measureGlyphs(glyphs) {
         var staff = new Notate.glyphs['staff']();
+
+        var parents = [ ];
       
-        for (var i = 0; i < glyphs.length; ++i)
+        for (var i = 0; i < glyphs.length; ++i) {
+            parents.push(glyphs[i].parent);
             staff.addChild(glyphs[i]);
+        }
 
         layoutGlyph(staff);
+
+        for (var i = 0; i < glyphs.length; ++i) {
+            glyphs[i].parent = parents[i];
+        }
+
         return staff.width();
     }
 

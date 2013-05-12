@@ -98,40 +98,47 @@
 
         ctx.fillText(text, x, y);
 
-        // Draw the horizontal grouping lines
-        hline(ctx, 
-              this.x + s.TUPLET_HMARGIN,
-              x - s.TUPLET_FONT_MARGIN,
-              this.y + .5 * this.height());
+        // Draw the left side
+        if (this.beginsWithLineBreak) {
+            var staff = this.targets[0].parent;
 
-        hline(ctx,
-              x + size.width + s.TUPLET_FONT_MARGIN,
-              this.x + this.width() - s.TUPLET_HMARGIN,
-              this.y + .5 * this.height());
+            hline(ctx,
+                  staff.x + staff.left,
+                  x - s.TUPLET_FONT_MARGIN,
+                  this.y + .5 * this.height());
+        }
+        else {
+            hline(ctx, 
+                  this.x + s.TUPLET_HMARGIN,
+                  x - s.TUPLET_FONT_MARGIN,
+                  this.y + .5 * this.height());
 
-        // Draw the vertical lines
-        if (!this.startsWithLineBreak) {
             vline(ctx,
                   this.x + s.TUPLET_HMARGIN,
                   this.y + .5 * this.height(),
                   this.y + this.height());
         }
 
-        if (!this.endsWithLineBreak) {
+        // Draw the horizontal grouping lines
+        if (this.endsWithLineBreak) {
+            var staff = this.targets[0].parent;
+
+            hline(ctx,
+                  x + size.width + s.TUPLET_FONT_MARGIN,
+                  staff.x + staff.width(),
+                  this.y + .5 * this.height());
+        }
+        else {
+            hline(ctx,
+                  x + size.width + s.TUPLET_FONT_MARGIN,
+                  this.x + this.width() - s.TUPLET_HMARGIN,
+                  this.y + .5 * this.height());
+
             vline(ctx,
                   this.x + this.width() - s.TUPLET_HMARGIN,
                   this.y + .5 * this.height(),
                   this.y + this.height());
         }
-
-        /*
-        this.TUPLET_VMARGIN = 22;
-        this.TUPLET_HMARGIN = 3;
-        this.TUPLET_HEIGHT = 15;
-        this.TUPLET_FONT_SIZE = 12;
-        this.TUPLET_FONT_MARGIN = 5;
-        this.TUPLET_THICKNESS = 1;
-         */
     }
 
 })(Notate);

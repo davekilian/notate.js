@@ -1,11 +1,6 @@
 
 # TODO
 
-## Line Breaks
-
-* Currently things bug out if we overflow a single measure with a single
-  tuplet. Probably a bug in base.js somewhere.
-
 ## Validation
 
 * Instead of `Notate.glyphs`, have two dicts:
