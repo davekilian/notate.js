@@ -74,11 +74,19 @@
     function hline(ctx, x0, x, y) {
         var s = Notate.settings;
 
+        x0 = Math.floor(x0);
+        x = Math.floor(x);
+        y = Math.floor(y);
+
         ctx.fillRect(x0, y, x - x0, s.TUPLET_THICKNESS);
     }
 
     function vline(ctx, x, y0, y) {
         var s = Notate.settings;
+
+        x = Math.floor(x);
+        y0 = Math.floor(y0);
+        y = Math.floor(y);
 
         ctx.fillRect(x, y0, s.TUPLET_THICKNESS, y - y0);
     }
@@ -93,8 +101,8 @@
         var text = this.beats;
         var size = ctx.measureText(text);
 
-        var x = this.x + .5 * (this.width() - size.width);
-        var y = this.y + .5 * this.height();
+        var x = Math.floor(this.x + .5 * (this.width() - size.width));
+        var y = Math.floor(this.y + .5 * this.height());
 
         ctx.fillText(text, x, y);
 
