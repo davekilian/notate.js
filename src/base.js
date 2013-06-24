@@ -103,8 +103,8 @@ var Notate = (function() {
     //
     // Everything drawn by Notate is a Glyph object. To subclass, override the
     // methods 'size', 'layout' and 'render', and then add your glyph to
-    // Notate.glyphs. See some of the stock implementations in src/glyphs for
-    // examples.
+    // Notate.showable / Notate.beginnable as necessary. See some of the stock
+    // implementations in src/glyphs for examples.
     // 
     var Glyph = function() {
         Rect.call(this);
@@ -144,12 +144,18 @@ var Notate = (function() {
     // Returns this glyph's type string.
     //
     // If you do not implement this method in your Glyph subclass, the base
-    // class implementation will fall back by searching Notate.glyphs. If this
-    // search doesn't turn up anything, this method will return null.
+    // class implementation will fall back by searching Notate.showable and
+    // Notate.beginnable. If this search doesn't turn up anything, this method
+    // will return null.
     //
     Glyph.prototype.type = function() {
-        for (var key in Notate.glyphs) {
-            if (this instanceof Notate.glyphs[key]) 
+        for (var key in Notate.showable) {
+            if (this instanceof Notate.showable[key]) 
+                return key;
+        }
+
+        for (var key in Notate.beginnable) {
+            if (this instanceof Notate.beginnable[key]) 
                 return key;
         }
 
@@ -282,7 +288,7 @@ var Notate = (function() {
 
             if (targets.length > 0) { 
                 // Create the glyph if necessary
-                var glyph = new Notate.glyphs[item.type]();
+                var glyph = new Notate.beginnable[item.type]();
                 if (item.beginsWithLineBreak) {
                     glyph.beginsWithLineBreak = true;
                 }
@@ -341,7 +347,7 @@ var Notate = (function() {
         var measure = ctx.measure;
 
         if (type == 'measure') {
-            measure.push(new Notate.glyphs['bar']());
+            measure.push(new Notate.showable['bar']());
 
             if (doc.needsLineBreakFor(measure)) {
                 handleLineBreak(ctx);
@@ -350,8 +356,8 @@ var Notate = (function() {
             doc.addMeasure(ctx.measure);
             ctx.measure = [ ];
         }
-        else if (Notate.glyphs.hasOwnProperty(type)) {
-            var glyph = new Notate.glyphs[type]();
+        else if (Notate.showable.hasOwnProperty(type)) {
+            var glyph = new Notate.showable[type]();
             glyph.parseCommand(cmd);
 
             ctx.measure.push(glyph);
@@ -376,7 +382,7 @@ var Notate = (function() {
     var handleBeginCommand = function(cmd, ctx) {
         var type = cmd['begin'];
 
-        if (Notate.glyphs.hasOwnProperty(type)) {
+        if (Notate.beginnable.hasOwnProperty(type)) {
             ctx.begun.push({ 
                 cmd: cmd,
                 targets: [ ],
@@ -385,7 +391,7 @@ var Notate = (function() {
             });
         }
         else {
-            console.log('Unknown beginable in Notate.layout(): ' + type);
+            console.log('Unknown beginnable in Notate.layout(): ' + type);
         }
     }
 
@@ -450,7 +456,7 @@ var Notate = (function() {
     // 
     var layout = function(doc) {
         var context = {
-            outdoc: new Notate.glyphs['document'](),    // The final document
+            outdoc: new Notate.showable['document'](), // The final document
             measure: [ ],   // The glyphs that will form the next document
             begun: [ ],     // State for begin:s without end:s
             ended: [ ],     // State for end:s that aren't in outdoc yet
@@ -541,9 +547,8 @@ var Notate = (function() {
 
     Notate.settings = new Settings();
 
-    // Published so subclasses of Notate.Glyph can register themselves
-    // Maps from glyph type (e.g. 'document') to the glyph constructor
-    Notate.glyphs = { };
+    Notate.showable = { };  // For glyphs that can be used with show:
+    Notate.beginnable = { }; // For glyphs that can be used with begin:
 
     return Notate;
 }());

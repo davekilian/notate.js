@@ -1,12 +1,6 @@
 
 # TODO
 
-## Validation
-
-* Instead of `Notate.glyphs`, have two dicts:
-    * `Notate.showable` is for things that can appear in a `show:`
-    * `Notate.beginable` is for things that can appear in a `begin:`
-
 ## Line Break Command
 
 * Documentation
@@ -15,9 +9,9 @@
 ## Slurs
 
 * Support for the slur command in the conversion step
-* Heuristic for placing the slur above or below based on the note pitches
 * Render slurs
 * Document the command
+* Heuristic for placing the slur above or below based on the note pitches
 
 ## Bars
 

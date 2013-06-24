@@ -15,7 +15,7 @@
 
     Tuplet.prototype = new Notate.Glyph();
     Tuplet.constructor = Tuplet;
-    Notate.glyphs['tuplet'] = Tuplet;
+    Notate.beginnable['tuplet'] = Tuplet;
 
     Tuplet.prototype.parseCommand = function(cmd, ctype) {
         this.beats = cmd.beats;

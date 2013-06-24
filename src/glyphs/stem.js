@@ -13,7 +13,7 @@
 
     Stem.prototype = new Notate.Glyph();
     Stem.constructor = Stem;
-    Notate.glyphs['stem'] = Stem;
+    Notate.showable['stem'] = Stem;
 
     Stem.prototype.parseCommand = function(cmd, ctype) { }
 

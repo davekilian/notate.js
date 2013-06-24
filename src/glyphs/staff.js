@@ -17,7 +17,7 @@
 
     Staff.prototype = new Notate.Glyph();
     Staff.prototype.constructor = Staff;
-    Notate.glyphs['staff'] = Staff;
+    Notate.showable['staff'] = Staff;
 
     Staff.prototype.addChild = function(child) {
         Notate.Glyph.prototype.addChild.call(this, child);

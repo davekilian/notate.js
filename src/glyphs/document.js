@@ -14,7 +14,7 @@
 
     Document.prototype = new Notate.Glyph();
     Document.prototype.constructor = Document;
-    Notate.glyphs['document'] = Document;
+    Notate.showable['document'] = Document;
 
     Document.prototype.parseCommand = function(cmd, ctype) { }
 
@@ -57,7 +57,7 @@
     // staff.
     //
     function measureGlyphs(glyphs) {
-        var staff = new Notate.glyphs['staff']();
+        var staff = new Notate.showable['staff']();
 
         var parents = [ ];
       
@@ -154,7 +154,7 @@
         }
 
         // Add a new staff
-        var staff = new Notate.glyphs['staff']();
+        var staff = new Notate.showable['staff']();
         staff.right = this.width() - 2 * s.MARGIN_HORIZ;
 
         this.addChild(staff);

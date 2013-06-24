@@ -14,7 +14,7 @@
 
     Bar.prototype = new Notate.Glyph();
     Bar.constructor = Bar;
-    Notate.glyphs['bar'] = Bar;
+    Notate.showable['bar'] = Bar;
 
     Bar.prototype.parseCommand = function(cmd, ctype) { }
 

@@ -16,7 +16,7 @@
 
     Note.prototype = new Notate.Glyph();
     Note.constructor = Note;
-    Notate.glyphs['note'] = Note;
+    Notate.showable['note'] = Note;
 
     //
     // function toLength(nickname)
@@ -106,13 +106,13 @@
 
         // Its stem
         if (hasStem(this.length)) {
-            this.addChild(new Notate.glyphs['stem']());
+            this.addChild(new Notate.showable['stem']());
         }
 
         // Its flags
         var nFlags = numFlags(this.length);
         if (nFlags > 0) {
-            var flags = new Notate.glyphs['flags']();
+            var flags = new Notate.showable['flags']();
             flags.count = nFlags;
 
             this.addChild(flags);

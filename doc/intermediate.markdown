@@ -56,7 +56,9 @@ To subclass `Notate.Glyph`, you must
 
 * Inherit from `Notate.Glyph`
 * Override `minSize`, `layout` and `render`
-* Register the glyph by adding an entry to `Notate.glyphs`
+* Register the glyph by adding an entry to `Notate.showable` (if your glyph can
+  be instantiated by a `show: yourglyph` command) or `Notate.beginnable` (if
+  your glyphs can be instantiated by a `begin: yourglyph` command)
 
 notate.js ships with several built-in glyphs, which use the same process to
 hook into the system. You may consult any `Notate.Glyph` subtype in

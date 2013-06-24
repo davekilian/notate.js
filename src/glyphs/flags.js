@@ -13,7 +13,7 @@
 
     Flags.prototype = new Notate.Glyph();
     Flags.constructor = Flags;
-    Notate.glyphs['flags'] = Flags;
+    Notate.showable['flags'] = Flags;
 
     Flags.prototype.parseCommand = function(cmd, ctype) { }
 
