@@ -90,6 +90,8 @@ function debugLayout(canvas, ctx) {
         { end: "tuplet" },
         { show: "measure" },
 
+        { break: 'line' },
+
         { begin: 'tuplet', beats: '63 : 42' },
         { show: "note", pitch: "A5", length: "eighth" },
         { show: "note", pitch: "A5", length: "eighth" },

@@ -184,6 +184,24 @@ Note that, if you're adding an irregular rhythm to a group of notes that is
 already barred together, you can use the `beats` parameter of the `begin:
 'bar'` command described below to draw an irregular rhythm above the bar.
 
+## Breaking a Line
+
+Sometimes it's useful to be able to instruct the renderer to start a new staff,
+even if the next measure can fit into the current staff. You can do this by
+adding a `break: 'line'` command before said measure:
+
+     1      { show: 'note', pitch: 'B5', length: 'quarter' },
+     2      { show: 'note', pitch: 'A5', length: 'quarter' },
+     3      { show: 'note', pitch: 'G4', length: 'half' },
+     4      { show: 'measure' },
+     5
+     6      { break: 'line' },
+     7
+     8      { show: 'note', pitch: 'B5', length: 'quarter' },
+     9      { show: 'note', pitch: 'A5', length: 'quarter' },
+    10      { show: 'note', pitch: 'G4', length: 'half' },
+    11      { show: 'measure' },
+
 ## TODO
 
 Would we ever want to nest group objects? If so, we need a `named: ` parameter

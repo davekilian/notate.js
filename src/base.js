@@ -321,7 +321,7 @@ var Notate = (function() {
     //
     var commandType = function(cmd) {
         var commands = [
-            'show', 'begin', 'end', 'clef',
+            'show', 'begin', 'end', 'break', 'clef',
             'title', 'composer', 'arranged', 'year',
         ];
 
@@ -478,6 +478,9 @@ var Notate = (function() {
             }
             else if (ctype == 'end') {
                 handleEndCommand(cmd, context);
+            }
+            else if (ctype == 'break') {
+                handleLineBreak(context);
             }
             else {
                 console.log('Unknown command type in Notate.layout(): ' 

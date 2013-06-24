@@ -1,11 +1,6 @@
 
 # TODO
 
-## Line Break Command
-
-* Documentation
-* Implementation (basically, `layout()` can just call `handleLineBreak()`)
-
 ## Slurs
 
 * Support for the slur command in the conversion step
