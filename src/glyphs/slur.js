@@ -130,6 +130,10 @@
     }
 
     Slur.prototype.render = function(canvas, ctx) {
+        if (!this.endpoint) {
+            return; // Don't render empty slur
+        }
+
         var s = Notate.settings,
             Ax = this.x,
             Ay = this.y,

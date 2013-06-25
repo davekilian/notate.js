@@ -39,7 +39,7 @@ var Notate = (function() {
         this.TUPLET_THICKNESS = 1;
         this.SLUR_MARGIN = 3;
         this.SLUR_HEIGHT = 5;
-        this.SLUR_THICKNESS = 2;
+        this.SLUR_THICKNESS = 1.5;
 
         this.STAFF_HEIGHT = (this.STAFF_LINE_COUNT - 1) * this.STAFF_LINE_SPACING 
                           + this.STAFF_LINE_HEIGHT;
