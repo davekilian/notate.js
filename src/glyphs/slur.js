@@ -81,21 +81,45 @@
         };
     }
 
-    var drawArc = function(ctx, Ax, Ay, Bx, By, theta, backward) {
-        var dx       = Bx - Ax,
-            dy       = By - Ay,
-            dist     = Math.sqrt(dx * dx + dy * dy),
-            halfDist = dist / 2,
-            radius   = halfDist / Math.sin(theta / 2);
+    var drawArc = function(ctx, Ax, Ay, Bx, By, h, backward) {
+        // This math is a little opaque. The goal is to use ctx.arc() to draw
+        // the slur as a section of a circle. To do that, we need to compute
+        // - The center of the cricle
+        // - The circle's radius
+        // - The angles at which to start / end
+        //
+        // The idea is to start with A and B (the endpoints of this slur) and
+        // compute D, which is h units below the midpoint of A and B. Then find
+        // the center C and radius R of the circle that passes through A, B and
+        // D. See http://en.wikipedia.org/wiki/Circumscribed_circle for
+        // derivation.
 
-        var phiC  = Math.PI / 2 - theta / 2,
-            phiAB = Math.atan2(dy, dx),
-            phi   = phiAB + phiC,
-            Cx    = Ax + radius * Math.cos(phi),
-            Cy    = Ay + radius * Math.sin(phi);
+        var ABx = Bx - Ax,
+            ABy = By - Ay,
+            magAB = Math.sqrt(ABx * ABx + ABy * ABy);
 
-        var startAngle = Math.atan2(Ay - Cy, Ax - Cx);
-        var endAngle   = Math.atan2(By - Cy, Bx - Cx);
+        var Dx = (Ax + Bx) / 2 + h * (By - Ay) / magAB,
+            Dy = (Ay + By) / 2 + h * (Ax - Bx) / magAB;
+
+        var Ax2 = Ax * Ax,
+            Ay2 = Ay * Ay,
+            Bx2 = Bx * Bx,
+            By2 = By * By,
+            Dx2 = Dx * Dx,
+            Dy2 = Dy * Dy;
+
+        var denom = 2 * (Ax * (By - Dy) + Bx * (Dy - Ay) + Dx * (Ay - By)),
+            Cx = ((Ax2 + Ay2) * (By - Dy) + (Bx2 + By2) * (Dy - Ay) + (Dx2 + Dy2) * (Ay - By)) / denom,
+            Cy = ((Ax2 + Ay2) * (Dx - Bx) + (Bx2 + By2) * (Ax - Dx) + (Dx2 + Dy2) * (Bx - Ax)) / denom;
+
+        var a = Math.sqrt((Ax - Bx) * (Ax - Bx) + (Ay - By) * (Ay - By)),
+            b = Math.sqrt((Dx - Bx) * (Dx - Bx) + (Dy - By) * (Dy - By)),
+            c = Math.sqrt((Dx - Ax) * (Dx - Ax) + (Dy - Ay) * (Dy - Ay));
+
+        var radius = a * b * c / Math.sqrt((a + b + c) * (-a + b + c) * (a - b + c) * (a + b - c));
+
+        var startAngle = Math.atan2(Ay - Cy, Ax - Cx),
+            endAngle   = Math.atan2(By - Cy, Bx - Cx);
 
         if (backward) {
             ctx.arc(Cx, Cy, radius, endAngle, startAngle, true);
@@ -106,34 +130,19 @@
     }
 
     Slur.prototype.render = function(canvas, ctx) {
-        ctx.beginPath();
-        ctx.moveTo(this.x, this.y);
+        var s = Notate.settings,
+            Ax = this.x,
+            Ay = this.y,
+            Bx = this.x + this.endpoint.x,
+            By = this.y + this.endpoint.y;
 
-        var e = this.endpoint;
-        var theta = Math.PI * 1 / 2;
-        drawArc(ctx, this.x, this.y, this.x + e.x, this.y + e.y, theta, false);
-        drawArc(ctx, this.x, this.y, this.x + e.x, this.y + e.y, .87 * theta, true);
+        ctx.beginPath();
+        ctx.moveTo(Ax, Ay);
+
+        drawArc(ctx, Ax, Ay, Bx, By, s.SLUR_HEIGHT, false);
+        drawArc(ctx, Ax, Ay, Bx, By, s.SLUR_HEIGHT + s.SLUR_THICKNESS, true);
 
         ctx.fill();
-
-        // TODO
-        // This looks fine when we slur two notes together, but not when we
-        // slur a bunch. There are two problems:
-        //
-        // - The thickness of the slur is proportional to the number of targets
-        // - The angle of the slur is not proportional
-        //
-        // The solution might be:
-        // - Compute theta such that we maintain a maximum distance from the
-        //   notes (or, as a simplification, a fixed distance below the AB
-        //   line)
-        // - Compute the second radius+center so that we maintain an exact
-        //   thickness in the center of the slur
-        //
-        // Not sure how to do the first though. 
-        //
-        // We also might want to rethink how this works. Maybe there's some way
-        // to fit a curve to the notes?
     }
 
 })(Notate);
