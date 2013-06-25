@@ -90,8 +90,6 @@ function debugLayout(canvas, ctx) {
         { end: "tuplet" },
         { show: "measure" },
 
-        { break: 'line' },
-
         { begin: 'tuplet', beats: '63 : 42' },
         { show: "note", pitch: "A5", length: "eighth" },
         { show: "note", pitch: "A5", length: "eighth" },
@@ -106,6 +104,14 @@ function debugLayout(canvas, ctx) {
         { show: "note", pitch: "A5", length: "eighth" },
         { show: "note", pitch: "A5", length: "eighth" },
         { show: "measure" },
+
+        { break: 'line' },
+
+        { begin: "slur" },
+        { show: "note", pitch: "D4", length: "eighth" },
+        { show: "measure" },
+        { show: "note", pitch: "A5", length: "eighth" },
+
         { show: "note", pitch: "A5", length: "eighth" },
         { show: "note", pitch: "A5", length: "eighth" },
         { show: "note", pitch: "A5", length: "eighth" },
@@ -120,7 +126,7 @@ function debugLayout(canvas, ctx) {
         { show: "note", pitch: "A5", length: "eighth" },
         { show: "note", pitch: "A5", length: "eighth" },
         { show: "note", pitch: "A5", length: "eighth" },
-        { show: "note", pitch: "A5", length: "eighth" },
+        { end: "slur" },
         { show: "note", pitch: "A5", length: "eighth" },
         { show: "note", pitch: "A5", length: "eighth" },
         { show: "note", pitch: "A5", length: "eighth" },

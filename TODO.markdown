@@ -3,8 +3,7 @@
 
 ## Slurs
 
-* Support for the slur command in the conversion step
-* Render slurs
+* Render slurs correctly
 * Document the command
 * Heuristic for placing the slur above or below based on the note pitches
 
