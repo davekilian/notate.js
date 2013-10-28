@@ -5,6 +5,12 @@
 
 * Heuristic for placing the slur above or below based on the note pitches
 
+## Chrome Rendering Problems
+
+Currently seeing some glitches in slur rendering in Chrome on OS X. Things work
+great on Safari and Firefox, so I'm hoping this is not a bug in Chrome's canvas
+engine :/ Do some research into where we go wrong.
+
 ## Bars
 
 * Support the bar command in the conversion step
