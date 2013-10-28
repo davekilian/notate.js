@@ -184,6 +184,15 @@ Note that, if you're adding an irregular rhythm to a group of notes that is
 already barred together, you can use the `beats` parameter of the `begin:
 'bar'` command described below to draw an irregular rhythm above the bar.
 
+### `slur`
+
+`begin: 'slur'` draws a slur line above or below the notes it groups. It does
+not take any parameters (i.e. `{ show: 'slur' }` and `{ end: 'slur' }` are
+sufficient to display a slur). 
+
+`begin: 'slur'` can also be used for ties -- just `slur` together two
+consectuve notes of the same pitch. 
+
 ## Breaking a Line
 
 Sometimes it's useful to be able to instruct the renderer to start a new staff,
