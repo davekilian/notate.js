@@ -4,6 +4,7 @@
 ## Slurs
 
 * Heuristic for placing the slur above or below based on the note pitches
+* Never let a slur overlap with the staff
 
 ## Chrome Rendering Problems
 
