@@ -290,6 +290,11 @@ var Notate = (function() {
             }
 
             if (targets.length > 0) { 
+                // Since some glyphs rely on the order targets appear in the
+                // array matching the order they appeared in the document, undo
+                // the implicit array reversal from looping backwards above
+                targets.reverse();
+
                 // Create the glyph if necessary
                 var glyph = new Notate.beginnable[item.type]();
                 if (item.beginsWithLineBreak) {

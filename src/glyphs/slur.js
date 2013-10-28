@@ -26,7 +26,7 @@
         var s = Notate.settings;
 
         // If we don't have enough targets, not much we can do ...
-        if (this.targets.length < 2) {
+        if (this.targets.length == 0) {
             console.log("Warning: not rendering empty slur");
             return;
         }
@@ -57,6 +57,25 @@
                 var delta = s.SLUR_MARGIN - dist;
                 start.y += delta;
                 end.y += delta;
+            }
+        }
+
+        // Move endpoints to the edges of the staff if on a line break
+        if (this.beginsWithLineBreak) {
+            var staff = this.targets[0].parent;
+
+            start.x = staff.x + staff.left;
+            if (start.y < end.y) {
+                start.y = end.y;
+            }
+        }
+
+        if (this.endsWithLineBreak) {
+            var staff = this.targets[0].parent;
+
+            end.x = staff.x + staff.right;
+            if (end.y < start.y) {
+                end.y = start.y;
             }
         }
 
@@ -99,7 +118,7 @@
             magAB = Math.sqrt(ABx * ABx + ABy * ABy);
 
         var Dx = (Ax + Bx) / 2 + h * (By - Ay) / magAB,
-            Dy = (Ay + By) / 2 + h * (Ax - Bx) / magAB;
+            Dy = (Ay + By) / 2 + h * (Bx - Ax) / magAB;
 
         var Ax2 = Ax * Ax,
             Ay2 = Ay * Ay,
@@ -118,8 +137,8 @@
 
         var radius = a * b * c / Math.sqrt((a + b + c) * (-a + b + c) * (a - b + c) * (a + b - c));
 
-        var startAngle = Math.atan2(Ay - Cy, Ax - Cx),
-            endAngle   = Math.atan2(By - Cy, Bx - Cx);
+        var startAngle = Math.atan2(By - Cy, Bx - Cx),
+            endAngle   = Math.atan2(Ay - Cy, Ax - Cx);
 
         if (backward) {
             ctx.arc(Cx, Cy, radius, endAngle, startAngle, true);

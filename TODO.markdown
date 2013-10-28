@@ -3,7 +3,6 @@
 
 ## Slurs
 
-* Support line breaks inside a slur
 * Heuristic for placing the slur above or below based on the note pitches
 
 ## Bars
