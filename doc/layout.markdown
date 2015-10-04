@@ -14,53 +14,90 @@ As output, the layout engine produces a glyph tree, as described in
 You can pass the output glyph tree directly into `Notate.render()` in order to
 draw the object.
 
-## High-Level Algorithm
+## Types of Glyphs
 
-    For each command in the input document
-        Create the corresponding glyph subtree
-        Recursively lay out the subtree
+The layout engine accepts two types of glyphs: 'block' glyphs and 'annotation'
+glyphs.
 
-        Add the subtree to the current measure
-        If the current measure no longer fits in the current staff
-            Move the measure to a new staff
+### Block Glyphs
 
-## Glyph Generation
+Block glyphs are the backbone of a musical document. 
 
-The layout system walks through each command in the input document. For each
-command, it starts by converting the command to a corresponding glyph. The
-glyph will contain the necessary child glyphs in order to implement the
-original command. At this point, however, the children of the glyph will have
-no positioning or bounding box data.
+Block glyphs are glyphs which appear in measures and occupies horizontal space
+(overlapping is not allowed). Examples include time/key signature markers,
+notes, rests, and measure bars.
 
-For simplicity, the conversion process is not extensible at the moment. It is
-implemented in full as a subroutine in base.js. Once the prototype is more
-functional, this behavior may be factored out into an extensible command
-conversion system.
+Block glyphs appear in the command list as 'show' commands.
 
-## Subtree Layout
+### Annotations
 
-After generating the glyph subtree, the layout engine lays out the glyph using
-a bottom-up walk of the glyph's subtree:
+Annotations are glyphs which add extra markup to one or more block glyphs.
 
-    lay_out(glyph):
-        for each child of glyph:
-            lay_out(child)
+Annotation glyphs appear above, below or inline with block glyphs in a
+document. They do not affect how block glyphs are laid out, but are affected by
+how block glyphs are laid out. As such, annotations accept a list of 'target'
+block glyphs to annotate.
 
-        glyph.layout()
+Annotations appear in the command list as 'begin' and 'end' commands.
 
-The result is a properly laid out glyph subtree with no positioning
-information. That is, the glyph's children will be properly placed relative to
-each other and the parent glyph, and the bounding box of the glyph will be
-properly sized. However, the glyph at the root of the tree will be at some
-default position (e.g. `(0, 0)`).
+## Layout Phases
 
-## Measure-Filling
+The layout engine produces and lays out note glyphs in the following steps:
 
-Each of the resulting glyph subtrees will be placed inside a staff. The layout
-engine tracks the size of each measure as glyph subtrees are added, and
-automatically moves the entire measure to a staff on the next line when needed.
+### 1. Block Glyph Generation
 
-These staves are added to a root document glyph. This document glyph,
-containing the entire document, is then returned from the call into
-`Notate.layout()`.
+During this step, notate scans the command list and produces two lists:
+
+* The first list is an ordered list of block glyphs in the order which they
+  should appear in the document. At this point no glyph has been laid out
+  spatially within a document.
+
+* The second list is a mapping between begin/end commands and the glyphs the
+  commands modify. However, at this phase the commands are not yet convereted
+  into annotation glyphs.
+
+### 2. Block Glyph Spacing
+
+During this step, notate examines the block glyphs and lays them out
+horizontally. The engine calls into each glyph to determine its size and its
+vertical height on the staff, and then lays out the glyphs horizontally
+adjacent to each other.
+
+When this phase finishes, the list of block glyphs will be spatially laid out
+relative to a single imaginary staff of infinite horizontal length.
+
+### 3. Line Breaking
+
+During this step, notate examines each measure on the staff, and splits each
+measure into individual lines based on the document's maximum width. When this
+phase finishes, the list of block glyphs will have been split into multiple
+lists of block glyphs, each of which is spatially laid out relative to a parent
+staff.
+
+### 4. Annotation Generation
+
+During this step, notate generates annotation glyphs for the begin commands in
+the document. The layout engine splits the annotation into staves: if a begin
+command's target glyphs span multiple staves, then the layout engine splits the
+begin command into multiple annotation glyphs, each of which targets the glyphs
+for a single staff.
+
+The layout engine also informs each glyph whether it is a continuation of a
+different annotation glyph, and whether it will be continued by a different
+annotation glyph.
+
+When this phase finishes, the layout engine has a list of block glyphs and
+annotation glyphs for each staff in the document.
+
+### 5. Staff Generation
+
+During this step, notate measures the glyphs in each staff, and determines the
+vertical height of each staff. It then generates staff glyphs containing each
+of the block and annotation glyphs, and then vertically stacks the glyphs into
+a single document glyph.
+
+This phase completes the layout process. The final layout contains a single
+root document glyph, containing one or more staff glyphs, each of which contain
+zero or more block glyphs and annotations. Each block glyph and annotation may
+contain its own glyph hierarchy.
 
