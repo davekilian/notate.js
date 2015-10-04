@@ -1,11 +1,38 @@
 
 # TODO
 
+## The layout phase is too complex
+
+The problem here is we're trying to do everything at the same time, which means
+everything must consider what everything else is going to be doing at the same 
+time. This is going to make adding new glyph types complex.
+
+Instead, it might be better to break layout into a more rich set of simpler
+phases:
+
+1. Writing, in which we lay out glyphs which occupy horizontal space, and add
+   them all into a single infinitely-long staff
+
+2. Line breaking, in which we break up that staff into multiple staffs into
+   multiple lines
+
+3. Annotating, in which we add glyphs which don't occupy horizontal space and
+   are line-breaking aware (like bars and slurs)
+
+4. Line-spacing, in which we measure the staffs vertically and make sure they
+   don't intersect.
+
+To implement this, we'd want to keep the rendering logic and probably keep the
+note-related glyphs as is; however, the layout engine would take over owership
+of the concepts of a document, staff, and a measure. 
+
 ## Bugfixes
 
 The current debug.js is exhibiting two problems:
 
 * The `{show: "measure"}` command isn't being honored
+  - For some reason, we're not rendering the last measure command,
+    even if there are more notes after it.
 
 ## Slurs
 
