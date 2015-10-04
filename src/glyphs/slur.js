@@ -31,6 +31,12 @@
             return;
         }
 
+        // Determine whether to place the slur above or below the notes
+        this.above = false;
+        for (var i = 0; i < this.targets.length; ++i) {
+            // TODO
+        }
+
         // Place the start/end points under the first/last targets
         var firstTarget = this.targets[0],
             lastTarget  = this.targets[this.targets.length - 1];

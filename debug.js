@@ -67,6 +67,7 @@ function debugLayout(canvas, ctx) {
         { show: "timesig", over: 4, under: 4 },
         { show: "keysig", key: "C major" },
                                                           
+        /*
         { show: "note", pitch: "B5", length: "quarter" },
         { show: "note", pitch: "A5", length: "quarter" },
         { show: "note", pitch: "G4", length: "half" },
@@ -105,7 +106,54 @@ function debugLayout(canvas, ctx) {
         { show: "note", pitch: "A5", length: "eighth" },
         { show: "measure" },
 
+        //{ begin: "slur" },
+        { show: "note", pitch: "G3", length: "eighth" },
+        { show: "note", pitch: "F3", length: "eighth" },
+        { show: "note", pitch: "E3", length: "eighth" },
+        { show: "note", pitch: "D3", length: "eighth" },
+        { show: "note", pitch: "C3", length: "eighth" },
+        { show: "note", pitch: "B3", length: "eighth" },
+        { show: "note", pitch: "A3", length: "eighth" },
+        //{ end: "slur" },
+
+        //{ begin: "slur" },
+        { show: "measure" },
+        { show: "note", pitch: "A3", length: "eighth" },
+        { show: "note", pitch: "B3", length: "eighth" },
+        { show: "note", pitch: "C3", length: "eighth" },
+        { show: "note", pitch: "D3", length: "eighth" },
+        { show: "note", pitch: "E3", length: "eighth" },
+        { show: "note", pitch: "F3", length: "eighth" },
+        { show: "note", pitch: "G3", length: "eighth" },
+        //{ end: "slur" },
+        { show: "measure" },
+        */
+
         { begin: "slur" },
+        { show: "note", pitch: "G5", length: "eighth" },
+        { show: "note", pitch: "F5", length: "eighth" },
+        { show: "note", pitch: "E5", length: "eighth" },
+        { show: "note", pitch: "D5", length: "eighth" },
+        { show: "note", pitch: "C5", length: "eighth" },
+        { show: "note", pitch: "B5", length: "eighth" },
+        { show: "note", pitch: "A5", length: "eighth" },
+        { end: "slur" },
+
+        { begin: "slur" },
+        { show: "measure" },
+        { show: "note", pitch: "A5", length: "eighth" },
+        { show: "note", pitch: "B5", length: "eighth" },
+        { show: "note", pitch: "C5", length: "eighth" },
+        { show: "note", pitch: "D5", length: "eighth" },
+        { show: "note", pitch: "E5", length: "eighth" },
+        { show: "note", pitch: "F5", length: "eighth" },
+        { show: "note", pitch: "G5", length: "eighth" },
+        { end: "slur" },
+
+        /*
+        { show: "measure" },
+
+        //{ begin: "slur" },
         { show: "note", pitch: "G4", length: "eighth" },
         { show: "note", pitch: "F4", length: "eighth" },
         { show: "note", pitch: "E4", length: "eighth" },
@@ -113,9 +161,9 @@ function debugLayout(canvas, ctx) {
         { show: "note", pitch: "C4", length: "eighth" },
         { show: "note", pitch: "B4", length: "eighth" },
         { show: "note", pitch: "A4", length: "eighth" },
-        { end: "slur" },
+        //{ end: "slur" },
 
-        { begin: "slur" },
+        //{ begin: "slur" },
         { show: "measure" },
         { show: "note", pitch: "A4", length: "eighth" },
         { show: "note", pitch: "B4", length: "eighth" },
@@ -124,10 +172,10 @@ function debugLayout(canvas, ctx) {
         { show: "note", pitch: "E4", length: "eighth" },
         { show: "note", pitch: "F4", length: "eighth" },
         { show: "note", pitch: "G4", length: "eighth" },
-        { end: "slur" },
+        //{ end: "slur" },
         { show: "measure" },
 
-        { begin: "slur" },
+        //{ begin: "slur" },
         { show: "note", pitch: "G4", length: "eighth" },
         { show: "note", pitch: "F4", length: "eighth" },
         { show: "note", pitch: "E4", length: "eighth" },
@@ -135,9 +183,9 @@ function debugLayout(canvas, ctx) {
         { show: "note", pitch: "C4", length: "eighth" },
         { show: "note", pitch: "B4", length: "eighth" },
         { show: "note", pitch: "A4", length: "eighth" },
-        { end: "slur" },
+        //{ end: "slur" },
 
-        { begin: "slur" },
+        //{ begin: "slur" },
         { show: "measure" },
         { show: "note", pitch: "A4", length: "eighth" },
         { show: "note", pitch: "B4", length: "eighth" },
@@ -152,7 +200,7 @@ function debugLayout(canvas, ctx) {
         { break: 'line' },
         { show: "note", pitch: "A5", length: "eighth" },
         { show: "measure" },
-        { end: "slur" },
+        //{ end: "slur" },
 
         { show: "note", pitch: "A5", length: "eighth" },
         { show: "note", pitch: "A5", length: "eighth" },
@@ -194,6 +242,7 @@ function debugLayout(canvas, ctx) {
         { show: "note", pitch: "A5", length: "quarter" },
         { show: "note", pitch: "G4", length: "half" },
         { show: "measure" },
+        */
     ];
 
     Notate.render(canvas, ctx, Notate.layout(doc));

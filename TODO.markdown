@@ -7,10 +7,6 @@ The current debug.js is exhibiting two problems:
 
 * The `{show: "measure"}` command isn't being honored
 
-* The slur is placed incorrectly (this seems to actually be a problem in the
-  bounds of the target notes -- if you use .y instead of .y + .bottom, the
-  result looks closer to correct)
-
 ## Slurs
 
 * Heuristic for placing the slur above or below based on the note pitches

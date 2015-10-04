@@ -18,7 +18,15 @@
     Flags.prototype.parseCommand = function(cmd, ctype) { }
 
     Flags.prototype.minSize = function() {
-        return { top: 0, bottom: 21.5, left: 0, right: 11.2 };
+        var width = 11.2,
+            height = 21.5;
+
+        if (this.parent.isFlipped()) {
+            return { top: height, bottom: 0, left: width, right: 0 };
+        }
+        else {
+            return { top: 0, bottom: height, left: 0, right: width };
+        }
     }
 
     Flags.prototype.layout = function() {
