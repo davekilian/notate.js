@@ -3,11 +3,12 @@
 
 ## Layout engine redesign
 
-* Cut a new branch for redesigning the layout engine
-* Restore master back to the commit before we started the redesign
-* Move the current implementation out of the way
+* Rewrite build.py to take an ordered list of patterns to conat
+* Adopt a license
 * Port over the debug project
+* Make sure the debug project always uses the compiled build.py
 * Port over the settings object
+* Port primary APIs
 * Glyph base type
 * Block type
 * Annotation type
