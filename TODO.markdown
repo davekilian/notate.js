@@ -3,7 +3,6 @@
 
 ## Layout engine redesign
 
-* Rewrite build.py to take an ordered list of patterns to conat
 * Port over the debug project
 * Make sure the debug project always uses the compiled build.py
 * Port over the settings object
