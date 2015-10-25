@@ -3,9 +3,9 @@
 
 ## Layout engine redesign
 
-* Port over the settings object
-* Port primary APIs
 * Glyph base type
+* Stub the layout API
+* Port the rendering engine
 * Block type
 * Annotation type
 * Block generation
