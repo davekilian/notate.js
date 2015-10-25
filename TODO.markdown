@@ -3,8 +3,6 @@
 
 ## Layout engine redesign
 
-* Port over the debug project
-* Make sure the debug project always uses the compiled build.py
 * Port over the settings object
 * Port primary APIs
 * Glyph base type
