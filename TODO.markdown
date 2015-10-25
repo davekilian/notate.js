@@ -1,49 +1,60 @@
 
 # TODO
 
-## The layout phase is too complex
+## Layout engine redesign
 
-The problem here is we're trying to do everything at the same time, which means
-everything must consider what everything else is going to be doing at the same 
-time. This is going to make adding new glyph types complex.
+* Cut a new branch for redesigning the layout engine
+* Restore master back to the commit before we started the redesign
+* Move the current implementation out of the way
+* Port over the debug project
+* Port over the settings object
+* Glyph base type
+* Block type
+* Annotation type
+* Block generation
+* Block spacing
+* Port note glyph
+* Get block generation and spacing working
+* Port stem glyph
+* Port flags glyph
+* Support measures
+* Line breaking
+* Dynamically reflow the document when the debug app window is resized
+* Track annotation targets while generating block glyphs
+* Generate annotations
+* Port tuplet annotation
+* Generate staves
 
-Instead, it might be better to break layout into a more rich set of simpler
-phases:
+## Visual test cases
 
-1. Writing, in which we lay out glyphs which occupy horizontal space, and add
-   them all into a single infinitely-long staff
+* Create a test.html which shows test cases
+* Javascript helpers for defining test cases
+* Each test case has a name, an optional description, and renders a simple
+  document
+* Test cases are stacked vertically so the user can look at them
+* Write test cases for notes of different durations
+* Write test cases for notes of different durations with the stems flipped
+* Write test case for natural line breaking
+* Write test case for tuplets
 
-2. Line breaking, in which we break up that staff into multiple staffs into
-   multiple lines
+## Forced line breaking
 
-3. Annotating, in which we add glyphs which don't occupy horizontal space and
-   are line-breaking aware (like bars and slurs)
+* Figure out how to specify 'hint' commands which don't correspond to glyphs
+* Hint command for forcing a line break
+* Honor the hint command in the line breaking phase
+* Visual test case for artifical line breaking
 
-4. Line-spacing, in which we measure the staffs vertically and make sure they
-   don't intersect.
+## Chords
 
-To implement this, we'd want to keep the rendering logic and probably keep the
-note-related glyphs as is; however, the layout engine would take over owership
-of the concepts of a document, staff, and a measure. 
-
-## Bugfixes
-
-The current debug.js is exhibiting two problems:
-
-* The `{show: "measure"}` command isn't being honored
-  - For some reason, we're not rendering the last measure command,
-    even if there are more notes after it.
+* Define document syntax for defining chords
+* Change note generation to generate chords with one note
+* Support chords with more than one note
 
 ## Slurs
 
+* Port old slurs to the new layout engine
 * Heuristic for placing the slur above or below based on the note pitches
 * Never let a slur overlap with the staff
-
-## Chrome Rendering Problems
-
-Currently seeing some glitches in slur rendering in Chrome on OS X. Things work
-great on Safari and Firefox, so I'm hoping this is not a bug in Chrome's canvas
-engine :/ Do some research into where we go wrong.
 
 ## Bars
 
@@ -54,13 +65,6 @@ engine :/ Do some research into where we go wrong.
 * Render the bar
 * Support multiple bar types in a single group
 * Support putting a tuplet number over the bar
-* Document the command
-
-## Chords
-
-* Support in JSON
-* Support in rendering
-* Should work exactly like regular notes otherwise
 * Document the command
 
 ## Add basics to layout and rendering engines
