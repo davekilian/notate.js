@@ -3,7 +3,6 @@
 
 ## Layout engine redesign
 
-* Port measure glyph
 * Create a dummy root glyph type for the document as a whole
 * Sort measures into lines with automatic line breaking
 * Generates staves from the lines and manually place the last measure
