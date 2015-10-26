@@ -58,37 +58,19 @@ function debugLayout(canvas, ctx, documentWidth) {
     })();
 
     doc = [
+        /*
         { title: "Hot Cross Buns (Dubstep Remix)" },
         { composer: "notate.js" },
-                                                          
-        { clef: "treble" },
-                                                          
         { show: "clef", type: "treble" },
         { show: "timesig", over: 4, under: 4 },
         { show: "keysig", key: "C major" },
+        */
 
-
-                                                          
         { show: "note", pitch: "B5", length: "quarter" },
-
-        { show: "measure" },
-                                                          
         { show: "note", pitch: "B5", length: "quarter" },
-
-        { show: "measure" },
-
         { show: "note", pitch: "B5", length: "eighth" },
-
-        { show: "measure" },
-
         { show: "note", pitch: "B5", length: "eighth" },
-                                                          
-        { show: "measure" },
-                                                          
         { show: "note", pitch: "B5", length: "quarter" },
-
-        { show: "measure" },
-                                                          
         { show: "note", pitch: "B5", length: "quarter" },
 
         /*

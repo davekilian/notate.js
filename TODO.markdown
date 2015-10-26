@@ -3,8 +3,6 @@
 
 ## Layout engine redesign
 
-* Block generation
-* Block spacing
 * Port note glyph
 * Get block generation and spacing working
 * Port measure glyph

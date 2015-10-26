@@ -29,10 +29,42 @@
     Notate.layout = function(commands, documentWidth) {
         var opt = Notate.RenderOptions;
 
-        // DEBUG: just return a single staff glyph
+        // Scan the command list to generate glyphs
+        var blockGlyphs = [ ];
+        commands.forEach(function(cmd) {
+            if (cmd.hasOwnProperty('show')) {
+                var type = cmd.show;
+
+                var generator = Notate.BlockGenerators[type];
+                if (!generator) {
+                    throw "Unknown block glyph type: " + type;
+                }
+
+                var glyph = generator(cmd);
+                glyph.calcBounds();
+                blockGlyphs.push(glyph);
+            }
+        });
+
+        // Space the block glyphs into one infinitely long staff
+        var x = 0;
+        blockGlyphs.forEach(function(glyph) {
+            glyph.moveBy(x, 0);
+            x += glyph.width;
+        });
+
+        // FUTURE: Break staves into multiple lines based on document width
+        // FUTURE: Generate and place annotations in the document
+        // FUTURE: Space staves vertically
+
+        // DEBUG: just return a single staff glyph containing all block glyphs
         var staff = new Notate.Staff();
         staff.moveBy(opt.MARGIN_HORIZ, opt.MARGIN_VERT);
         staff.width = documentWidth - 2 * opt.MARGIN_HORIZ;
+
+        blockGlyphs.forEach(function(glyph) {
+            staff.addChild(glyph);
+        });
 
         return staff;
     }
