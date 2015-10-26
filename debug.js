@@ -215,7 +215,7 @@ function redraw() {
     ];
 
     // Lay out the tree to fill the window horizontally
-    var width = window.innerWidth;
+    var width = window.innerWidth - 20;
 
     var tree = Notate.layout(doc, width);
     tree.calcBounds();

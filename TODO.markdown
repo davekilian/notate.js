@@ -9,6 +9,7 @@
 * Track annotation targets while generating block glyphs
 * Generate annotations
 * Port tuplet annotation
+* Get tuplet working
 
 ## Visual test cases
 
