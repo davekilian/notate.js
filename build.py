@@ -47,14 +47,17 @@ def main():
     dest = open('bin/notate.js', 'w')
 
     for srcpattern in srcpatterns:
-        print srcpattern
+        files = glob.glob(srcpattern)
 
-        for srcpath in glob.glob(srcpattern):
-            print " -> " + srcpath
+        if len(files) == 0:
+            print srcpattern + ": No files matched"
+        else:
+            for srcpath in glob.glob(srcpattern):
+                print "Adding " + srcpath
 
-            srcfile = open(srcpath)
-            dest.write(srcfile.read())
-            dest.write('\n')
+                srcfile = open(srcpath)
+                dest.write(srcfile.read())
+                dest.write('\n')
 
     print "Done!"
 
