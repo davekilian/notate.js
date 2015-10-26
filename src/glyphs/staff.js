@@ -20,18 +20,20 @@
     Notate.Staff = function() {
         Notate.Block.call(this);
 
-        this.height = Notate.RenderOptions.STAFF_HEIGHT;
+        this.bottom = Notate.RenderOptions.STAFF_HEIGHT;
     }
 
     Notate.Staff.prototype = new Notate.Block();
+
+    Notate.Staff.prototype.type = function() { return "staff"; }
 
     Notate.Staff.prototype.render = function(canvas, ctx) {
         var opt = Notate.RenderOptions;
 
         for (var i = 0; i < opt.STAFF_LINE_COUNT; ++i) {
-            ctx.fillRect(this.x,
+            ctx.fillRect(this.leftEdge(),
                          this.y + i * opt.STAFF_LINE_SPACING,
-                         this.width,
+                         this.width(),
                          opt.STAFF_LINE_HEIGHT);
         }
 

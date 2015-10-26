@@ -23,6 +23,8 @@
 
     Notate.Document.prototype = new Notate.Block();
 
+    Notate.Document.prototype.type = function() { return "document"; }
+
     Notate.Document.prototype.render = function(canvas, ctx) { }
 
 })(Notate);

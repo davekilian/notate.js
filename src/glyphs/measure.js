@@ -19,12 +19,12 @@
 
     Notate.MeasureBar = function() {
         Notate.Block.call(this);
-
-        this.width = Notate.RenderOptions.NOTE_SPACING;
-        this.height = Notate.RenderOptions.STAFF_HEIGHT;
+        this.bottom = Notate.RenderOptions.STAFF_HEIGHT;
     }
 
     Notate.MeasureBar.prototype = new Notate.Block();
+
+    Notate.MeasureBar.prototype.type = function() { return "measure"; }
 
     Notate.BlockGenerators['measure'] = function(cmd) {
         return new Notate.MeasureBar();

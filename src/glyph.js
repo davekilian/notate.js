@@ -36,25 +36,33 @@
     // .moveBy() to move all of the glyph's child coordinates.
     //
     Notate.Glyph = function() {
-        this.x = 0;         // Pixel coordinate of the bounding rect's left edge
-        this.y = 0;         // Pixel coordinate of the bounding rect's top edge
-        this.width = 0;     // Width of the bounding rect, in pixels
-        this.height = 0;    // Height of the bounding rect, in pixels
+        this.x = 0;         // Horizontal origin point coordinate, in pixels
+        this.y = 0;         // Vertical origin point coordinate in pixels
+        this.top = 0;       // Pixel offset between this.y and the bound rect's top
+        this.bottom = 0;    // Pixel offset between this.y and the bound rect's bottom
+        this.left = 0;      // Pixel offset between this.x and the bound rect's left edge
+        this.right = 0;     // Pixel offset between this.x and the bound rect's right edge
         this.parent = null; // Reference to the parent glyph (null for the root)
         this.children = []; // References to child glyphs
     }
 
-    // Gets the pixel coordinate of the top of this glyph's bounding rectangle
-    Notate.Glyph.prototype.top = function() { return this.y; }
+    // Gets the width of this glyph's bounding rectangle in pixels
+    Notate.Glyph.prototype.width = function() { return this.right - this.left; }
 
-    // Gets the pixel coordinate of the bottom of this glyph's bounding rectangle
-    Notate.Glyph.prototype.bottom = function() { return this.y + this.height; }
+    // Gets the height of this glyph's bounding rectangle in pixels
+    Notate.Glyph.prototype.height = function() { return this.bottom - this.top; }
 
-    // Gets the pixel coordinate of the left edge of this glyph's bounding rectangle
-    Notate.Glyph.prototype.left = function() { return this.x; }
+    // Gets the pixel coordinate of this glyph's top edge
+    Notate.Glyph.prototype.topEdge = function() { return this.y + this.top; }
 
-    // Gets the pixel coordinate of the right edge of this glyph's bounding rectangle
-    Notate.Glyph.prototype.right = function() { return this.x + this.width; }
+    // Gets the pixel coordinate of this glyph's bottom edge
+    Notate.Glyph.prototype.bottomEdge = function() { return this.y + this.bottom; }
+
+    // Gets the pixel coordinate of this glyph's left edge
+    Notate.Glyph.prototype.leftEdge = function() { return this.x + this.left; }
+
+    // Gets the pixel coordinate of this glyph's right edge
+    Notate.Glyph.prototype.rightEdge = function() { return this.x + this.right; }
 
     // Adds a child glyph to this glyph's hierarchy
     Notate.Glyph.prototype.addChild = function(child) {
@@ -89,39 +97,39 @@
     // children's bounds, recursively.
     //
     Notate.Glyph.prototype.calcBounds = function() {
-        var top = this.top();
-        var bottom = this.bottom();
-        var left = this.left();
-        var right = this.right();
+        var top = this.topEdge();
+        var bottom = this.bottomEdge();
+        var left = this.leftEdge();
+        var right = this.rightEdge();
 
         this.children.forEach(function(child) {
             child.calcBounds();
 
-            var t = child.top();
+            var t = child.topEdge();
             if (t < top) {
                 top = t;
             }
 
-            var b = child.bottom();
+            var b = child.bottomEdge();
             if (b > bottom) {
                 bottom = b;
             }
 
-            var l = child.left();
+            var l = child.leftEdge();
             if (l < left) {
                 left = l;
             }
 
-            var r = child.right();
+            var r = child.rightEdge();
             if (r > right) {
                 right = r;
             }
         });
 
-        this.x = left;
-        this.width = right - left;
-        this.y = top;
-        this.height = bottom - top;
+        this.top = top - this.y;
+        this.bottom = bottom - this.y;
+        this.left = left - this.x;
+        this.right = right - this.x;
     }
 
     // Moves this glyph so that its bounding rectangle's top left coordinate is
@@ -138,6 +146,16 @@
             glyph.x += dx;
             glyph.y += dy;
         });
+    }
+
+    // Returns a string which uniquely identifies the subtype of the
+    // Notate.Glyph.
+    //
+    // This is a dummy implementation which throws unconditionally.
+    // Subtypes of Notate.Glyph must override this method.
+    //
+    Notate.Glyph.prototype.type = function() {
+        throw "Notate.Glyph subtype must override .type()";
     }
 
     // Notate.render() calls Notate.Glyph.render() recursively on each Glyph to

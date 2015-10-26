@@ -3,11 +3,8 @@
 
 ## Layout engine redesign
 
-* Create a dummy root glyph type for the document as a whole
-* Sort measures into lines with automatic line breaking
-* Generates staves from the lines and manually place the last measure
-* Add staves to a root document glyph
-* Verify line breaking works
+* Support preorder and postorder walking in Glyph
+* Rewrite Glyph.calcBounds to use a postorder walk
 * Port stem glyph
 * Port flags glyph
 * Dynamically reflow the document when the debug app window is resized

@@ -40,41 +40,106 @@
                     throw "Unknown block glyph type: " + type;
                 }
 
-                var glyph = generator(cmd);
-                glyph.calcBounds();
-                blockGlyphs.push(glyph);
+                blockGlyphs.push(generator(cmd));
             }
         });
 
-        // Space the block glyphs into one infinitely long staff
-        var x = 0;
+        // The document must always end with a measure bar
+        if (blockGlyphs.length == 0 ||
+            blockGlyphs[blockGlyphs.length - 1].type() != "measure") {
+
+            blockGlyphs.push(new Notate.MeasureBar());
+        }
+
+        // Break measures into multiple lines based on the document's width
+        var lines = [ ];
+
+        var currentLine = [ ];
+        var currentLineWidth = 0;
+        var currentMeasure = [ ];
+        var currentMeasureWidth = 0;
+
+        var staffWidth = documentWidth - 2 * opt.MARGIN_HORIZ;
+
         blockGlyphs.forEach(function(glyph) {
-            glyph.moveBy(x, 0);
-            x += glyph.width;
+
+            // Add the glyph to the current measure
+            currentMeasure.push(glyph);
+
+            glyph.calcBounds();
+            currentMeasureWidth += glyph.width();
+
+            // If the glyph is the end of a measure, add the measure to a line
+            if (glyph.type() == "measure") {
+
+                // Start a new line if needed
+                if (currentLineWidth + currentMeasureWidth > staffWidth) {
+                    lines.push(currentLine);
+                    currentLine = [ ];
+                    currentLineWidth = 0;
+                }
+
+                // Add the measure to the current line
+                currentMeasure.forEach(function(glyph) {
+                    currentLine.push(glyph);
+                    currentLineWidth += glyph.width();
+                });
+
+                currentMeasure = [ ];
+                currentMeasureWidth = 0;
+            }
         });
 
-        // FUTURE: Break staves into multiple lines based on document width
+        if (currentLine.length > 0) {
+            lines.push(currentLine);
+        }
+
         // FUTURE: Generate and place annotations in the document
-        // FUTURE: Space staves vertically
 
-        // DEBUG: just return a single staff glyph containing all block glyphs
-        var staff = new Notate.Staff();
-        blockGlyphs.forEach(function(glyph) {
-            staff.addChild(glyph);
-            glyph.moveBy(opt.NOTE_SPACING, 0);
+        // Generate staves to hold the block glyphs
+        var staves = [ ];
+        lines.forEach(function(line) {
+            var staff = new Notate.Staff();
+            staff.right = staffWidth;
+
+            line.forEach(function(glyph) {
+                staff.addChild(glyph);
+            });
+
+            staves.push(staff);
+        });
+        
+        // Space the block glyphs horizontally along each staff
+        staves.forEach(function(staff) {
+            var x = 0;
+            staff.children.forEach(function(glyph) {
+                glyph.moveBy(x - glyph.leftEdge(), 0);
+                x += glyph.width();
+            });
         });
 
-        staff.moveBy(opt.MARGIN_HORIZ, opt.MARGIN_VERT);
-        staff.width = documentWidth - 2 * opt.MARGIN_HORIZ;
+        // Place each staff's final measure bar at the end of the staff
+        staves.forEach(function(staff) {
+            var bar = staff.children[staff.children.length - 1];
+            if (bar.type() != "measure") {
+                throw "Staff did not end with a measure bar";
+            }
 
-        staff.walk(function(glyph) {
-            glyph.x = glyph.x | 0;
-            glyph.y = glyph.y | 0;
-            glyph.width = glyph.width | 0;
-            glyph.height = glyph.height | 0;
+            staff.calcBounds();
+            bar.move(staff.rightEdge(), 0);
         });
 
-        return staff;
+        // Add staves a document and space them vertically
+        var doc = new Notate.Document();
+        var y = opt.MARGIN_VERT;
+        staves.forEach(function(staff) {
+            staff.move(opt.MARGIN_HORIZ, y - staff.topEdge());
+            doc.addChild(staff);
+
+            y += staff.height() + opt.STAFF_SPACING;
+        });
+
+        return doc;
     }
 
 })(Notate);

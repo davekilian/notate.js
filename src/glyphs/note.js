@@ -23,13 +23,18 @@
         var r = Notate.RenderOptions.NOTE_HEAD_RADIUS_MAX;
         var s = Notate.RenderOptions.NOTE_SPACING;
 
-        this.x = -r;
-        this.y = -r;
-        this.width = 2 * r + Notate.RenderOptions.NOTE_SPACING;
-        this.height = 2 * r;
+        this.x = 0;
+        this.y = 0;
+
+        this.top = -r;
+        this.bottom = r;
+        this.left = -r - .5 * s;
+        this.right = r + .5 * s;
     }
 
     Notate.Note.prototype = new Notate.Block();
+
+    Notate.Note.prototype.type = function() { return "note"; }
 
     Notate.BlockGenerators['note'] = function(cmd) {
         var opt = Notate.RenderOptions;
@@ -68,6 +73,8 @@
         // from the top of the staff.
         //
         var y = -result.halfSteps * .5 * opt.STAFF_LINE_SPACING + .5;
+        y = y | 0;
+
         result.pixelOffset = y;
         result.moveBy(0, y);
 
@@ -144,8 +151,8 @@
         var opt = Notate.RenderOptions;
 
         var r = Notate.RenderOptions.NOTE_HEAD_RADIUS_MAX;
-        var x = this.x + r;
-        var y = this.y + r;
+        var x = this.x;
+        var y = this.y;
 
         renderLedgers(canvas, ctx, x, y, this);
 
