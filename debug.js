@@ -261,7 +261,9 @@ function debugLayout(canvas, ctx, documentWidth) {
         */
     ];
 
-    Notate.render(canvas, ctx, Notate.layout(doc, documentWidth));
+    var tree = Notate.layout(doc, documentWidth);
+    console.log(tree);
+    Notate.render(canvas, ctx, tree);
 }
 
 function debug() {
