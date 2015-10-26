@@ -4,8 +4,11 @@
 ## Layout engine redesign
 
 * Port measure glyph
-* Support measures
-* Line breaking
+* Create a dummy root glyph type for the document as a whole
+* Sort measures into lines with automatic line breaking
+* Generates staves from the lines and manually place the last measure
+* Add staves to a root document glyph
+* Verify line breaking works
 * Port stem glyph
 * Port flags glyph
 * Dynamically reflow the document when the debug app window is resized
@@ -13,7 +16,6 @@
 * Track annotation targets while generating block glyphs
 * Generate annotations
 * Port tuplet annotation
-* Generate staves
 
 ## Visual test cases
 
