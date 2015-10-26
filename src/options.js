@@ -25,6 +25,7 @@
 
         this.FONT_FAMILY = 'serif';
         this.FONT_STYLE = 'bold italic';
+        this.FOREGROUND_COLOR = '#333';
         this.MARGIN_HORIZ = 30;
         this.MARGIN_VERT = 50;
         this.STAFF_LINE_HEIGHT = 1;

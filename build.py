@@ -35,6 +35,7 @@ def main():
         'src/options.js',
         'src/glyph.js',
         'src/layout.js',
+        'src/render.js',
         'src/glyphs/*.js',
         ]
 

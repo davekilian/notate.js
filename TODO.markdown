@@ -3,7 +3,6 @@
 
 ## Layout engine redesign
 
-* Port the rendering engine
 * Block type
 * Annotation type
 * Block generation
