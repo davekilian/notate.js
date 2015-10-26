@@ -137,11 +137,12 @@
             max = Math.floor(staffY);
         }
         else {          // Ledgers below staff line
-            min = Math.floor(staffY + h + opt.STAFF_LINE_SPACING + 1);
+            min = Math.floor(staffY + h + opt.STAFF_LINE_SPACING);
             max = Math.floor(noteY);
         }
 
-        var w = opt.LEDGER_WIDTH, h = opt.LEDGER_HEIGHT;
+        var w = opt.LEDGER_WIDTH;
+        var h = opt.LEDGER_HEIGHT;
         for (var y = min; y <= max; y += opt.STAFF_LINE_SPACING) {
             ctx.fillRect(x - .5 * w, y, w, h);
         }
