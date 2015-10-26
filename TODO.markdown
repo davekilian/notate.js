@@ -5,7 +5,6 @@
 
 * Port stem glyph
 * Port flags glyph
-* Dynamically reflow the document when the debug app window is resized
 * Annotation type
 * Track annotation targets while generating block glyphs
 * Generate annotations
