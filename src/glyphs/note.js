@@ -69,21 +69,32 @@
         result.pitch = cmd.pitch;
         result.halfSteps = 7 * (octave - clefOctave) + (note - clefNote);
 
+        // Determine whether this note's stem and/or flags should be flipped
+        var staffMidpoint = -opt.STAFF_LINE_COUNT; // * 2 = num half steps
+                                                   // * 2 / 2 = midpoint in half steps
+        var flipped = result.halfSteps > staffMidpoint;
+
         // If this type of note has a stem, add the stem
         if (result.duration != "1/1") {
-            var staffMidpoint = -opt.STAFF_LINE_COUNT; // * 2 = num half steps
-                                                       // * 2 / 2 = midpoint in half steps
-            var flipped = result.halfSteps > staffMidpoint;
+            result.addChild(new Notate.Stem(flipped));
+        }
 
-            var stem = new Notate.Stem();
-            if (flipped) {
-                stem.moveBy(-opt.STEM_OFFSET - 1, opt.NOTE_STEM_HEIGHT + 1);
-            }
-            else {
-                stem.moveBy(opt.STEM_OFFSET - 1, -1);
+        // If this type of note has flags, add the flags
+        var numFlags = (function() {
+            var duration = result.duration;
+            var denom = parseInt(duration.substring(duration.indexOf('/') + 1));
+
+            var pow = 0;    // such that length = 1/(2^{pow})
+            while (denom > 1) {
+                ++pow;
+                denom /= 2;
             }
 
-            result.addChild(stem);
+            return pow >= 3 ? pow - 2 : 0;
+        })();
+
+        if (numFlags > 0) {
+            result.addChild(new Notate.Flags(numFlags, flipped));
         }
 
         // Using the number of half steps, determine the note's pixel offset

@@ -17,12 +17,19 @@
 (function(Notate) {
     "use strict";
 
-    Notate.Stem = function() {
+    Notate.Stem = function(flipped) {
         Notate.Block.call(this);
 
         var opt = Notate.RenderOptions;
         this.top = -opt.NOTE_STEM_HEIGHT;
         this.right = opt.NOTE_STEM_WIDTH;
+
+        if (flipped) {
+            this.moveBy(-opt.STEM_OFFSET - 1, opt.NOTE_STEM_HEIGHT + 1);
+        }
+        else {
+            this.moveBy(opt.STEM_OFFSET - 1, -1);
+        }
     }
 
     Notate.Stem.prototype = new Notate.Block();
