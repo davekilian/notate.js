@@ -26,6 +26,7 @@
     opt.FONT_FAMILY = 'serif';
     opt.FONT_STYLE = 'bold italic';
     opt.FOREGROUND_COLOR = '#333';
+    opt.BACKGROUND_COLOR = '#fff';
     opt.MARGIN_HORIZ = 30;
     opt.MARGIN_VERT = 50;
     opt.STAFF_LINE_HEIGHT = 1;

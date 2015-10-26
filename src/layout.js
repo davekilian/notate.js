@@ -59,11 +59,19 @@
 
         // DEBUG: just return a single staff glyph containing all block glyphs
         var staff = new Notate.Staff();
+        blockGlyphs.forEach(function(glyph) {
+            staff.addChild(glyph);
+            glyph.moveBy(opt.NOTE_SPACING, 0);
+        });
+
         staff.moveBy(opt.MARGIN_HORIZ, opt.MARGIN_VERT);
         staff.width = documentWidth - 2 * opt.MARGIN_HORIZ;
 
-        blockGlyphs.forEach(function(glyph) {
-            staff.addChild(glyph);
+        staff.walk(function(glyph) {
+            glyph.x = glyph.x | 0;
+            glyph.y = glyph.y | 0;
+            glyph.width = glyph.width | 0;
+            glyph.height = glyph.height | 0;
         });
 
         return staff;

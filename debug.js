@@ -61,17 +61,35 @@ function debugLayout(canvas, ctx, documentWidth) {
         /*
         { title: "Hot Cross Buns (Dubstep Remix)" },
         { composer: "notate.js" },
+        { clef: "treble" },
         { show: "clef", type: "treble" },
         { show: "timesig", over: 4, under: 4 },
         { show: "keysig", key: "C major" },
         */
 
-        { show: "note", pitch: "B5", length: "quarter" },
-        { show: "note", pitch: "B5", length: "quarter" },
-        { show: "note", pitch: "B5", length: "eighth" },
-        { show: "note", pitch: "B5", length: "eighth" },
-        { show: "note", pitch: "B5", length: "quarter" },
-        { show: "note", pitch: "B5", length: "quarter" },
+        { show: "note", pitch: "A4", length: "1/1" },
+        { show: "note", pitch: "B4", length: "1/2" },
+        { show: "note", pitch: "C4", length: "1/4" },
+        { show: "note", pitch: "D4", length: "1/8" },
+        { show: "note", pitch: "E4", length: "1/14" },
+        { show: "note", pitch: "F4", length: "1/32" },
+        { show: "note", pitch: "G4", length: "1/64" },
+
+        { show: "note", pitch: "A5", length: "1/1" },
+        { show: "note", pitch: "B5", length: "1/2" },
+        { show: "note", pitch: "C5", length: "1/5" },
+        { show: "note", pitch: "D5", length: "1/8" },
+        { show: "note", pitch: "E5", length: "1/15" },
+        { show: "note", pitch: "F5", length: "1/32" },
+        { show: "note", pitch: "G5", length: "1/65" },
+
+        { show: "note", pitch: "A6", length: "1/1" },
+        { show: "note", pitch: "B6", length: "1/2" },
+        { show: "note", pitch: "C6", length: "1/6" },
+        { show: "note", pitch: "D6", length: "1/8" },
+        { show: "note", pitch: "E6", length: "1/16" },
+        { show: "note", pitch: "F6", length: "1/32" },
+        { show: "note", pitch: "G6", length: "1/66" },
 
         /*
         { begin: "tuplet", beats: 3 },
