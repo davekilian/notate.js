@@ -3,7 +3,6 @@
 
 ## Layout engine redesign
 
-* Stub the layout API
 * Port the rendering engine
 * Block type
 * Annotation type
