@@ -32,6 +32,8 @@ def main():
     #
     srcpatterns = [
         'src/base.js',
+        'src/options.js',
+        'src/glyph.js',
         'src/glyphs/*.js',
         ]
 
