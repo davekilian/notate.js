@@ -3,7 +3,6 @@
 
 ## Layout engine redesign
 
-* Glyph base type
 * Stub the layout API
 * Port the rendering engine
 * Block type

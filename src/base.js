@@ -16,11 +16,12 @@
 //
 
 var Notate = (function() {
+    "use strict";
 
     // Options which affect glyph sizes and shapes.
     // Modifying these options affects global document style.
     //
-    var RenderOptions = {
+    var RenderOptions = function() {
         this.FONT_FAMILY = 'serif';
         this.FONT_STYLE = 'bold italic';
         this.MARGIN_HORIZ = 30;
@@ -68,8 +69,75 @@ var Notate = (function() {
         })(this);
     };
 
+
+    // Glyph is the base type for all renderable artifacts of a notate.js
+    // document. Notate.layout produces a glyph tree, and Notate.render renders
+    // it.
+    //
+    // Each glyph is a node in a tree. Every glyph except the root glpyh has a
+    // reference to its parent, and every parent glyph contains a list of child
+    // glpyh references.
+    //
+    // A glyph tree is rendered using a preorder traversal; this means that, by
+    // default, each glyph is drawn before its children, and thus appears
+    // behind its children in terms of z-order. 
+    //
+    // Each glyph has a boundary rectangle defining its location and size
+    // within the document. The boundary rectangle is defined in terms of
+    // document-relative pixel coordinates; glyph locations are not defined
+    // relative to their parents. When moving a glyph, always use .move() or
+    // .moveBy() to move all of the glyph's child coordinates.
+    //
+    function Glyph() {
+        this.x = 0;         // Pixel coordinate of the bounding rect's left edge
+        this.y = 0;         // Pixel coordinate of the bounding rect's top edge
+        this.width = 0;     // Width of the bounding rect, in pixels
+        this.height = 0;    // Height of the bounding rect, in pixels
+        this.parent = null; // Reference to the parent glyph (null for the root)
+        this.children = []; // References to child glyphs
+    }
+
+    Glyph.prototype.top = function() { return this.y; }
+    Glyph.prototype.bottom = function() { return this.y + this.height; }
+    Glyph.prototype.left = function() { return this.x; }
+    Glyph.prototype.right = function() { return this.x + this.width; }
+
+    Glyph.prototype.addChild = function(child) {
+        child.parent = this;
+        this.children.push(child);
+    }
+
+    Glyph.prototype.removeChild = function(child) {
+        if (child.parent == this) {
+            child.parent = null;
+        }
+
+        var index = this.children.indexOf(child);
+        if (index >= 0) {
+            this.children.splice(index, 1);
+        }
+    }
+
+    Glyph.prototype.walk = function(callback) {
+        callback(this);
+
+        children.forEach(function(child) {
+            child.walk(callback);
+        });
+    }
+
+    Glyph.move = function(x, y) { this.moveBy(x - this.x, y - this.y); }
+    Glyph.moveBy = function(dx, dy) {
+        this.walk(function(glyph) {
+            glyph.x += dx;
+            glyph.y += dy;
+        });
+    }
+
+
     var Notate = { };
-    Notate.RenderOptions = RenderOptions;
+    Notate.Glyph = Glyph;
+    Notate.renderOptions = RenderOptions;
 
     return Notate;
 
