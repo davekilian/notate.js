@@ -3,15 +3,17 @@
 
 ## Layout engine redesign
 
+* Port staff glyph
+* Return an empty staff in Notate.layout for initial debugging
 * Block generation
 * Block spacing
-* Port measure glyph
 * Port note glyph
 * Get block generation and spacing working
-* Port stem glyph
-* Port flags glyph
+* Port measure glyph
 * Support measures
 * Line breaking
+* Port stem glyph
+* Port flags glyph
 * Dynamically reflow the document when the debug app window is resized
 * Annotation type
 * Track annotation targets while generating block glyphs
