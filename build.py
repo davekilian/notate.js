@@ -31,12 +31,13 @@ def main():
     # it depends on.
     #
     srcpatterns = [
-        'src/base.js',
-        'src/options.js',
-        'src/glyph.js',
-        'src/layout.js',
-        'src/render.js',
-        'src/glyphs/*.js',
+        'src/base.js',     # Defines Notate namespace object
+        'src/options.js',  # Defines global rendering settings
+        'src/glyph.js',    # Defines the Notate.Glyph type
+        'src/block.js',    # Defines Notate.Block (subtype of Notate.Glyph)
+        'src/layout.js',   # Defines Notate.layout()
+        'src/render.js',   # Defines Notate.render()
+        'src/glyphs/*.js', # Defines individual glyph subtypes
         ]
 
     if os.path.exists('bin/notate.js'):

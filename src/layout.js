@@ -23,6 +23,7 @@
     // Notate.render() along with an HTML5 canvas object.
     //
     Notate.layout = function(commands) {
+
     }
 
 })(Notate);

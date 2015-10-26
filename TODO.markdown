@@ -3,10 +3,9 @@
 
 ## Layout engine redesign
 
-* Block type
-* Annotation type
 * Block generation
 * Block spacing
+* Port measure glyph
 * Port note glyph
 * Get block generation and spacing working
 * Port stem glyph
@@ -14,6 +13,7 @@
 * Support measures
 * Line breaking
 * Dynamically reflow the document when the debug app window is resized
+* Annotation type
 * Track annotation targets while generating block glyphs
 * Generate annotations
 * Port tuplet annotation
