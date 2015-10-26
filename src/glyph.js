@@ -85,11 +85,21 @@
     // Walks this glyph's hierarchy using a preorder traversal,
     // calling the given callback function at each node.
     //
-    Notate.Glyph.prototype.walk = function(callback) {
+    Notate.Glyph.prototype.walkPre = function(callback) {
         callback(this);
         this.children.forEach(function(child) {
-            child.walk(callback);
+            child.walkPre(callback);
         });
+    }
+
+    // Walks this glyph's hierarchy using a postorder traversal,
+    // calling the given callback function at each node.
+    //
+    Notate.Glyph.prototype.walkPost = function(callback) {
+        this.children.forEach(function(child) {
+            child.walkPost(callback);
+        });
+        callback(this);
     }
 
     // Recursively computes this Glyph's bounding rectangle as the minimum
@@ -102,9 +112,7 @@
         var left = this.leftEdge();
         var right = this.rightEdge();
 
-        this.children.forEach(function(child) {
-            child.calcBounds();
-
+        this.walkPost(function(child) {
             var t = child.topEdge();
             if (t < top) {
                 top = t;
@@ -142,7 +150,7 @@
 
     // Moves this glyph and its child hierarchy by the given amount, in pixels.
     Notate.Glyph.prototype.moveBy = function(dx, dy) {
-        this.walk(function(glyph) {
+        this.walkPre(function(glyph) {
             glyph.x += dx;
             glyph.y += dy;
         });

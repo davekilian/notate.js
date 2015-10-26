@@ -3,8 +3,6 @@
 
 ## Layout engine redesign
 
-* Support preorder and postorder walking in Glyph
-* Rewrite Glyph.calcBounds to use a postorder walk
 * Port stem glyph
 * Port flags glyph
 * Dynamically reflow the document when the debug app window is resized

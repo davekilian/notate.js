@@ -23,7 +23,7 @@
     Notate.render = function(canvas, ctx, tree) {
         ctx.fillStyle = Notate.RenderOptions.FOREGROUND_COLOR;
 
-        tree.walk(function(glyph) {
+        tree.walkPre(function(glyph) {
             glyph.render(canvas, ctx);
         });
     }
