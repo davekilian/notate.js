@@ -3,7 +3,6 @@
 
 ## Layout engine redesign
 
-* Port stem glyph
 * Port flags glyph
 * Annotation type
 * Track annotation targets while generating block glyphs

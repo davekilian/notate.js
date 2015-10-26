@@ -69,6 +69,23 @@
         result.pitch = cmd.pitch;
         result.halfSteps = 7 * (octave - clefOctave) + (note - clefNote);
 
+        // If this type of note has a stem, add the stem
+        if (result.duration != "1/1") {
+            var staffMidpoint = -opt.STAFF_LINE_COUNT; // * 2 = num half steps
+                                                       // * 2 / 2 = midpoint in half steps
+            var flipped = result.halfSteps > staffMidpoint;
+
+            var stem = new Notate.Stem();
+            if (flipped) {
+                stem.moveBy(-opt.STEM_OFFSET - 1, opt.NOTE_STEM_HEIGHT + 1);
+            }
+            else {
+                stem.moveBy(opt.STEM_OFFSET - 1, -1);
+            }
+
+            result.addChild(stem);
+        }
+
         // Using the number of half steps, determine the note's pixel offset
         // from the top of the staff.
         //

@@ -33,8 +33,8 @@
     opt.STAFF_LINE_SPACING = 8;
     opt.STAFF_SPACING = 50;
     opt.STAFF_LINE_COUNT = 5;
-    opt.NOTE_HEAD_RADIUS_MIN = 4;
-    opt.NOTE_HEAD_RADIUS_MAX = 6;
+    opt.NOTE_HEAD_RADIUS_MIN = 4.25;
+    opt.NOTE_HEAD_RADIUS_MAX = 7;
     opt.NOTE_HEAD_ROTATION = -.5;
     opt.NOTE_SPACING = 30;
     opt.HALFNOTE_INNER_RADIUS_MIN = 2;
@@ -68,7 +68,7 @@
         bCosTheta = b * Math.cos(theta),
         aSinTheta = a * Math.sin(theta);
 
-        return a * b / Math.sqrt(bCosTheta * bCosTheta + aSinTheta * aSinTheta) - 1.0;
+        return a * b / Math.sqrt(bCosTheta * bCosTheta + aSinTheta * aSinTheta);
     })(opt);
 
     Notate.RenderOptions = opt;
