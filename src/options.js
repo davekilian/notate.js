@@ -21,54 +21,55 @@
     // Options which affect glyph sizes and shapes.
     // Modifying these options affects global document style.
     //
-    Notate.RenderOptions = function() {
+    var opt = { };
 
-        this.FONT_FAMILY = 'serif';
-        this.FONT_STYLE = 'bold italic';
-        this.FOREGROUND_COLOR = '#333';
-        this.MARGIN_HORIZ = 30;
-        this.MARGIN_VERT = 50;
-        this.STAFF_LINE_HEIGHT = 1;
-        this.STAFF_LINE_SPACING = 8;
-        this.STAFF_SPACING = 50;
-        this.STAFF_LINE_COUNT = 5;
-        this.NOTE_HEAD_RADIUS_MIN = 4;
-        this.NOTE_HEAD_RADIUS_MAX = 6;
-        this.NOTE_HEAD_ROTATION = -.5;
-        this.NOTE_SPACING = 23;
-        this.HALFNOTE_INNER_RADIUS_MIN = 2;
-        this.HALFNOTE_INNER_RADIUS_MAX = 5;
-        this.WHOLENOTE_INNER_RADIUS_MIN = 2.25;
-        this.WHOLENOTE_INNER_RADIUS_MAX = 3.25;
-        this.WHOLENOTE_INNER_ROTATION = 1;
-        this.NOTE_STEM_WIDTH = 1;
-        this.NOTE_STEM_HEIGHT = 30;
-        this.LEDGER_WIDTH = 18;
-        this.LEDGER_HEIGHT = 1;
-        this.BAR_LINE_WIDTH = 1;
-        this.BAR_BOLD_WIDTH = 3;
-        this.TUPLET_VMARGIN = 22;
-        this.TUPLET_HMARGIN = 3;
-        this.TUPLET_HEIGHT = 15;
-        this.TUPLET_FONT_SIZE = 13;
-        this.TUPLET_FONT_MARGIN = 5;
-        this.TUPLET_THICKNESS = 1;
-        this.SLUR_MARGIN = 3;
-        this.SLUR_HEIGHT = 5;
-        this.SLUR_THICKNESS = 1.5;
+    opt.FONT_FAMILY = 'serif';
+    opt.FONT_STYLE = 'bold italic';
+    opt.FOREGROUND_COLOR = '#333';
+    opt.MARGIN_HORIZ = 30;
+    opt.MARGIN_VERT = 50;
+    opt.STAFF_LINE_HEIGHT = 1;
+    opt.STAFF_LINE_SPACING = 8;
+    opt.STAFF_SPACING = 50;
+    opt.STAFF_LINE_COUNT = 5;
+    opt.NOTE_HEAD_RADIUS_MIN = 4;
+    opt.NOTE_HEAD_RADIUS_MAX = 6;
+    opt.NOTE_HEAD_ROTATION = -.5;
+    opt.NOTE_SPACING = 23;
+    opt.HALFNOTE_INNER_RADIUS_MIN = 2;
+    opt.HALFNOTE_INNER_RADIUS_MAX = 5;
+    opt.WHOLENOTE_INNER_RADIUS_MIN = 2.25;
+    opt.WHOLENOTE_INNER_RADIUS_MAX = 3.25;
+    opt.WHOLENOTE_INNER_ROTATION = 1;
+    opt.NOTE_STEM_WIDTH = 1;
+    opt.NOTE_STEM_HEIGHT = 30;
+    opt.LEDGER_WIDTH = 18;
+    opt.LEDGER_HEIGHT = 1;
+    opt.BAR_LINE_WIDTH = 1;
+    opt.BAR_BOLD_WIDTH = 3;
+    opt.TUPLET_VMARGIN = 22;
+    opt.TUPLET_HMARGIN = 3;
+    opt.TUPLET_HEIGHT = 15;
+    opt.TUPLET_FONT_SIZE = 13;
+    opt.TUPLET_FONT_MARGIN = 5;
+    opt.TUPLET_THICKNESS = 1;
+    opt.SLUR_MARGIN = 3;
+    opt.SLUR_HEIGHT = 5;
+    opt.SLUR_THICKNESS = 1.5;
 
-        this.STAFF_HEIGHT = (this.STAFF_LINE_COUNT - 1) * this.STAFF_LINE_SPACING 
-                          + this.STAFF_LINE_HEIGHT;
+    opt.STAFF_HEIGHT = (opt.STAFF_LINE_COUNT - 1) * opt.STAFF_LINE_SPACING 
+                      + opt.STAFF_LINE_HEIGHT;
 
-        this.STEM_OFFSET = (function(s) {
-            var a = s.NOTE_HEAD_RADIUS_MAX,
-            b = s.NOTE_HEAD_RADIUS_MIN,
-            theta = -s.NOTE_HEAD_ROTATION,
-            bCosTheta = b * Math.cos(theta),
-            aSinTheta = a * Math.sin(theta);
+    opt.STEM_OFFSET = (function(opt) {
+        var a = opt.NOTE_HEAD_RADIUS_MAX,
+        b = opt.NOTE_HEAD_RADIUS_MIN,
+        theta = -opt.NOTE_HEAD_ROTATION,
+        bCosTheta = b * Math.cos(theta),
+        aSinTheta = a * Math.sin(theta);
 
-            return a * b / Math.sqrt(bCosTheta * bCosTheta + aSinTheta * aSinTheta) - 1.0;
-        })(this);
-    };
+        return a * b / Math.sqrt(bCosTheta * bCosTheta + aSinTheta * aSinTheta) - 1.0;
+    })(opt);
+
+    Notate.RenderOptions = opt;
 
 })(Notate);

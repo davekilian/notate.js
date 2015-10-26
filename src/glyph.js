@@ -35,7 +35,7 @@
     // relative to their parents. When moving a glyph, always use .move() or
     // .moveBy() to move all of the glyph's child coordinates.
     //
-    function Glyph() {
+    Notate.Glyph = function() {
         this.x = 0;         // Pixel coordinate of the bounding rect's left edge
         this.y = 0;         // Pixel coordinate of the bounding rect's top edge
         this.width = 0;     // Width of the bounding rect, in pixels
@@ -43,8 +43,6 @@
         this.parent = null; // Reference to the parent glyph (null for the root)
         this.children = []; // References to child glyphs
     }
-
-    Notate.Glyph = Glyph;
 
     // Gets the pixel coordinate of the top of this glyph's bounding rectangle
     Notate.Glyph.prototype.top = function() { return this.y; }
@@ -81,25 +79,76 @@
     //
     Notate.Glyph.prototype.walk = function(callback) {
         callback(this);
-        children.forEach(function(child) {
+        this.children.forEach(function(child) {
             child.walk(callback);
         });
+    }
+
+    // Recursively computes this Glyph's bounding rectangle as the minimum
+    // bounding rectangle containing both this Glyph's bounds and all its
+    // children's bounds, recursively.
+    //
+    Notate.Glyph.prototype.calcBounds = function() {
+        var top = this.top();
+        var bottom = this.bottom();
+        var left = this.left();
+        var right = this.right();
+
+        this.children.forEach(function(child) {
+            child.calcBounds();
+
+            var t = child.top();
+            if (t < top) {
+                top = t;
+            }
+
+            var b = child.bottom();
+            if (b > bottom) {
+                bottom = b;
+            }
+
+            var l = child.left();
+            if (l < left) {
+                left = l;
+            }
+
+            var r = child.right();
+            if (r > right) {
+                right = r;
+            }
+        });
+
+        this.x = left;
+        this.width = right - left;
+        this.y = top;
+        this.height = bottom - top;
     }
 
     // Moves this glyph so that its bounding rectangle's top left coordinate is
     // at the given pixel coordinates, and recursively moves this glyph's node
     // hierarchy by the same amount.
     // 
-    Notate.Glyph.move = function(x, y) {
+    Notate.Glyph.prototype.move = function(x, y) {
         this.moveBy(x - this.x, y - this.y);
     }
 
     // Moves this glyph and its child hierarchy by the given amount, in pixels.
-    Notate.Glyph.moveBy = function(dx, dy) {
+    Notate.Glyph.prototype.moveBy = function(dx, dy) {
         this.walk(function(glyph) {
             glyph.x += dx;
             glyph.y += dy;
         });
+    }
+
+    // Notate.render() calls Notate.Glyph.render() recursively on each Glyph to
+    // allow the Glyph to render itself in the document. 
+    //
+    // This is a dummy implementation of that API, and just logs a warning to
+    // the debug console saying the method was not overridden.
+    //
+    Notate.Glyph.prototype.render = function(canvas, ctx) {
+        console.warn("Glyph does not override render()");
+        console.trace();
     }
 
 })(Notate);

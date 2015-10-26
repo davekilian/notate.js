@@ -27,9 +27,9 @@
     // itself; as a result, the pixel width of a measure is simply the sum of
     // the pixel widths of that measure's block glyphs.
     //
-    function Block() {
+    Notate.Block = function() {
+        Notate.Glyph.call(this);
     }
-    Notate.Block = Block;
 
     Notate.Block.prototype = new Notate.Glyph();
 

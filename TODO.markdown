@@ -3,8 +3,6 @@
 
 ## Layout engine redesign
 
-* Port staff glyph
-* Return an empty staff in Notate.layout for initial debugging
 * Block generation
 * Block spacing
 * Port note glyph

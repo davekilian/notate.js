@@ -21,7 +21,7 @@ function enableRetina(canvas, ctx) {
     }
 }
 
-function debugLayout(canvas, ctx) {
+function debugLayout(canvas, ctx, documentWidth) {
     doc = (function() {
         var ret = [ ];
 
@@ -261,16 +261,18 @@ function debugLayout(canvas, ctx) {
         */
     ];
 
-    Notate.render(canvas, ctx, Notate.layout(doc));
+    Notate.render(canvas, ctx, Notate.layout(doc, documentWidth));
 }
 
 function debug() {
     var canvas = document.getElementById('testCanvas');
     var ctx = canvas.getContext('2d');
+    
+    var width = canvas.width;
     enableRetina(canvas, ctx);
 
     renderBackground(canvas, ctx);
 
-    debugLayout(canvas, ctx);
+    debugLayout(canvas, ctx, width);
 }
 

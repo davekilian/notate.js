@@ -17,24 +17,25 @@
 (function(Notate) {
     "use strict";
 
-    // Produces a glyph tree from the given command list.
-    //
-    // The resulting glyph tree can be rendered by passing it to
-    // Notate.render() along with an HTML5 canvas object.
-    //
-    // documentWidth will be used to automatically break lines into multiple
-    // staves, and should match the pixel width of the canvas the resulting
-    // glyph tree will be rendered to.
-    //
-    Notate.layout = function(commands, documentWidth) {
+    Notate.Staff = function() {
+        Notate.Block.call(this);
+
+        this.height = Notate.RenderOptions.STAFF_HEIGHT;
+    }
+
+    Notate.Staff.prototype = new Notate.Block();
+
+    Notate.Staff.prototype.render = function(canvas, ctx) {
         var opt = Notate.RenderOptions;
 
-        // DEBUG: just return a single staff glyph
-        var staff = new Notate.Staff();
-        staff.moveBy(opt.MARGIN_HORIZ, opt.MARGIN_VERT);
-        staff.width = documentWidth - 2 * opt.MARGIN_HORIZ;
+        for (var i = 0; i < opt.STAFF_LINE_COUNT; ++i) {
+            ctx.fillRect(this.x,
+                         this.y + i * opt.STAFF_LINE_SPACING,
+                         this.width,
+                         opt.STAFF_LINE_HEIGHT);
+        }
 
-        return staff;
+        ctx.fillRect(this.x, this.y, opt.BAR_LINE_WIDTH, opt.STAFF_HEIGHT);
     }
 
 })(Notate);
